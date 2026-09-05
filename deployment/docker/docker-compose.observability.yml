@@ -1,0 +1,32 @@
+version: "3.9"
+
+services:
+  prometheus:
+    image: prom/prometheus:v2.50.0
+    container_name: orion-prometheus
+    volumes:
+      - ../../infrastructure/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9091:9090"
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:10.3.1
+    container_name: orion-grafana
+    volumes:
+      - ../../infrastructure/grafana:/etc/grafana/provisioning:ro
+    ports:
+      - "3001:3000"
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+  otel-collector:
+    image: otel/opentelemetry-collector:0.95.0
+    container_name: orion-otel-collector
+    volumes:
+      - ../../infrastructure/otel/otel-collector-config.yml:/etc/otelcol/config.yaml:ro
+    ports:
+      - "4317:4317" # OTLP gRPC
+      - "4318:4318" # OTLP HTTP
+    restart: unless-stopped

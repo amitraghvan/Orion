@@ -1,0 +1,13 @@
+# ==============================================================================
+# Hardware Profile: BAS Primary Scientific Workstation (Radiation-Tolerant x86_64)
+# ==============================================================================
+profile_name: "flight_workstation_x86"
+vendor: "Intel/NVIDIA"
+architecture: "x86_64"
+accelerator: "cuda"
+tensorrt_enabled: true
+cuda_cores: 10752
+memory_total_mb: 131072
+ecc_memory: true
+thermal_limit_celsius: 90.0
+throttle_threshold_celsius: 82.0

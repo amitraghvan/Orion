@@ -1,0 +1,14 @@
+# ==============================================================================
+# Hardware Profile: Edge Jetson AGX Orin Industrial (Space-Qualified Node)
+# ==============================================================================
+profile_name: "edge_jetson_agx_orin"
+vendor: "NVIDIA"
+architecture: "ARM64"
+accelerator: "cuda"
+tensorrt_enabled: true
+dla_cores: 2
+cuda_cores: 2048
+memory_total_mb: 65536
+max_power_mode: "MAXN"
+thermal_limit_celsius: 85.0
+throttle_threshold_celsius: 80.0

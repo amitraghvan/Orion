@@ -1,0 +1,34 @@
+# ==============================================================================
+# Model Registry Configuration (Metadata Specifications Only — No Weights)
+# ==============================================================================
+registry:
+  storage_backend: "local_filesystem"
+  base_path: "./models/weights"
+  verify_checksums: true
+  hash_algorithm: "sha256"
+
+models:
+  detection:
+    model_id: "bas-det-yolo11x-v1"
+    framework: "onnx"
+    input_resolution: [640, 640]
+    expected_sha256: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    precision: "fp16"
+    batch_size: 1
+    classes: ["astronaut", "tool", "sample_vial", "centrifuge", "cryo_freezer", "pipette", "glovebox"]
+
+  pose:
+    model_id: "bas-pose-rtmpose-l-v1"
+    framework: "onnx"
+    topology: "coco_17"
+    expected_sha256: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    precision: "fp16"
+    batch_size: 1
+
+  temporal_har:
+    model_id: "bas-har-timesformer-v1"
+    framework: "tensorrt"
+    window_size_frames: 32
+    stride_frames: 8
+    expected_sha256: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    precision: "int8"

@@ -1,0 +1,26 @@
+# ==============================================================================
+# Streaming Subsystem Configuration (RTSP / WebRTC / Telemetry WebSockets)
+# ==============================================================================
+streaming:
+  rtsp:
+    enabled: true
+    server_port: 8554
+    mount_point: "/live/bas_telemetry"
+    codec: "h264"
+    bitrate_kbps: 4000
+    fps: 30
+
+  webrtc:
+    enabled: true
+    ice_servers: [] # Air-gapped: no external STUN/TURN
+    port_range: [50000, 50100]
+
+  lan:
+    multicast_group: "239.255.0.1"
+    multicast_port: 5004
+    ttl: 1
+
+  websocket:
+    telemetry_path: "/ws/telemetry"
+    heartbeat_interval_seconds: 2.0
+    buffer_queue_size: 256

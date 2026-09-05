@@ -1,0 +1,31 @@
+# ==============================================================================
+# ORION BAS AI Copilot — Base Configuration (Universal System Defaults)
+# ==============================================================================
+system:
+  project_name: "orion-bas-ai"
+  codename: "ORION"
+  target_station: "Bharatiya Antariksh Station (BAS)"
+  mission: "Human Activity Recognition & Automated Scientific Experiment Telemetry"
+  subsystem_code: "BAS-AI-HAR-001"
+  default_seed: 42
+  time_zone: "UTC"
+
+runtime:
+  offline_first: true
+  air_gapped_mode: true
+  fail_safe_defaults: true
+  heartbeat_interval_seconds: 5.0
+  watchdog_timeout_seconds: 15.0
+
+telemetry:
+  enabled: true
+  sample_rate_hz: 10
+  buffer_depth_samples: 1000
+  export_interval_seconds: 1.0
+
+limits:
+  max_concurrent_streams: 4
+  max_memory_percent: 85.0
+  max_gpu_memory_percent: 90.0
+  max_cpu_percent: 90.0
+  max_camera_latency_ms: 100.0

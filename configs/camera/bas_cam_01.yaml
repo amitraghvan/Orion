@@ -1,0 +1,21 @@
+# ==============================================================================
+# Camera Profile: BAS Scientific Glovebox High-Speed Sensor
+# ==============================================================================
+camera_id: "BAS-CAM-GLOVEBOX-01"
+sensor_model: "Sony IMX485 Industrial"
+interface: "GigE_Vision"
+ip_address: "10.20.1.51"
+
+capture:
+  width: 1920
+  height: 1080
+  pixel_format: "RGB24"
+  fps: 60
+  exposure_mode: "manual"
+  exposure_time_us: 10000
+  gain_db: 0.0
+
+calibration:
+  focal_length_px: [1420.5, 1421.2]
+  principal_point_px: [960.0, 540.0]
+  distortion_coefficients: [-0.082, 0.045, 0.001, -0.002, 0.0]

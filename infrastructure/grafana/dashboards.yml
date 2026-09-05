@@ -1,0 +1,11 @@
+apiVersion: 1
+
+providers:
+  - name: "orion-dashboards"
+    orgId: 1
+    folder: "BAS Telemetry"
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /etc/grafana/provisioning/dashboards

@@ -1,0 +1,20 @@
+# ==============================================================================
+# ORION BAS AI Copilot — Staging Configuration (Hardware-in-the-Loop Simulation)
+# ==============================================================================
+environment: "staging"
+
+debug: false
+
+runtime:
+  offline_first: true
+  air_gapped_mode: true
+  watchdog_timeout_seconds: 15.0
+
+logging:
+  level: "INFO"
+  format: "json"
+  structured: true
+
+storage:
+  root_dir: "/data/staging"
+  temp_dir: "/data/staging/tmp"

@@ -1,0 +1,25 @@
+name: "Feature Request"
+description: "Propose a new capability or architectural enhancement."
+labels: ["enhancement", "discussion"]
+body:
+  - type: input
+    id: title
+    attributes:
+      label: Feature Title
+      placeholder: "e.g., Implement RTMPose 133-keypoint topology support"
+    validations:
+      required: true
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Mission Value & Justification
+      description: Why is this feature needed for station experiment operations?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Technical Proposal & Architecture
+      description: Proposed interfaces, schemas, or protocols
+    validations:
+      required: true

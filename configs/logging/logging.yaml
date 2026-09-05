@@ -1,0 +1,35 @@
+# ==============================================================================
+# Logging Subsystem Configuration (Structlog & Loguru Pipeline)
+# ==============================================================================
+handlers:
+  console:
+    enabled: true
+    formatter: "console"
+    level: "INFO"
+    colorize: true
+
+  file:
+    enabled: true
+    path: "./logs/orion.log"
+    level: "DEBUG"
+    formatter: "json"
+    rotation: "50 MB"
+    retention: "14 days"
+    compression: "tar.gz"
+
+formatters:
+  json:
+    include_timestamp: true
+    utc: true
+    include_correlation_id: true
+    include_callsite: true
+  console:
+    pretty: true
+    timestamp_format: "%Y-%m-%d %H:%M:%S.%f"
+
+context_keys:
+  - "request_id"
+  - "run_id"
+  - "experiment_id"
+  - "model_version"
+  - "dataset_version"

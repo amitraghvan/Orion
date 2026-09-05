@@ -1,0 +1,30 @@
+# ==============================================================================
+# ORION BAS AI Copilot — Repository Code Ownership
+# ==============================================================================
+
+# Core architecture and repository maintainers
+* @isro-bas/ai-core-team @isro-bas/flight-software-leads
+
+# Perception & AI modules
+/ai/ @isro-bas/computer-vision-group @isro-bas/ml-platform-engineers
+
+# Mission backend & persistence
+/backend/ @isro-bas/backend-engineers @isro-bas/data-architects
+
+# Datasets and annotations
+/datasets/ @isro-bas/data-curation-team
+
+# Experiment specifications
+/experiments/ @isro-bas/experiment-science-team
+
+# Frontend mission control UI
+/frontend/ @isro-bas/ui-telemetry-engineers
+
+# Deployment and infrastructure
+/deployment/ @isro-bas/devops-sre-team
+/infrastructure/ @isro-bas/devops-sre-team
+/.github/ @isro-bas/devops-sre-team
+
+# Hardware abstraction interfaces
+/backend/src/orion/hardware/ @isro-bas/embedded-systems-group
+/configs/hardware/ @isro-bas/embedded-systems-group

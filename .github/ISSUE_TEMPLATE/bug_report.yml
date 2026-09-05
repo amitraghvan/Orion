@@ -1,0 +1,30 @@
+name: "Bug Report"
+description: "File an issue describing a defect or unexpected behavior in the system."
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please report software defects with reproducible steps. Space station stability depends on precision.
+  - type: input
+    id: subsystem
+    attributes:
+      label: Subsystem
+      description: Affected component (backend, perception, camera, streaming, audio, db)
+      placeholder: "e.g., ai/detection"
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction Steps
+      description: Exact steps to reproduce the defect
+      placeholder: "1. Run command...\n2. Observe output..."
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Diagnostic Logs
+      description: Relevant Structlog JSON or traceback outputs
+      render: shell

@@ -1,0 +1,138 @@
+# ==============================================================================
+# ORION BAS AI Copilot — Git Ignore Rules
+# Strictly designed for aerospace-grade reproducibility & clean repositories
+# ==============================================================================
+
+# Python Bytecode & Cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments
+.venv/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# UV Cache
+.uv/
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+nosetests.xml
+coverage.json
+.hypothesis/
+
+# Type Checking
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+
+# Linters & Tooling
+.ruff_cache/
+.bandit
+.cache
+
+# Environment & Secrets (NEVER COMMIT SECRETS)
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.cert
+*.crt
+*.pfx
+secrets/
+credentials.json
+
+# Node & Frontend
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+frontend/dist/
+frontend/dist-ssr/
+frontend/.next/
+frontend/out/
+frontend/build/
+.eslintcache
+
+# Large Datasets & Model Weights (managed via DVC / S3 / Air-gap media)
+datasets/raw/*
+!datasets/raw/.gitkeep
+datasets/processed/*
+!datasets/processed/.gitkeep
+models/weights/*
+!models/weights/.gitkeep
+*.pt
+*.pth
+*.onnx
+*.engine
+*.tensorrt
+*.safetensors
+*.bin
+*.h5
+
+# Video & Sensor Recordings
+recordings/*
+!recordings/.gitkeep
+*.mp4
+*.avi
+*.mkv
+*.h264
+*.bag
+*.rosbag
+
+# IDE & OS Specific
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.swp
+*.swo
+*~
+Thumbs.db
+ehthumbs.db
+
+# Documentation Builds
+docs/_build/
+site/
+
+# DVC (Data Version Control)
+.dvc/cache
+.dvc/tmp

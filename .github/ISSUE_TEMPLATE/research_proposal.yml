@@ -1,0 +1,25 @@
+name: "Research Proposal"
+description: "Submit a computer vision or microgravity AI experiment research hypothesis."
+labels: ["research", "experiment"]
+body:
+  - type: input
+    id: hypothesis
+    attributes:
+      label: Research Hypothesis
+      placeholder: "e.g., Temporal Transformers vs 3D-CNNs for Microgravity Liquid Droplet Mixing Action Recognition"
+    validations:
+      required: true
+  - type: textarea
+    id: background
+    attributes:
+      label: Scientific Background & Literature Review
+      description: Prior art from NASA, ESA, ISRO or academic CV papers
+    validations:
+      required: true
+  - type: textarea
+    id: methodology
+    attributes:
+      label: Experimental Methodology
+      description: Dataset curation, baseline models, benchmark metrics
+    validations:
+      required: true

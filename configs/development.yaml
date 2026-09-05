@@ -1,0 +1,20 @@
+# ==============================================================================
+# ORION BAS AI Copilot — Development Configuration Override
+# ==============================================================================
+environment: "development"
+
+debug: true
+
+runtime:
+  offline_first: true
+  air_gapped_mode: false
+  watchdog_timeout_seconds: 30.0
+
+logging:
+  level: "DEBUG"
+  format: "pretty"
+  structured: false
+
+storage:
+  root_dir: "./data"
+  temp_dir: "./data/tmp"

@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: ../../
+      dockerfile: deployment/docker/Dockerfile.backend
+    container_name: orion-prod-backend
+    environment:
+      - ORION_ENV=production
+      - ORION_API_HOST=0.0.0.0
+      - ORION_API_PORT=8000
+      - ORION_API_WORKERS=4
+    ports:
+      - "8000:8000"
+      - "9090:9090"
+    volumes:
+      - /var/log/orion:/app/logs
+      - /mnt/storage/orion:/app/data
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: "8.0"
+          memory: 16384M
+
+  frontend:
+    build:
+      context: ../../
+      dockerfile: deployment/docker/Dockerfile.frontend
+    container_name: orion-prod-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: always

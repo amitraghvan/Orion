@@ -1,0 +1,12 @@
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+scrape_configs:
+  - job_name: "orion-backend"
+    static_configs:
+      - targets: ["backend:9090"]
+
+  - job_name: "orion-edge-node"
+    static_configs:
+      - targets: ["localhost:9090"]

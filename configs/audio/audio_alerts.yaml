@@ -1,0 +1,23 @@
+# ==============================================================================
+# Audio Alert Subsystem Configuration (Offline Voice / Chime Annunciation)
+# ==============================================================================
+audio:
+  enabled: true
+  master_gain: 0.85
+  offline_tts_engine: "espeak-ng" # Offline fallback
+  sample_rate_hz: 48000
+  channels: 2
+
+alert_priorities:
+  CRITICAL:
+    chime: "caution_chime.wav"
+    interrupt_current: true
+    cooldown_seconds: 5.0
+  WARNING:
+    chime: "advisory_chime.wav"
+    interrupt_current: false
+    cooldown_seconds: 15.0
+  INFO:
+    chime: "info_chime.wav"
+    interrupt_current: false
+    cooldown_seconds: 30.0

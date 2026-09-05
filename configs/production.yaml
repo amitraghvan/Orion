@@ -1,0 +1,22 @@
+# ==============================================================================
+# ORION BAS AI Copilot — Flight Production Configuration (Station Grade)
+# ==============================================================================
+environment: "production"
+
+debug: false
+
+runtime:
+  offline_first: true
+  air_gapped_mode: true
+  fail_safe_defaults: true
+  heartbeat_interval_seconds: 2.0
+  watchdog_timeout_seconds: 10.0
+
+logging:
+  level: "INFO"
+  format: "json"
+  structured: true
+
+storage:
+  root_dir: "/mnt/station_storage/orion"
+  temp_dir: "/mnt/station_storage/orion/tmp"

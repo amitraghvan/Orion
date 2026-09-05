@@ -1,0 +1,135 @@
+# ==============================================================================
+# ORION BAS AI Copilot — Experiment Specification Template
+# Bharatiya Antariksh Station (BAS) Science Module Standard Specification
+# ==============================================================================
+
+schema_version: "1.0.0"
+
+# ------------------------------------------------------------------------------
+# 1. METADATA
+# ------------------------------------------------------------------------------
+metadata:
+  experiment_id: "BAS-EXP-CRYSTAL-001"
+  title: "Microgravity Protein Crystal Growth Kinetics"
+  principal_investigator: "Dr. Vikram Sarabhai Research Fellow"
+  lead_agency: "ISRO HSFC"
+  station_module: "BAS-SCIENCE-NODE-1"
+  glovebox_id: "GB-02"
+  revision: "1.0"
+  date_approved: "2026-03-15"
+  safety_classification: "LEVEL-1-NON-HAZARDOUS"
+
+# ------------------------------------------------------------------------------
+# 2. REQUIRED OBJECTS & HARDWARE TOOLS
+# ------------------------------------------------------------------------------
+objects:
+  - object_id: "tool_pipette_p1000"
+    label: "electronic_pipette_1000ul"
+    required: true
+    expected_detection_model: "bas-det-yolo11x-v1"
+    min_confidence: 0.70
+
+  - object_id: "sample_cassette_a"
+    label: "crystal_growth_chamber"
+    required: true
+    expected_detection_model: "bas-det-yolo11x-v1"
+    min_confidence: 0.75
+
+  - object_id: "centrifuge_tube_15ml"
+    label: "buffer_reagent_vial"
+    required: true
+    expected_detection_model: "bas-det-yolo11x-v1"
+    min_confidence: 0.65
+
+# ------------------------------------------------------------------------------
+# 3. EXPERIMENT STEPS & SEQUENCING
+# ------------------------------------------------------------------------------
+steps:
+  - step_id: "step_01_preparation"
+    step_number: 1
+    description: "Astronaut sanitizes hands and opens glovebox transfer hatch."
+    expected_activity: "prepare_workstation"
+    preconditions:
+      - condition: "glovebox_door_closed"
+        expected: true
+    timeouts:
+      nominal_duration_seconds: 120
+      max_timeout_seconds: 300
+    thresholds:
+      activity_confidence_min: 0.75
+      pose_tracking_stability_min: 0.80
+    validation_rules:
+      - rule_id: "VAL-001"
+        predicate: "astronaut_present_in_frame"
+        severity: "CRITICAL"
+
+  - step_id: "step_02_pipette_aspiration"
+    step_number: 2
+    description: "Astronaut grasps electronic pipette and aspirates 500ul buffer reagent."
+    expected_activity: "pipette_aspiration"
+    preconditions:
+      - condition: "tool_pipette_p1000_detected"
+        expected: true
+      - condition: "centrifuge_tube_15ml_detected"
+        expected: true
+    timeouts:
+      nominal_duration_seconds: 60
+      max_timeout_seconds: 180
+    thresholds:
+      activity_confidence_min: 0.80
+      interaction_proximity_px: 50.0
+    validation_rules:
+      - rule_id: "VAL-002"
+        predicate: "pipette_held_by_astronaut_hand"
+        severity: "WARNING"
+
+  - step_id: "step_03_chamber_injection"
+    step_number: 3
+    description: "Astronaut injects buffer reagent into crystal growth chamber port 1."
+    expected_activity: "inject_reagent"
+    preconditions:
+      - condition: "step_02_pipette_aspiration_completed"
+        expected: true
+    timeouts:
+      nominal_duration_seconds: 90
+      max_timeout_seconds: 240
+    thresholds:
+      activity_confidence_min: 0.85
+    validation_rules:
+      - rule_id: "VAL-003"
+        predicate: "pipette_tip_inserted_in_cassette"
+        severity: "CRITICAL"
+
+# ------------------------------------------------------------------------------
+# 4. SAFETY ALERTS & NOTIFICATIONS
+# ------------------------------------------------------------------------------
+alerts:
+  - alert_id: "ALT-EXP-001"
+    trigger: "STEP_TIMEOUT"
+    severity: "WARNING"
+    audio_chime: "advisory_chime.wav"
+    spoken_message: "Advisory: Current experiment step has exceeded nominal duration."
+
+  - alert_id: "ALT-EXP-002"
+    trigger: "CRITICAL_TOOL_DROPPED_OR_FLOATING"
+    severity: "CRITICAL"
+    audio_chime: "caution_chime.wav"
+    spoken_message: "Caution: Reagent vial floating unsecured in microgravity."
+
+# ------------------------------------------------------------------------------
+# 5. CONTINGENCY & RECOVERY PROCEDURES
+# ------------------------------------------------------------------------------
+recovery:
+  on_timeout:
+    action: "PROMPT_ASTRONAUT_RETRY"
+    max_retries: 2
+    escalation_alert: "ALT-EXP-001"
+
+  on_tool_lost:
+    action: "PAUSE_EXPERIMENT"
+    illuminate_glovebox_beacon: true
+    spoken_annunciation: "Please secure floating tool before resuming."
+
+  on_power_interrupt:
+    action: "RESTORE_LAST_VERIFIED_STEP"
+    checkpoint_tolerance_seconds: 10

@@ -1,0 +1,21 @@
+# ==============================================================================
+# ORION BAS AI Copilot — Testing Configuration Override
+# ==============================================================================
+environment: "testing"
+
+debug: true
+
+runtime:
+  offline_first: true
+  air_gapped_mode: true
+  fail_safe_defaults: true
+  deterministic_mode: true
+
+logging:
+  level: "WARNING"
+  format: "json"
+  structured: true
+
+storage:
+  root_dir: "./data/test"
+  temp_dir: "./data/test/tmp"
