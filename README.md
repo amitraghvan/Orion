@@ -1,4 +1,4 @@
-# 🛰️ ORION BAS AI Copilot (`orion-bas-ai`)
+# 🛰️ ORION BAS AI  (`orion-bas-ai`)
 
 <div align="center">
 
