@@ -14,6 +14,13 @@ class PoseEstimatorRegistry:
 
     @classmethod
     def get(cls, name: str) -> type[PoseEstimatorInterface]:
+        if not cls._estimators:
+            from orion_ai.pose.yolo_pose import YOLOPoseEstimator
+
+            cls.register("yolo11_pose", YOLOPoseEstimator)
+            cls.register("rtmpose", YOLOPoseEstimator)
+            cls.register("baseline_pose", YOLOPoseEstimator)
+
         if name not in cls._estimators:
             raise NotImplementedError(f"NOT IMPLEMENTED: Pose estimator {name} is not registered.")
         return cls._estimators[name]

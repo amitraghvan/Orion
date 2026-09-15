@@ -12,7 +12,13 @@ from orion.db.models import (
     Step,
     SystemHealth,
 )
-from orion.db.session import get_db_session, get_engine, get_session_factory
+from orion.db.session import (
+    get_db_session,
+    get_engine,
+    get_session_factory,
+    init_db,
+    reset_db_engine,
+)
 
 __all__ = [
     "Alert",
@@ -30,4 +36,6 @@ __all__ = [
     "get_db_session",
     "get_engine",
     "get_session_factory",
+    "init_db",
+    "reset_db_engine",
 ]

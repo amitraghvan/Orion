@@ -9,6 +9,7 @@ from orion_ai.pose.schemas import (
     Keypoint3D,
     PoseEstimationResult,
 )
+from orion_ai.pose.yolo_pose import YOLOPoseEstimator
 
 __all__ = [
     "HumanPose",
@@ -18,4 +19,5 @@ __all__ = [
     "PoseEstimationResult",
     "PoseEstimatorInterface",
     "PoseEstimatorRegistry",
+    "YOLOPoseEstimator",
 ]

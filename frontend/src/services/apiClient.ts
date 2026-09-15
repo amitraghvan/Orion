@@ -1,4 +1,5 @@
 import type { StationHealthReport } from "../types/telemetry";
+import { getAuthHeaders } from "./auth";
 
 const BASE_URL = "/api/v1";
 
@@ -14,7 +15,9 @@ export async function fetchHealthLiveness(): Promise<{ status: string }> {
 }
 
 export async function fetchStationMetadata(): Promise<StationHealthReport> {
-  const response = await fetch(`${BASE_URL}/metadata/info`);
+  const response = await fetch(`${BASE_URL}/metadata/info`, {
+    headers: { ...getAuthHeaders() },
+  });
   if (!response.ok) {
     throw new Error(`Failed to fetch metadata: ${response.statusText}`);
   }

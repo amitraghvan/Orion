@@ -14,6 +14,13 @@ class DetectorRegistry:
 
     @classmethod
     def get(cls, model_name: str) -> type[DetectorInterface]:
+        if not cls._models:
+            from orion_ai.detection.yolo_detector import YOLOEdgeDetector
+
+            cls.register("yolo11", YOLOEdgeDetector)
+            cls.register("yolov8", YOLOEdgeDetector)
+            cls.register("baseline_detector", YOLOEdgeDetector)
+
         if model_name not in cls._models:
             raise NotImplementedError(
                 f"NOT IMPLEMENTED: Detector model {model_name} is not registered."

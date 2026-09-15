@@ -1,0 +1,23 @@
+{
+  "dataset_name": "BAS_REAL_DATA",
+  "version": "1.0.0",
+  "date_created": "2026-09-14",
+  "source": "/Users/amitkumar/Downloads/BAS_REAL_DATA",
+  "total_raw_videos": 20,
+  "total_sequences": 1374,
+  "sequence_shape": [
+    4,
+    32,
+    17
+  ],
+  "class_distribution": {
+    "idle": 235,
+    "pick_yellow": 206,
+    "place_yellow": 196,
+    "pick_red": 241,
+    "place_red": 176,
+    "move_box": 113,
+    "check_box": 177,
+    "overlap_boxes": 30
+  }
+}

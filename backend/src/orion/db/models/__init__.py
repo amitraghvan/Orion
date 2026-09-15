@@ -2,6 +2,7 @@
 
 from orion.db.models.alert import Alert
 from orion.db.models.dataset_version import DatasetVersion
+from orion.db.models.decision import ProtocolDecisionModel
 from orion.db.models.event import Event
 from orion.db.models.experiment import Experiment
 from orion.db.models.model_version import ModelVersion
@@ -16,8 +17,10 @@ __all__ = [
     "Event",
     "Experiment",
     "ModelVersion",
+    "ProtocolDecisionModel",
     "Recording",
     "Run",
     "Step",
     "SystemHealth",
 ]
+

@@ -1,0 +1,408 @@
+# ==============================================================================
+# ORION BAS AI Copilot — Canonical Experiment Specification
+# Bharatiya Antariksh Station (BAS) Science Module Standard Specification
+# SIH26174: AI Human Activity Recognition for On-board BAS Experiments
+# ==============================================================================
+
+schema_version: "1.0.0"
+
+metadata:
+  experiment_suite: "BAS_REAL_DATA_EXPERIMENTS"
+  station_module: "BAS-SCIENCE-NODE-1"
+  glovebox_id: "GB-01"
+  lead_agency: "ISRO HSFC"
+  date_approved: "2026-09-14"
+
+experiments:
+  # ----------------------------------------------------------------------------
+  # E01: Detecting Colour
+  # ----------------------------------------------------------------------------
+  E01:
+    experiment_id: "E01"
+    title: "Detecting Colour"
+    description: "Astronaut picks up and returns designated coloured boxes in sequence."
+    objects:
+      - object_id: "yellow_box"
+        label: "yellow_box"
+        required: true
+      - object_id: "red_box"
+        label: "red_box"
+        required: true
+    variants:
+      A:
+        variant_id: "A"
+        description: "Yellow Box first, then Red Box"
+        steps:
+          - step_id: "E01_A_S01"
+            step_number: 1
+            step_order: 1
+            name: "Pick Yellow Box"
+            description: "Pick up yellow box from its place"
+            expected_action: "pick"
+            expected_object: "yellow_box"
+            expected_actions: ["pick", "pick_yellow"]
+            allowed_transitions: ["E01_A_S02"]
+          - step_id: "E01_A_S02"
+            step_number: 2
+            step_order: 2
+            name: "Place Yellow Box"
+            description: "Place yellow box back in its respective place"
+            expected_action: "place"
+            expected_object: "yellow_box"
+            expected_actions: ["place", "place_yellow"]
+            allowed_transitions: ["E01_A_S03"]
+          - step_id: "E01_A_S03"
+            step_number: 3
+            step_order: 3
+            name: "Pick Red Box"
+            description: "Pick up red box from its place"
+            expected_action: "pick"
+            expected_object: "red_box"
+            expected_actions: ["pick", "pick_red"]
+            allowed_transitions: ["E01_A_S04"]
+          - step_id: "E01_A_S04"
+            step_number: 4
+            step_order: 4
+            name: "Place Red Box"
+            description: "Place red box back in its respective place"
+            expected_action: "place"
+            expected_object: "red_box"
+            expected_actions: ["place", "place_red"]
+            allowed_transitions: []
+      B:
+        variant_id: "B"
+        description: "Red Box first, then Yellow Box"
+        steps:
+          - step_id: "E01_B_S01"
+            step_number: 1
+            step_order: 1
+            name: "Pick Red Box"
+            description: "Pick up red box from its place"
+            expected_action: "pick"
+            expected_object: "red_box"
+            expected_actions: ["pick", "pick_red"]
+            allowed_transitions: ["E01_B_S02"]
+          - step_id: "E01_B_S02"
+            step_number: 2
+            step_order: 2
+            name: "Place Red Box"
+            description: "Place red box back in its respective place"
+            expected_action: "place"
+            expected_object: "red_box"
+            expected_actions: ["place", "place_red"]
+            allowed_transitions: ["E01_B_S03"]
+          - step_id: "E01_B_S03"
+            step_number: 3
+            step_order: 3
+            name: "Pick Yellow Box"
+            description: "Pick up yellow box from its place"
+            expected_action: "pick"
+            expected_object: "yellow_box"
+            expected_actions: ["pick", "pick_yellow"]
+            allowed_transitions: ["E01_B_S04"]
+          - step_id: "E01_B_S04"
+            step_number: 4
+            step_order: 4
+            name: "Place Yellow Box"
+            description: "Place yellow box back in its respective place"
+            expected_action: "place"
+            expected_object: "yellow_box"
+            expected_actions: ["place", "place_yellow"]
+            allowed_transitions: []
+
+  # ----------------------------------------------------------------------------
+  # E02: Interchanging the Boxes
+  # ----------------------------------------------------------------------------
+  E02:
+    experiment_id: "E02"
+    title: "Interchanging the Boxes"
+    description: "Astronaut lifts both boxes and swaps their workspace positions."
+    objects:
+      - object_id: "yellow_box"
+        label: "yellow_box"
+        required: true
+      - object_id: "red_box"
+        label: "red_box"
+        required: true
+    variants:
+      A:
+        variant_id: "A"
+        description: "Pick both, put Yellow on Red's place, then Red on Yellow's place"
+        steps:
+          - step_id: "E02_A_S01"
+            step_number: 1
+            step_order: 1
+            name: "Pick Up Both Boxes"
+            description: "Pick up both yellow and red boxes"
+            expected_action: "pick"
+            expected_object: "both_boxes"
+            expected_actions: ["pick", "pick_both"]
+            allowed_transitions: ["E02_A_S02"]
+          - step_id: "E02_A_S02"
+            step_number: 2
+            step_order: 2
+            name: "Put Yellow on Red's Place"
+            description: "Put the yellow box on the red box's place"
+            expected_action: "place"
+            expected_object: "yellow_box"
+            expected_actions: ["place", "place_yellow"]
+            allowed_transitions: ["E02_A_S03"]
+          - step_id: "E02_A_S03"
+            step_number: 3
+            step_order: 3
+            name: "Put Red on Yellow's Place"
+            description: "Put the red box on the yellow box's place"
+            expected_action: "place"
+            expected_object: "red_box"
+            expected_actions: ["place", "place_red"]
+            allowed_transitions: []
+      B:
+        variant_id: "B"
+        description: "Pick both, put Red on Yellow's place, then Yellow on Red's place"
+        steps:
+          - step_id: "E02_B_S01"
+            step_number: 1
+            step_order: 1
+            name: "Pick Up Both Boxes"
+            description: "Pick up both red and yellow boxes"
+            expected_action: "pick"
+            expected_object: "both_boxes"
+            expected_actions: ["pick", "pick_both"]
+            allowed_transitions: ["E02_B_S02"]
+          - step_id: "E02_B_S02"
+            step_number: 2
+            step_order: 2
+            name: "Put Red on Yellow's Place"
+            description: "Put the red box on the yellow box's place"
+            expected_action: "place"
+            expected_object: "red_box"
+            expected_actions: ["place", "place_red"]
+            allowed_transitions: ["E02_B_S03"]
+          - step_id: "E02_B_S03"
+            step_number: 3
+            step_order: 3
+            name: "Put Yellow on Red's Place"
+            description: "Put the yellow box on the red box's place"
+            expected_action: "place"
+            expected_object: "yellow_box"
+            expected_actions: ["place", "place_yellow"]
+            allowed_transitions: []
+
+  # ----------------------------------------------------------------------------
+  # E03: Overlapping the Boxes
+  # ----------------------------------------------------------------------------
+  E03:
+    experiment_id: "E03"
+    title: "Overlapping the Boxes"
+    description: "Astronaut places two boxes and stacks one atop the other."
+    objects:
+      - object_id: "yellow_box"
+        label: "yellow_box"
+        required: true
+      - object_id: "red_box"
+        label: "red_box"
+        required: true
+    variants:
+      A:
+        variant_id: "A"
+        description: "Place two boxes, then put Yellow box on Red box"
+        steps:
+          - step_id: "E03_A_S01"
+            step_number: 1
+            step_order: 1
+            name: "Place Two Boxes"
+            description: "Place two boxes: red and yellow"
+            expected_action: "place"
+            expected_object: "both_boxes"
+            expected_actions: ["place", "place_both"]
+            allowed_transitions: ["E03_A_S02"]
+          - step_id: "E03_A_S02"
+            step_number: 2
+            step_order: 2
+            name: "Put Yellow on Red"
+            description: "Put the yellow box on the red box"
+            expected_action: "overlap"
+            expected_object: "yellow_on_red"
+            expected_actions: ["overlap", "overlap_yellow_on_red", "place"]
+            allowed_transitions: []
+      B:
+        variant_id: "B"
+        description: "Place two boxes, then put Red box on Yellow box"
+        steps:
+          - step_id: "E03_B_S01"
+            step_number: 1
+            step_order: 1
+            name: "Place Two Boxes"
+            description: "Place two boxes: red and yellow"
+            expected_action: "place"
+            expected_object: "both_boxes"
+            expected_actions: ["place", "place_both"]
+            allowed_transitions: ["E03_B_S02"]
+          - step_id: "E03_B_S02"
+            step_number: 2
+            step_order: 2
+            name: "Put Red on Yellow"
+            description: "Put the red box on the yellow box"
+            expected_action: "overlap"
+            expected_object: "red_on_yellow"
+            expected_actions: ["overlap", "overlap_red_on_yellow", "place"]
+            allowed_transitions: []
+
+  # ----------------------------------------------------------------------------
+  # E04: Moving
+  # ----------------------------------------------------------------------------
+  E04:
+    experiment_id: "E04"
+    title: "Moving"
+    description: "Astronaut keeps one box stationary and slides the other box towards it."
+    objects:
+      - object_id: "yellow_box"
+        label: "yellow_box"
+        required: true
+      - object_id: "red_box"
+        label: "red_box"
+        required: true
+    variants:
+      A:
+        variant_id: "A"
+        description: "Keep Yellow in place, move Red towards Yellow"
+        steps:
+          - step_id: "E04_A_S01"
+            step_number: 1
+            step_order: 1
+            name: "Keep Yellow in Place"
+            description: "Keep the yellow box in its respective place"
+            expected_action: "place"
+            expected_object: "yellow_box"
+            expected_actions: ["place", "place_yellow", "idle"]
+            allowed_transitions: ["E04_A_S02"]
+          - step_id: "E04_A_S02"
+            step_number: 2
+            step_order: 2
+            name: "Move Red towards Yellow"
+            description: "Move the red box towards the yellow box"
+            expected_action: "move"
+            expected_object: "red_box"
+            expected_actions: ["move", "move_red_to_yellow"]
+            allowed_transitions: []
+      B:
+        variant_id: "B"
+        description: "Keep Red in place, move Yellow towards Red"
+        steps:
+          - step_id: "E04_B_S01"
+            step_number: 1
+            step_order: 1
+            name: "Keep Red in Place"
+            description: "Keep the red box in its respective place"
+            expected_action: "place"
+            expected_object: "red_box"
+            expected_actions: ["place", "place_red", "idle"]
+            allowed_transitions: ["E04_B_S02"]
+          - step_id: "E04_B_S02"
+            step_number: 2
+            step_order: 2
+            name: "Move Yellow towards Red"
+            description: "Move the yellow box towards the red box"
+            expected_action: "move"
+            expected_object: "yellow_box"
+            expected_actions: ["move", "move_yellow_to_red"]
+            allowed_transitions: []
+
+  # ----------------------------------------------------------------------------
+  # E05: In Container
+  # ----------------------------------------------------------------------------
+  E05:
+    experiment_id: "E05"
+    title: "In Container"
+    description: "Astronaut picks coloured boxes from container and inspects/checks them."
+    objects:
+      - object_id: "yellow_box"
+        label: "yellow_box"
+        required: true
+      - object_id: "red_box"
+        label: "red_box"
+        required: true
+      - object_id: "container"
+        label: "container"
+        required: true
+    variants:
+      A:
+        variant_id: "A"
+        description: "Pick Yellow, Check it, Pick Red, Check it"
+        steps:
+          - step_id: "E05_A_S01"
+            step_number: 1
+            step_order: 1
+            name: "Pick Yellow from Container"
+            description: "Pick yellow box from container"
+            expected_action: "pick"
+            expected_object: "yellow_box"
+            expected_actions: ["pick", "pick_yellow"]
+            allowed_transitions: ["E05_A_S02"]
+          - step_id: "E05_A_S02"
+            step_number: 2
+            step_order: 2
+            name: "Check Yellow Box"
+            description: "Check yellow box"
+            expected_action: "check"
+            expected_object: "yellow_box"
+            expected_actions: ["check", "check_yellow", "inspect"]
+            allowed_transitions: ["E05_A_S03"]
+          - step_id: "E05_A_S03"
+            step_number: 3
+            step_order: 3
+            name: "Pick Red from Container"
+            description: "Pick red box from container"
+            expected_action: "pick"
+            expected_object: "red_box"
+            expected_actions: ["pick", "pick_red"]
+            allowed_transitions: ["E05_A_S04"]
+          - step_id: "E05_A_S04"
+            step_number: 4
+            step_order: 4
+            name: "Check Red Box"
+            description: "Check red box"
+            expected_action: "check"
+            expected_object: "red_box"
+            expected_actions: ["check", "check_red", "inspect"]
+            allowed_transitions: []
+      B:
+        variant_id: "B"
+        description: "Pick Red, Check it, Pick Yellow, Check it"
+        steps:
+          - step_id: "E05_B_S01"
+            step_number: 1
+            step_order: 1
+            name: "Pick Red from Container"
+            description: "Pick red box from container"
+            expected_action: "pick"
+            expected_object: "red_box"
+            expected_actions: ["pick", "pick_red"]
+            allowed_transitions: ["E05_B_S02"]
+          - step_id: "E05_B_S02"
+            step_number: 2
+            step_order: 2
+            name: "Check Red Box"
+            description: "Check red box"
+            expected_action: "check"
+            expected_object: "red_box"
+            expected_actions: ["check", "check_red", "inspect"]
+            allowed_transitions: ["E05_B_S03"]
+          - step_id: "E05_B_S03"
+            step_number: 3
+            step_order: 3
+            name: "Pick Yellow from Container"
+            description: "Pick yellow box from container"
+            expected_action: "pick"
+            expected_object: "yellow_box"
+            expected_actions: ["pick", "pick_yellow"]
+            allowed_transitions: ["E05_B_S04"]
+          - step_id: "E05_B_S04"
+            step_number: 4
+            step_order: 4
+            name: "Check Yellow Box"
+            description: "Check yellow box"
+            expected_action: "check"
+            expected_object: "yellow_box"
+            expected_actions: ["check", "check_yellow", "inspect"]
+            allowed_transitions: []

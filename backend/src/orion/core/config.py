@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import Any, Literal
 
 import yaml
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from orion.core.exceptions import ConfigurationError
@@ -34,8 +34,16 @@ class ApiSettings(BaseModel):
     )
     secret_key: str = Field(
         default="dev-aerospace-insecure-secret-key-change-in-production",
-        min_length=16,
         description="Cryptographic secret key",
+    )
+    auth_enabled: bool = Field(
+        default=True,
+        description="Enforce API and WebSocket authentication",
+    )
+    token_expire_minutes: int = Field(
+        default=60,
+        ge=1,
+        description="Access token expiration duration in minutes",
     )
 
 
@@ -49,6 +57,10 @@ class DatabaseSettings(BaseModel):
     pool_size: int = Field(default=5, ge=1, le=100)
     max_overflow: int = Field(default=10, ge=0, le=50)
     pool_timeout: float = Field(default=30.0, ge=1.0)
+    auto_create_tables: bool | None = Field(
+        default=None,
+        description="Whether to run Base.metadata.create_all on startup. Defaults to True in dev/test, False in prod.",
+    )
 
 
 class LoggingSettings(BaseModel):
@@ -144,6 +156,61 @@ class OrionSettings(BaseSettings):
         extra="ignore",
     )
 
+    @model_validator(mode="after")
+    def validate_production_security(self) -> "OrionSettings":
+        """Enforce strict production security invariants.
+
+        Raises ConfigurationError if production secrets, CORS, or database configurations
+        fail security baseline requirements.
+        """
+        if self.env != "production":
+            return self
+
+        # 1. Secret Key Validation
+        secret = self.api.secret_key or ""
+        insecure_patterns = [
+            "dev-",
+            "insecure",
+            "changeme",
+            "change-in-production",
+            "aerospace-insecure",
+            "password",
+            "default",
+        ]
+        if not secret:
+            raise ConfigurationError(
+                "Production deployment requires a cryptographically secure secret key. ORION_API__SECRET_KEY is missing."
+            )
+        if len(secret) < 32:
+            raise ConfigurationError(
+                f"Production secret key must be at least 32 characters long (provided: {len(secret)} characters)."
+            )
+        for pattern in insecure_patterns:
+            if pattern in secret.lower():
+                raise ConfigurationError(
+                    "Production secret key contains an insecure or development default pattern. "
+                    "A unique, high-entropy secret must be provisioned via hardware HSM or environment."
+                )
+
+        # 2. CORS Hardening
+        if "*" in self.api.cors_origins:
+            raise ConfigurationError(
+                "Wildcard CORS origin '*' is strictly prohibited in production mode. "
+                "Explicit trusted origins must be configured via ORION_API__CORS_ORIGINS."
+            )
+        if not self.api.cors_origins:
+            raise ConfigurationError(
+                "Production mode requires at least one configured CORS origin via ORION_API__CORS_ORIGINS."
+            )
+
+        # 3. Database URL Hardening
+        if ":memory:" in self.db.url:
+            raise ConfigurationError(
+                "In-memory database is prohibited in production mode. Configure a persistent database URL."
+            )
+
+        return self
+
     @classmethod
     def load(cls, config_dir: Path | None = None) -> "OrionSettings":
         """Load layered configuration merging Base YAML, Env YAML, and Environment Variables."""
@@ -163,6 +230,8 @@ class OrionSettings(BaseSettings):
         # Instantiate settings with env vars overriding YAML
         try:
             return cls(**merged)
+        except ConfigurationError:
+            raise
         except Exception as exc:
             raise ConfigurationError(
                 f"Configuration initialization failed: {exc}",

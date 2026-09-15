@@ -1,0 +1,33 @@
+{
+  "classes": [
+    "idle",
+    "pick_yellow",
+    "place_yellow",
+    "pick_red",
+    "place_red",
+    "move_box",
+    "check_box",
+    "overlap_boxes"
+  ],
+  "class_to_idx": {
+    "idle": 0,
+    "pick_yellow": 1,
+    "place_yellow": 2,
+    "pick_red": 3,
+    "place_red": 4,
+    "move_box": 5,
+    "check_box": 6,
+    "overlap_boxes": 7
+  },
+  "class_counts": {
+    "idle": 235,
+    "pick_yellow": 206,
+    "place_yellow": 196,
+    "pick_red": 241,
+    "place_red": 176,
+    "move_box": 113,
+    "check_box": 177,
+    "overlap_boxes": 30
+  },
+  "num_classes": 8
+}

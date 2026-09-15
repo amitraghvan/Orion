@@ -2,7 +2,7 @@
 
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 class ExperimentMetadata(BaseModel):
@@ -59,10 +59,23 @@ class ExperimentStep(BaseModel):
     step_number: int = Field(ge=1)
     description: str
     expected_activity: str
+    expected_actions: list[str] = Field(default_factory=list)
+    step_order: int | None = None
+    optional: bool = False
+    allowed_transitions: list[str] = Field(default_factory=list)
+    retry_policy: dict[str, Any] = Field(default_factory=dict)
     preconditions: list[dict[str, Any]] = Field(default_factory=list)
     timeouts: StepTimeouts
     thresholds: StepThresholds
     validation_rules: list[ValidationRule] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _populate_step_defaults(self) -> "ExperimentStep":
+        if not self.expected_actions and self.expected_activity:
+            self.expected_actions = [self.expected_activity]
+        if self.step_order is None:
+            self.step_order = self.step_number
+        return self
 
 
 class ExperimentAlert(BaseModel):
@@ -87,8 +100,10 @@ class ExperimentSpecification(BaseModel):
     """Master experiment specification matching experiment_template.yaml."""
 
     schema_version: str = "1.0.0"
+    protocol_hash: str | None = None
     metadata: ExperimentMetadata
     objects: list[ExperimentObject]
     steps: list[ExperimentStep]
     alerts: list[ExperimentAlert] = Field(default_factory=list)
     recovery: ExperimentRecovery = Field(default_factory=ExperimentRecovery)
+

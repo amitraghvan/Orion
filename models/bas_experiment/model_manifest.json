@@ -1,0 +1,28 @@
+{
+  "model_id": "BAS-HAR-v1.0",
+  "version": "1.0.0",
+  "task": "temporal_action_recognition",
+  "architecture": "stgcn_coco17",
+  "framework": "pytorch",
+  "format": "pt",
+  "input_shape": [
+    1,
+    4,
+    32,
+    17
+  ],
+  "output_schema": "class_logits_8",
+  "classes": [
+    "idle",
+    "pick_yellow",
+    "place_yellow",
+    "pick_red",
+    "place_red",
+    "move_box",
+    "check_box",
+    "overlap_boxes"
+  ],
+  "sha256": "6d97fd61484bab97c978c5c946fbb7360a3574d00337faa3c4d62973d5f29b97",
+  "creation_timestamp": "2026-09-14T17:47:11.598483+00:00",
+  "notes": "Fine-tuned ST-GCN model on BAS_REAL_DATA spaceflight experiments."
+}

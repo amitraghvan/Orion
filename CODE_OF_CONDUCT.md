@@ -16,4 +16,4 @@ Examples of behavior that contributes to creating a positive environment include
 
 ## Enforcement
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by contacting the project team at `conduct@isro.gov.in`.
+Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by contacting the project team at `[EMAIL_ADDRESS]`.

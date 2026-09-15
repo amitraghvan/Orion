@@ -10,8 +10,11 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
     create_async_engine,
 )
+from sqlalchemy.pool import StaticPool
 
+import orion.db.models
 from orion.api.app import create_app
+from orion.core.auth import create_access_token
 from orion.core.config import ApiSettings, OrionSettings
 from orion.db.base import Base
 
@@ -31,6 +34,8 @@ async def test_engine() -> AsyncGenerator[AsyncEngine, None]:
     """In-memory SQLite async engine for isolated test execution."""
     engine = create_async_engine(
         "sqlite+aiosqlite:///:memory:",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
         echo=False,
         future=True,
     )
@@ -54,8 +59,18 @@ async def test_session(test_engine: AsyncEngine) -> AsyncGenerator[AsyncSession,
 
 @pytest.fixture
 async def async_client(test_settings: OrionSettings) -> AsyncGenerator[AsyncClient, None]:
-    """HTTPX AsyncClient bound to the FastAPI application."""
+    """HTTPX AsyncClient bound to the FastAPI application with operator credentials."""
     app = create_app(settings=test_settings)
-    transport = ASGITransport(app=app)
-    async with AsyncClient(transport=transport, base_url="http://testserver") as client:
-        yield client
+    operator_token = create_access_token(
+        subject="test-operator",
+        role="operator",
+        secret_key=test_settings.api.secret_key,
+    )
+    headers = {"Authorization": f"Bearer {operator_token}"}
+    async with app.router.lifespan_context(app):
+        transport = ASGITransport(app=app)
+        async with AsyncClient(
+            transport=transport, base_url="http://testserver", headers=headers
+        ) as client:
+            yield client
+

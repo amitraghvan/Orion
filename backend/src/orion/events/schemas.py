@@ -56,11 +56,17 @@ class ActivityRecognized(BaseEvent):
     """Emitted when temporal human activity recognition classifies a window."""
 
     event_type: Literal["ActivityRecognized"] = "ActivityRecognized"
+    track_id: int = 0
+    frame_index: int = 0
     window_start_frame: int
     window_end_frame: int
     activity_label: str
+    phase: str = "UPDATE"  # START, UPDATE, CHANGE, END
     confidence: float
-    is_anomaly: bool
+    uncertainty_status: str = "NOMINAL"
+    is_anomaly: bool = False
+    model_version: str = "1.0.0"
+    evidence_metadata: dict[str, Any] = Field(default_factory=dict)
 
 
 class ExperimentUpdated(BaseEvent):
@@ -91,7 +97,7 @@ class HealthChanged(BaseEvent):
 
     event_type: Literal["HealthChanged"] = "HealthChanged"
     subsystem: str
-    status: Literal["HEALTHY", "DEGRADED", "UNHEALTHY", "OFFLINE"]
+    status: Literal["HEALTHY", "DEGRADED", "UNHEALTHY", "OFFLINE", "ERROR", "UNKNOWN"]
     metrics: dict[str, float] = Field(default_factory=dict)
     details: str | None = None
 
@@ -116,3 +122,152 @@ class RecordingStopped(BaseEvent):
     duration_seconds: float
     total_frames: int
     sha256_checksum: str
+
+
+class ProtocolStateChanged(BaseEvent):
+    """Emitted when the protocol FSM state changes."""
+
+    event_type: Literal["ProtocolStateChanged"] = "ProtocolStateChanged"
+    experiment_id: str
+    run_id: str | None = None
+    from_state: str
+    to_state: str
+    step_id: str | None = None
+    step_number: int | None = None
+    reason: str = ""
+
+
+class StepTransitioned(BaseEvent):
+    """Emitted when an experiment step successfully completes and transitions."""
+
+    event_type: Literal["StepTransitioned"] = "StepTransitioned"
+    experiment_id: str
+    run_id: str
+    from_step_id: str
+    to_step_id: str
+    from_step_number: int
+    to_step_number: int
+    duration_seconds: float
+    decision_id: str
+
+
+class ProtocolDeviationDetected(BaseEvent):
+    """Emitted when an out-of-sequence, skipped, or timeout deviation occurs."""
+
+    event_type: Literal["ProtocolDeviationDetected"] = "ProtocolDeviationDetected"
+    experiment_id: str
+    run_id: str
+    step_id: str
+    step_number: int
+    deviation_type: str
+    observed_action: str
+    expected_actions: list[str]
+    confidence: float
+    entropy: float
+    message: str
+    decision_id: str
+
+
+class NextStepRecommended(BaseEvent):
+    """Emitted when procedural guidance updates for the astronaut."""
+
+    event_type: Literal["NextStepRecommended"] = "NextStepRecommended"
+    experiment_id: str
+    run_id: str
+    step_id: str
+    step_number: int
+    expected_activity: str
+    instruction_text: str
+    remaining_nominal_seconds: float
+
+
+class HandInteractionStarted(BaseEvent):
+    """Emitted when contact or approach between hand and object begins."""
+
+    event_type: Literal["HandInteractionStarted"] = "HandInteractionStarted"
+    hand_id: str
+    object_id: str
+    person_track_id: int
+    initial_state: str
+    distance_normalized: float
+    overlap_ratio: float
+
+
+class HandInteractionUpdated(BaseEvent):
+    """Emitted when interaction state changes or persists."""
+
+    event_type: Literal["HandInteractionUpdated"] = "HandInteractionUpdated"
+    hand_id: str
+    object_id: str
+    person_track_id: int
+    previous_state: str
+    current_state: str
+    contact_persistence_frames: int
+    confidence: float
+
+
+class HandInteractionEnded(BaseEvent):
+    """Emitted when hand releases or disengages from object."""
+
+    event_type: Literal["HandInteractionEnded"] = "HandInteractionEnded"
+    hand_id: str
+    object_id: str
+    person_track_id: int
+    final_state: str
+    duration_frames: int
+
+
+class ObjectInteractionRecognized(BaseEvent):
+    """Emitted when physical grasp or manipulation of a protocol object is verified."""
+
+    event_type: Literal["ObjectInteractionRecognized"] = "ObjectInteractionRecognized"
+    hand_id: str
+    object_id: str
+    object_class: str
+    person_track_id: int
+    interaction_type: str
+    confidence: float
+
+
+class MultimodalEvidenceUpdated(BaseEvent):
+    """Emitted when fused multimodal evidence is updated for an activity."""
+
+    event_type: Literal["MultimodalEvidenceUpdated"] = "MultimodalEvidenceUpdated"
+    activity: str
+    person_track_id: int
+    evidence_state: str
+    evidence_quality_level: str
+    confidence: float
+    uncertainty_status: str
+
+
+class EvidenceQualityChanged(BaseEvent):
+    """Emitted when sensory quality drops or changes."""
+
+    event_type: Literal["EvidenceQualityChanged"] = "EvidenceQualityChanged"
+    previous_level: str
+    current_level: str
+    pose_quality: float
+    hand_quality: float
+    object_quality: float
+    details: str = ""
+
+
+class InteractionConflictDetected(BaseEvent):
+    """Emitted when optical observation contradicts predicted activity."""
+
+    event_type: Literal["InteractionConflictDetected"] = "InteractionConflictDetected"
+    activity: str
+    conflict_type: str
+    reason: str
+    severity: str = "WARNING"
+
+
+class ObservationCaptured(BaseEvent):
+    """Emitted when a consolidated StructuredObservation is generated by the perception coordinator."""
+
+    event_type: Literal["ObservationCaptured"] = "ObservationCaptured"
+    observation: Any = Field(description="StructuredObservation instance")
+
+
+

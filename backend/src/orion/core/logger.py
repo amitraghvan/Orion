@@ -70,6 +70,14 @@ def _add_telemetry_context(
     return event_dict
 
 
+def _add_logger_name(logger: Any, _method_name: str, event_dict: dict[str, Any]) -> dict[str, Any]:
+    if hasattr(logger, "name"):
+        event_dict["logger"] = logger.name
+    return event_dict
+
+
+
+
 def configure_logging(
     log_level: str = "INFO",
     log_format: str = "console",
@@ -114,7 +122,7 @@ def configure_logging(
         loguru_logger.add(
             str(file_path),
             level=log_level,
-            rotation=f"{rotation_bytes} bytes",
+            rotation=rotation_bytes,
             retention=backup_count,
             compression="tar.gz",
             serialize=(log_format == "json"),
@@ -127,11 +135,12 @@ def configure_logging(
         structlog.contextvars.merge_contextvars,
         _add_telemetry_context,
         structlog.stdlib.add_log_level,
-        structlog.stdlib.add_logger_name,
+        _add_logger_name,
         structlog.processors.TimeStamper(fmt="iso", utc=True),
         structlog.processors.StackInfoRenderer(),
         structlog.processors.format_exc_info,
     ]
+
 
     if log_format == "json":
         renderer: Any = structlog.processors.JSONRenderer()

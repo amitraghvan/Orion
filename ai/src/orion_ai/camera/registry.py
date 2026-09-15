@@ -14,6 +14,13 @@ class CameraRegistry:
 
     @classmethod
     def get(cls, driver_name: str) -> type[CameraDriverInterface]:
+        if not cls._drivers:
+            # Lazy auto-register default drivers
+            from orion_ai.camera.opencv_driver import OpenCVCameraDriver
+
+            cls.register("opencv", OpenCVCameraDriver)
+            cls.register("video_replay", OpenCVCameraDriver)
+
         if driver_name not in cls._drivers:
             raise NotImplementedError(
                 f"NOT IMPLEMENTED: Camera driver {driver_name} is not registered."

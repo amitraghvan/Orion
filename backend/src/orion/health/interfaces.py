@@ -19,6 +19,8 @@ class SubsystemStatus(StrEnum):
     DEGRADED = "DEGRADED"
     UNHEALTHY = "UNHEALTHY"
     OFFLINE = "OFFLINE"
+    ERROR = "ERROR"
+    UNKNOWN = "UNKNOWN"
 
 
 class SubsystemReport(BaseModel):
@@ -28,7 +30,9 @@ class SubsystemReport(BaseModel):
     status: SubsystemStatus
     timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
     latency_ms: float = 0.0
+    last_success: datetime | None = None
     metrics: dict[str, Any] = Field(default_factory=dict)
+    details: dict[str, Any] = Field(default_factory=dict)
     error_message: str | None = None
 
 

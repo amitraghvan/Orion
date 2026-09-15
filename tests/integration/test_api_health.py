@@ -28,8 +28,11 @@ async def test_metadata_info_endpoint(async_client: AsyncClient) -> None:
 
 
 @pytest.mark.integration
-async def test_websocket_telemetry_status_not_implemented(async_client: AsyncClient) -> None:
-    """Verify stream status endpoint returns 501 Not Implemented in Phase 0."""
+async def test_websocket_telemetry_status_endpoint(async_client: AsyncClient) -> None:
+    """Verify telemetry stream status endpoint returns nominal status and active clients."""
     response = await async_client.get("/ws/status")
-    assert response.status_code == 501
-    assert "NOT IMPLEMENTED" in response.json()["detail"]
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "NOMINAL"
+    assert "active_clients" in data
+    assert data["streaming_enabled"] is True

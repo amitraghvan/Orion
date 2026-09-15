@@ -26,7 +26,7 @@ class ModelMetadata(BaseModel):
     """Complete flight specification for an AI model."""
 
     model_id: str
-    task: Literal["detection", "pose", "activity", "interaction", "segmentation"]
+    task: Literal["detection", "pose", "activity", "interaction", "segmentation", "hand", "object"]
     version: str
     architecture: str
     framework: Literal["onnx", "tensorrt", "openvino", "torchscript"]

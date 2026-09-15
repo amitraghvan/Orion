@@ -1,0 +1,206 @@
+# ==============================================================================
+# ORION BAS AI Copilot — Canonical Experiment Specification
+# Bharatiya Antariksh Station (BAS) Science Module Standard Specification
+# Experiment: BAS-EXP-CRYSTAL-V1 (Microgravity Protein Crystal Growth)
+# ==============================================================================
+
+schema_version: "1.0.0"
+
+# ------------------------------------------------------------------------------
+# 1. METADATA
+# ------------------------------------------------------------------------------
+metadata:
+  experiment_id: "BAS-EXP-CRYSTAL-V1"
+  title: "Microgravity Protein Crystal Growth Kinetics - Baseline Run"
+  principal_investigator: "Dr. Vikram Sarabhai Research Fellow"
+  lead_agency: "ISRO HSFC"
+  station_module: "BAS-SCIENCE-NODE-1"
+  glovebox_id: "GB-02"
+  revision: "1.0"
+  date_approved: "2026-09-08"
+  safety_classification: "LEVEL-1-NON-HAZARDOUS"
+
+# ------------------------------------------------------------------------------
+# 2. REQUIRED OBJECTS & HARDWARE TOOLS
+# ------------------------------------------------------------------------------
+objects:
+  - object_id: "tool_pipette_p1000"
+    label: "electronic_pipette_1000ul"
+    required: true
+    expected_detection_model: "bas-det-yolo11x-v1"
+    min_confidence: 0.70
+
+  - object_id: "sample_cassette_a"
+    label: "crystal_growth_chamber"
+    required: true
+    expected_detection_model: "bas-det-yolo11x-v1"
+    min_confidence: 0.75
+
+  - object_id: "centrifuge_tube_15ml"
+    label: "buffer_reagent_vial"
+    required: true
+    expected_detection_model: "bas-det-yolo11x-v1"
+    min_confidence: 0.65
+
+# ------------------------------------------------------------------------------
+# 3. EXPERIMENT STEPS & SEQUENCING (6 Canonical Steps)
+# ------------------------------------------------------------------------------
+steps:
+  - step_id: "step_01_prepare_workstation"
+    step_number: 1
+    step_order: 1
+    description: "Astronaut sanitizes work area and prepares glovebox workstation."
+    expected_activity: "prepare_workstation"
+    expected_actions:
+      - "prepare_workstation"
+    optional: false
+    allowed_transitions:
+      - "step_02_reach_tool"
+    timeouts:
+      nominal_duration_seconds: 60
+      max_timeout_seconds: 180
+    thresholds:
+      activity_confidence_min: 0.70
+      pose_tracking_stability_min: 0.80
+      interaction_proximity_px: 120.0
+    validation_rules:
+      - rule_id: "RULE-PREP-01"
+        predicate: "astronaut_in_glovebox_zone == true"
+        severity: "WARNING"
+
+  - step_id: "step_02_reach_tool"
+    step_number: 2
+    step_order: 2
+    description: "Astronaut reaches towards the tool rack for the crystallization pipette."
+    expected_activity: "reach_tool"
+    expected_actions:
+      - "reach_tool"
+    optional: false
+    allowed_transitions:
+      - "step_03_grasp_tool"
+    timeouts:
+      nominal_duration_seconds: 30
+      max_timeout_seconds: 120
+    thresholds:
+      activity_confidence_min: 0.70
+      pose_tracking_stability_min: 0.80
+      interaction_proximity_px: 80.0
+    validation_rules:
+      - rule_id: "RULE-REACH-01"
+        predicate: "tool_pipette_in_fov == true"
+        severity: "WARNING"
+
+  - step_id: "step_03_grasp_tool"
+    step_number: 3
+    step_order: 3
+    description: "Astronaut grasps the electronic pipette securely with right/dominant hand."
+    expected_activity: "grasp_tool"
+    expected_actions:
+      - "grasp_tool"
+    optional: false
+    allowed_transitions:
+      - "step_04_manipulate_sample"
+    timeouts:
+      nominal_duration_seconds: 45
+      max_timeout_seconds: 150
+    thresholds:
+      activity_confidence_min: 0.70
+      pose_tracking_stability_min: 0.80
+      interaction_proximity_px: 50.0
+    validation_rules:
+      - rule_id: "RULE-GRASP-01"
+        predicate: "hand_tool_distance_px < 50"
+        severity: "WARNING"
+
+  - step_id: "step_04_manipulate_sample"
+    step_number: 4
+    step_order: 4
+    description: "Astronaut introduces buffer into the crystal growth chamber cassette."
+    expected_activity: "manipulate_sample"
+    expected_actions:
+      - "manipulate_sample"
+    optional: false
+    allowed_transitions:
+      - "step_05_inspect_chamber"
+    timeouts:
+      nominal_duration_seconds: 90
+      max_timeout_seconds: 240
+    thresholds:
+      activity_confidence_min: 0.70
+      pose_tracking_stability_min: 0.80
+      interaction_proximity_px: 40.0
+    validation_rules:
+      - rule_id: "RULE-MANIP-01"
+        predicate: "pipette_at_cassette_port == true"
+        severity: "CRITICAL"
+
+  - step_id: "step_05_inspect_chamber"
+    step_number: 5
+    step_order: 5
+    description: "Astronaut visually inspects the crystal chamber optical viewport for bubbles."
+    expected_activity: "inspect_chamber"
+    expected_actions:
+      - "inspect_chamber"
+    optional: false
+    allowed_transitions:
+      - "step_06_complete_idle"
+    timeouts:
+      nominal_duration_seconds: 40
+      max_timeout_seconds: 120
+    thresholds:
+      activity_confidence_min: 0.70
+      pose_tracking_stability_min: 0.80
+      interaction_proximity_px: 100.0
+    validation_rules:
+      - rule_id: "RULE-INSPECT-01"
+        predicate: "head_gaze_towards_chamber == true"
+        severity: "INFO"
+
+  - step_id: "step_06_complete_idle"
+    step_number: 6
+    step_order: 6
+    description: "Astronaut docks tool, closes chamber, and steps back to idle standby."
+    expected_activity: "idle"
+    expected_actions:
+      - "idle"
+    optional: false
+    allowed_transitions: []
+    timeouts:
+      nominal_duration_seconds: 30
+      max_timeout_seconds: 90
+    thresholds:
+      activity_confidence_min: 0.70
+      pose_tracking_stability_min: 0.80
+    validation_rules:
+      - rule_id: "RULE-STANDBY-01"
+        predicate: "tools_docked == true"
+        severity: "INFO"
+
+# ------------------------------------------------------------------------------
+# 4. SAFETY ALERTS
+# ------------------------------------------------------------------------------
+alerts:
+  - alert_id: "ALERT-CONTAM-01"
+    trigger: "glovebox_door_open AND NOT glovebox_sanitized"
+    severity: "CRITICAL"
+    audio_chime: "alert_critical_two_tone.wav"
+    spoken_message: "Warning. Glovebox door unsealed prior to sanitization cycle."
+
+  - alert_id: "ALERT-TIMEOUT-01"
+    trigger: "step_elapsed > max_timeout_seconds"
+    severity: "WARNING"
+    audio_chime: "alert_warning_single.wav"
+    spoken_message: "Caution. Step duration exceeded nominal limit. Verify procedure."
+
+# ------------------------------------------------------------------------------
+# 5. CONTINGENCY RECOVERY POLICIES
+# ------------------------------------------------------------------------------
+recovery:
+  on_timeout:
+    action: "REQUEST_OPERATOR_CONFIRMATION"
+    max_grace_period_seconds: 60
+  on_tool_lost:
+    action: "PAUSE_EXPERIMENT"
+    alert_flight_crew: true
+  on_power_interrupt:
+    action: "SAVE_CHECKPOINT_AND_SAFE"

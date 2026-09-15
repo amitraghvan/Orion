@@ -1,6 +1,7 @@
 """Async database engine and session management for SQLAlchemy 2.0."""
 
 from collections.abc import AsyncGenerator
+from pathlib import Path
 
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
@@ -9,10 +10,42 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
-from orion.core.config import get_settings
+from orion.core.config import OrionSettings, get_settings
 
 _engine: AsyncEngine | None = None
 _session_factory: async_sessionmaker[AsyncSession] | None = None
+
+
+def init_db(settings: OrionSettings) -> tuple[AsyncEngine, async_sessionmaker[AsyncSession]]:
+    """Explicitly initialize or reconfigure the database engine and session factory with settings."""
+    global _engine, _session_factory
+    connect_args = {}
+    if "sqlite" in settings.db.url:
+        connect_args["check_same_thread"] = False
+        db_file_str = settings.db.url.split(":///")[-1]
+        if db_file_str and db_file_str != ":memory:" and not db_file_str.startswith("?"):
+            Path(db_file_str).parent.mkdir(parents=True, exist_ok=True)
+
+    _engine = create_async_engine(
+        settings.db.url,
+        echo=False,
+        future=True,
+        connect_args=connect_args,
+    )
+    _session_factory = async_sessionmaker(
+        bind=_engine,
+        class_=AsyncSession,
+        expire_on_commit=False,
+        autoflush=False,
+    )
+    return _engine, _session_factory
+
+
+def reset_db_engine() -> None:
+    """Reset singleton engine and session factory (used for testing and lifecycle shutdown)."""
+    global _engine, _session_factory
+    _engine = None
+    _session_factory = None
 
 
 def get_engine() -> AsyncEngine:
@@ -23,6 +56,9 @@ def get_engine() -> AsyncEngine:
         connect_args = {}
         if "sqlite" in settings.db.url:
             connect_args["check_same_thread"] = False
+            db_file_str = settings.db.url.split(":///")[-1]
+            if db_file_str and db_file_str != ":memory:" and not db_file_str.startswith("?"):
+                Path(db_file_str).parent.mkdir(parents=True, exist_ok=True)
 
         _engine = create_async_engine(
             settings.db.url,

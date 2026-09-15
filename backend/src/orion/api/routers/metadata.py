@@ -3,6 +3,7 @@
 from fastapi import APIRouter, Depends, status
 from pydantic import BaseModel, Field
 
+from orion.core.auth import require_viewer
 from orion.core.config import OrionSettings
 from orion.di.container import get_settings
 
@@ -30,6 +31,7 @@ class SystemMetadataResponse(BaseModel):
 )
 async def get_system_info(
     settings: OrionSettings = Depends(get_settings),
+    _user: object = Depends(require_viewer),
 ) -> SystemMetadataResponse:
     """Return runtime metadata and hardware acceleration profile."""
     return SystemMetadataResponse(

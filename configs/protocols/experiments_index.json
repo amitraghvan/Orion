@@ -1,0 +1,62 @@
+{
+  "E01_A": {
+    "experiment_id": "BAS-EXP-E01-A",
+    "title": "E01 Detecting Colour (Variant A: Yellow then Red)",
+    "file": "configs/protocols/bas_e01_a.yaml",
+    "step_count": 4
+  },
+  "E01_B": {
+    "experiment_id": "BAS-EXP-E01-B",
+    "title": "E01 Detecting Colour (Variant B: Red then Yellow)",
+    "file": "configs/protocols/bas_e01_b.yaml",
+    "step_count": 4
+  },
+  "E02_A": {
+    "experiment_id": "BAS-EXP-E02-A",
+    "title": "E02 Interchanging the Boxes (Variant A)",
+    "file": "configs/protocols/bas_e02_a.yaml",
+    "step_count": 3
+  },
+  "E02_B": {
+    "experiment_id": "BAS-EXP-E02-B",
+    "title": "E02 Interchanging the Boxes (Variant B)",
+    "file": "configs/protocols/bas_e02_b.yaml",
+    "step_count": 3
+  },
+  "E03_A": {
+    "experiment_id": "BAS-EXP-E03-A",
+    "title": "E03 Overlapping the Boxes (Variant A)",
+    "file": "configs/protocols/bas_e03_a.yaml",
+    "step_count": 2
+  },
+  "E03_B": {
+    "experiment_id": "BAS-EXP-E03-B",
+    "title": "E03 Overlapping the Boxes (Variant B)",
+    "file": "configs/protocols/bas_e03_b.yaml",
+    "step_count": 2
+  },
+  "E04_A": {
+    "experiment_id": "BAS-EXP-E04-A",
+    "title": "E04 Moving (Variant A)",
+    "file": "configs/protocols/bas_e04_a.yaml",
+    "step_count": 2
+  },
+  "E04_B": {
+    "experiment_id": "BAS-EXP-E04-B",
+    "title": "E04 Moving (Variant B)",
+    "file": "configs/protocols/bas_e04_b.yaml",
+    "step_count": 2
+  },
+  "E05_A": {
+    "experiment_id": "BAS-EXP-E05-A",
+    "title": "E05 In Container (Variant A)",
+    "file": "configs/protocols/bas_e05_a.yaml",
+    "step_count": 4
+  },
+  "E05_B": {
+    "experiment_id": "BAS-EXP-E05-B",
+    "title": "E05 In Container (Variant B)",
+    "file": "configs/protocols/bas_e05_b.yaml",
+    "step_count": 4
+  }
+}

@@ -29,3 +29,41 @@ class CorrelationIdMiddleware(BaseHTTPMiddleware):
         response.headers["X-Response-Time-MS"] = f"{duration_ms:.2f}"
 
         return response
+
+
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    """Enforces aerospace-grade security headers on all HTTP responses."""
+
+    async def dispatch(
+        self, request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
+        response = await call_next(request)
+
+        # 1. Content Type Options (prevents MIME type sniffing)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+
+        # 2. Clickjacking Protection
+        response.headers["X-Frame-Options"] = "DENY"
+
+        # 3. Referrer Policy
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+
+        # 4. Content Security Policy (allows local WebSocket and Vite frontend)
+        csp = (
+            "default-src 'self'; "
+            "connect-src 'self' ws: wss:; "
+            "img-src 'self' data: blob:; "
+            "style-src 'self' 'unsafe-inline'; "
+            "script-src 'self'"
+        )
+        response.headers["Content-Security-Policy"] = csp
+
+        # 5. Permissions Policy
+        response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+
+        # 6. Cache Control for sensitive API responses
+        if request.url.path.startswith("/api/"):
+            response.headers["Cache-Control"] = "no-store, max-age=0"
+            response.headers["Pragma"] = "no-cache"
+
+        return response

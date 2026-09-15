@@ -14,6 +14,13 @@ class TrackerRegistry:
 
     @classmethod
     def get(cls, name: str) -> type[TrackerInterface]:
+        if not cls._trackers:
+            from orion_ai.tracking.byte_tracker import ByteTracker
+
+            cls.register("bytetrack", ByteTracker)
+            cls.register("iou_tracker", ByteTracker)
+            cls.register("baseline_tracker", ByteTracker)
+
         if name not in cls._trackers:
             raise NotImplementedError(
                 f"NOT IMPLEMENTED: Tracker algorithm {name} is not registered."

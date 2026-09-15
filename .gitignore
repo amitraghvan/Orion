@@ -71,6 +71,8 @@ dmypy.json
 *.pfx
 secrets/
 credentials.json
+logs/
+*.log
 
 # Node & Frontend
 node_modules/
@@ -128,6 +130,13 @@ recordings/*
 *~
 Thumbs.db
 ehthumbs.db
+
+# Local Data & SQLite
+data/
+backend/data/
+*.db
+*.sqlite
+*.sqlite3
 
 # Documentation Builds
 docs/_build/

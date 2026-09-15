@@ -1,0 +1,105 @@
+schema_version: 1.0.0
+metadata:
+  experiment_id: BAS-EXP-E02-B
+  title: E02 Interchanging the Boxes (Variant B)
+  lead_agency: ISRO HSFC
+  station_module: BAS-SCIENCE-NODE-1
+  glovebox_id: GB-01
+  principal_investigator: Astronaut Scientist / HSFC Payload Specialist
+  date_approved: '2026-09-14'
+  safety_classification: LEVEL-1-NON-HAZARDOUS
+objects:
+- object_id: yellow_box
+  label: yellow_box
+  required: true
+  expected_detection_model: bas-det-yolo11-v1
+  min_confidence: 0.7
+- object_id: red_box
+  label: red_box
+  required: true
+  expected_detection_model: bas-det-yolo11-v1
+  min_confidence: 0.7
+steps:
+- step_id: E02_B_S01
+  step_number: 1
+  step_order: 1
+  description: Pick up both boxes.
+  expected_activity: pick_both
+  expected_actions:
+  - pick_both
+  - pick
+  optional: false
+  allowed_transitions:
+  - E02_B_S02
+  timeouts:
+    nominal_duration_seconds: 30
+    max_timeout_seconds: 90
+  thresholds:
+    activity_confidence_min: 0.65
+    pose_tracking_stability_min: 0.75
+    interaction_proximity_px: 100.0
+  validation_rules:
+  - rule_id: RULE-E02_B_S01
+    predicate: interaction_active == true
+    severity: WARNING
+- step_id: E02_B_S02
+  step_number: 2
+  step_order: 2
+  description: Put the red box on the yellow box's place.
+  expected_activity: place_red
+  expected_actions:
+  - place_red
+  - place
+  optional: false
+  allowed_transitions:
+  - E02_B_S03
+  timeouts:
+    nominal_duration_seconds: 30
+    max_timeout_seconds: 90
+  thresholds:
+    activity_confidence_min: 0.65
+    pose_tracking_stability_min: 0.75
+    interaction_proximity_px: 100.0
+  validation_rules:
+  - rule_id: RULE-E02_B_S02
+    predicate: interaction_active == true
+    severity: WARNING
+- step_id: E02_B_S03
+  step_number: 3
+  step_order: 3
+  description: Put the yellow box on the red box's place.
+  expected_activity: place_yellow
+  expected_actions:
+  - place_yellow
+  - place
+  optional: false
+  allowed_transitions: []
+  timeouts:
+    nominal_duration_seconds: 30
+    max_timeout_seconds: 90
+  thresholds:
+    activity_confidence_min: 0.65
+    pose_tracking_stability_min: 0.75
+    interaction_proximity_px: 100.0
+  validation_rules:
+  - rule_id: RULE-E02_B_S03
+    predicate: interaction_active == true
+    severity: WARNING
+alerts:
+- alert_id: ALERT-WRONG-OBJECT
+  trigger: wrong_object_detected
+  severity: WARNING
+  spoken_message: Warning. Expected object operation mismatch.
+- alert_id: ALERT-STEP-SKIPPED
+  trigger: step_skipped
+  severity: WARNING
+  spoken_message: Step skipped. Please perform the required step.
+- alert_id: ALERT-OUT-OF-SEQUENCE
+  trigger: out_of_sequence
+  severity: WARNING
+  spoken_message: Experiment sequence violation detected.
+recovery:
+  on_timeout:
+    action: RETRY_STEP
+  on_tool_lost:
+    action: PAUSE_EXPERIMENT

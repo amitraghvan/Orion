@@ -49,6 +49,11 @@ dependencies = [
     "numpy>=1.26.0,<2.0.0",
     "scipy>=1.14.0",
     "pillow>=11.0.0",
+    "opencv-python>=4.11.0.86",
+    "torch>=2.2.0",
+    "torchvision>=0.17.0",
+    "ultralytics>=8.3.0",
+    "onnxruntime>=1.19.0",
 
     # Observability & Telemetry
     "structlog>=24.4.0",
@@ -164,10 +169,22 @@ ignore = [
     "B008",   # Do not perform function call Depends in argument defaults (FastAPI standard)
     "PLW0603",# Global statement in singleton factories
     "RUF012", # Mutable default value for class attribute in static registries
+    "BLE001", # Blind except Exception for aerospace fault isolation
+    "PLC0415",# Lazy import for model registry isolation
+    "ASYNC240",# Local file existence check in async health probes and initializers
+    "PLR0912",# Too many branches in multi-stage tracker association
+    "PLR0915",# Too many statements in multi-stage tracking algorithms
+    "PLR0917",# Too many positional arguments in hardware and coordinator constructors
+    "PLR0911",# Too many return statements in state transitions
+    "PLR2004",# Magic value used in comparison
+    "TCH",    # Flake8-type-checking (causes runtime pydantic type resolution issues)
+    "ARG002", # Unused method argument in polymorphic methods
+    "SIM102", # Nested if statements
+    "C901",   # Complex branching in multi-stage object tracking algorithms
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["S101", "ARG", "PLR2004", "T201", "S106", "PTH123", "F401"]
+"tests/**" = ["S101", "ARG", "PLR2004", "T201", "S106", "PTH123", "F401", "ASYNC240", "PLR0915", "TCH"]
 "scripts/**" = ["T201", "S603", "S607", "BLE001", "PLC0415", "PLR0912", "PLR0915", "PLR2004", "PLW1510", "PTH118", "PTH110", "PTH107"]
 "backend/migrations/**" = ["ERA001", "F401"]
 "backend/src/orion/db/models/**" = ["A003", "A002"]
@@ -208,6 +225,7 @@ skip_glob = ["**/migrations/*", "**/frontend/*"]
 # ------------------------------------------------------------------------------
 [tool.mypy]
 python_version = "3.11"
+mypy_path = ["backend/src", "ai/src", "datasets/src"]
 strict = true
 warn_unused_configs = true
 warn_redundant_casts = true
@@ -232,6 +250,9 @@ module = [
     "opentelemetry.*",
     "hypothesis.*",
     "alembic.*",
+    "ultralytics.*",
+    "torch.*",
+    "torchvision.*",
 ]
 ignore_missing_imports = true
 

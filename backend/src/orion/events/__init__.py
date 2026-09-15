@@ -8,6 +8,7 @@ from orion.events.schemas import (
     ExperimentUpdated,
     FrameCaptured,
     HealthChanged,
+    ObservationCaptured,
     PoseCompleted,
     RecordingStarted,
     RecordingStopped,
@@ -21,7 +22,9 @@ __all__ = [
     "ExperimentUpdated",
     "FrameCaptured",
     "HealthChanged",
+    "ObservationCaptured",
     "PoseCompleted",
     "RecordingStarted",
     "RecordingStopped",
 ]
+

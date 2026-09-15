@@ -5,6 +5,7 @@ from orion_ai.models.interfaces import (
     ModelRegistryInterface,
     ModelWeightsLoaderInterface,
 )
+from orion_ai.models.loader import LocalModelWeightsLoader
 from orion_ai.models.registry import ModelCatalogRegistry
 from orion_ai.models.schemas import (
     ChecksumManifest,
@@ -14,6 +15,7 @@ from orion_ai.models.schemas import (
 
 __all__ = [
     "ChecksumManifest",
+    "LocalModelWeightsLoader",
     "ModelCatalogRegistry",
     "ModelMetadata",
     "ModelRegistryConfig",

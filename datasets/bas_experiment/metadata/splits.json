@@ -1,0 +1,29 @@
+{
+  "train": [
+    "E05_SP01_VALID_B_EP10",
+    "E01_SP02_VALID_A_YP01",
+    "E01_SP02_VALID_B_YP02",
+    "E03_SP02_VALID_B_YP06",
+    "E04_SP02_VALID_A_YP07",
+    "E05_SP02_VALID_A_YP09",
+    "E05_SP02_VALID_B_YP10"
+  ],
+  "val": [
+    "E02_SP03_VALID_A_ZP03",
+    "E02_SP03_VALID_B_ZP04",
+    "E05_SP03_VALID_B_ZP10"
+  ],
+  "test": [
+    "RAW_video_20260912_183146.mp4",
+    "RAW_video_20260912_174946.mp4",
+    "RAW_video_20260912_175307.mp4",
+    "E01_SP04_VALID_A_AP01",
+    "E01_SP04_VALID_B_AP02",
+    "E02_SP04_VALID_B_AP04",
+    "E04_SP04_VALID_A_AP07",
+    "E04_SP04_VALID_B_AP08",
+    "E05_SP04_VALID_A_AP09",
+    "E05_SP04_VALID_B_AP10"
+  ],
+  "leakage_check_passed": true
+}
