@@ -1,0 +1,30 @@
+{
+  "model_id": "stgcn_har_v1",
+  "version": "1.0.0",
+  "task": "temporal_action_recognition",
+  "architecture": "stgcn_coco17",
+  "framework": "pytorch",
+  "format": "pt",
+  "input_shape": [
+    1,
+    4,
+    32,
+    17
+  ],
+  "output_schema": "class_logits_6",
+  "classes": [
+    "prepare_workstation",
+    "reach_tool",
+    "grasp_tool",
+    "manipulate_sample",
+    "inspect_chamber",
+    "idle"
+  ],
+  "sha256": "41570e8d4471b6596abe459fd93c6f34546c0059d974e0629dc886451a3e95ed",
+  "total_parameters": 455194,
+  "trainable_parameters": 455194,
+  "license": "Apache-2.0",
+  "source": "orion_ai.activity.training",
+  "creation_timestamp": "2026-09-08T14:35:11.806283+00:00",
+  "notes": "ST-GCN model trained on synthetic kinematic microgravity sequences for BAS experiment activity recognition."
+}

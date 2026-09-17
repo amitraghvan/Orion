@@ -95,6 +95,8 @@ datasets/processed/*
 !datasets/processed/.gitkeep
 models/weights/*
 !models/weights/.gitkeep
+!models/weights/*.pt
+!models/weights/*.json
 *.pt
 *.pth
 *.onnx
@@ -103,6 +105,8 @@ models/weights/*
 *.safetensors
 *.bin
 *.h5
+!models/weights/*.pt
+!models/weights/*.json
 
 # Video & Sensor Recordings & Generated Reports
 recordings/*

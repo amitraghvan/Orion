@@ -189,6 +189,11 @@ async def test_10_recovery_succeeds_after_simulated_transient_failure(
     coordinator._consecutive_failures = 3
     if not coordinator.camera.is_active:
         await coordinator.camera.initialize()
+    else:
+        for _ in range(20):
+            if coordinator.camera._buffer.size > 0:
+                break
+            await asyncio.sleep(0.05)
 
     # Execute a successful single frame pass
     obs = await coordinator.process_single_frame()
