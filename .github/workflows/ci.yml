@@ -28,11 +28,11 @@ jobs:
 
       - name: Lint with Ruff
         run: |
-          uv run ruff check .
+          uv run --with ruff ruff check .
 
       - name: Format Check with Ruff
         run: |
-          uv run ruff format --check .
+          uv run --with ruff ruff format --check .
 
   type-check:
     name: "Strict Type Check (Mypy)"
