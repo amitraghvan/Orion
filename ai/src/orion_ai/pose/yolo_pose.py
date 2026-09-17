@@ -134,7 +134,9 @@ class YOLOPoseEstimator(PoseEstimatorInterface):
                         boxes = res.boxes.xyxy.cpu().numpy() if res.boxes is not None else None
 
                         candidate_poses: list[HumanPose] = []
-                        for person_idx, (kps, scores) in enumerate(zip(xy_all, conf_all, strict=False)):
+                        for person_idx, (kps, scores) in enumerate(
+                            zip(xy_all, conf_all, strict=False)
+                        ):
                             valid_kps = [score for score in scores if score >= 0.25]
                             # Require at least 6 confident keypoints to form a valid human body
                             if len(valid_kps) < 6:

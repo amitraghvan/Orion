@@ -18,16 +18,16 @@ def _create_synthetic_pose(
 ) -> TemporalSkeletonPose:
     # Base canonical human coordinates (17 keypoints)
     base_coords = {
-        0: (320.0, 100.0),   # nose
-        1: (315.0, 95.0),    # left_eye
-        2: (325.0, 95.0),    # right_eye
-        3: (310.0, 100.0),   # left_ear
-        4: (330.0, 100.0),   # right_ear
-        5: (280.0, 150.0),   # left_shoulder
-        6: (360.0, 150.0),   # right_shoulder
-        7: (260.0, 200.0),   # left_elbow
-        8: (380.0, 200.0),   # right_elbow
-        9: (250.0, 250.0),   # left_wrist
+        0: (320.0, 100.0),  # nose
+        1: (315.0, 95.0),  # left_eye
+        2: (325.0, 95.0),  # right_eye
+        3: (310.0, 100.0),  # left_ear
+        4: (330.0, 100.0),  # right_ear
+        5: (280.0, 150.0),  # left_shoulder
+        6: (360.0, 150.0),  # right_shoulder
+        7: (260.0, 200.0),  # left_elbow
+        8: (380.0, 200.0),  # right_elbow
+        9: (250.0, 250.0),  # left_wrist
         10: (390.0, 250.0),  # right_wrist
         11: (290.0, 270.0),  # left_hip
         12: (350.0, 270.0),  # right_hip
@@ -92,7 +92,9 @@ def test_microgravity_translation_invariance() -> None:
     feat_a, _ = normalizer.normalize_sequence(seq_a)
 
     # Sequence B: translated by +150px X, -80px Y
-    seq_b = [_create_synthetic_pose(offset_x=150.0, offset_y=-80.0, frame_index=i) for i in range(5)]
+    seq_b = [
+        _create_synthetic_pose(offset_x=150.0, offset_y=-80.0, frame_index=i) for i in range(5)
+    ]
     feat_b, _ = normalizer.normalize_sequence(seq_b)
 
     # Coordinates and velocities must match within float precision

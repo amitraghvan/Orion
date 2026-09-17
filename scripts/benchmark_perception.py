@@ -116,7 +116,9 @@ async def run_benchmark(num_frames: int = 60) -> None:
     mean_track = sum(track_latencies) / len(track_latencies)
     # Average HAR latency on frames where stride triggered (non-zero)
     active_har_latencies = [lat for lat in har_latencies if lat > 0.0]
-    mean_har_active = sum(active_har_latencies) / len(active_har_latencies) if active_har_latencies else 0.0
+    mean_har_active = (
+        sum(active_har_latencies) / len(active_har_latencies) if active_har_latencies else 0.0
+    )
     mean_har_all = sum(har_latencies) / len(har_latencies)
     mean_total = sum(total_latencies) / len(total_latencies)
 

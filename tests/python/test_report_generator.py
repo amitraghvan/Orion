@@ -2,6 +2,7 @@
 
 import json
 from pathlib import Path
+
 from app.reports.report_generator import ReportGenerator
 
 

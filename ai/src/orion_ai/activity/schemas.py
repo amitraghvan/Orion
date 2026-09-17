@@ -128,4 +128,3 @@ ATOMIC_ACTIVITIES: set[str] = {
     "inspect_chamber",
     "idle",
 }
-

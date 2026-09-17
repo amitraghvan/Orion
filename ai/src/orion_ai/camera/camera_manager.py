@@ -16,9 +16,9 @@ from __future__ import annotations
 import asyncio
 import threading
 import time
+from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Callable
 
 import numpy as np
 
@@ -181,7 +181,10 @@ class CameraManager(CameraDriverInterface):
         # Check if source is a file path
         is_path = False
         p = Path(source_val)
-        if p.is_file() or (not source_val.isdigit() and not source_val.startswith(("rtsp://", "http://", "https://"))):
+        if p.is_file() or (
+            not source_val.isdigit()
+            and not source_val.startswith(("rtsp://", "http://", "https://"))
+        ):
             is_path = True
 
         if is_path:
@@ -192,14 +195,13 @@ class CameraManager(CameraDriverInterface):
                 target_fps=self.target_fps,
                 loop=self.loop,
             )
-        else:
-            return LiveCameraSource(
-                source_id=source_val,
-                target_width=self.target_width,
-                target_height=self.target_height,
-                target_fps=self.target_fps,
-                enable_native=True,
-            )
+        return LiveCameraSource(
+            source_id=source_val,
+            target_width=self.target_width,
+            target_height=self.target_height,
+            target_fps=self.target_fps,
+            enable_native=True,
+        )
 
     def start(self) -> bool:
         """Commence acquisition loop on dedicated background worker thread."""
@@ -230,7 +232,9 @@ class CameraManager(CameraDriverInterface):
                 daemon=True,
             )
             self._capture_thread.start()
-            logger.info("Authoritative CameraManager started successfully", source=self._source_spec)
+            logger.info(
+                "Authoritative CameraManager started successfully", source=self._source_spec
+            )
             return True
 
     def stop(self) -> None:
@@ -266,7 +270,9 @@ class CameraManager(CameraDriverInterface):
     # Frame Listeners & Acquisition Loop
     # --------------------------------------------------------------------------
 
-    def add_frame_listener(self, listener: Callable[[np.ndarray, int, float], None]) -> Callable[[], None]:
+    def add_frame_listener(
+        self, listener: Callable[[np.ndarray, int, float], None]
+    ) -> Callable[[], None]:
         """Register a callback to be notified when a new frame is captured."""
         with self._lock:
             self._listeners.append(listener)
@@ -413,9 +419,7 @@ class CameraManager(CameraDriverInterface):
             status = SubsystemStatus.ERROR
         elif st == CameraStatus.DISCONNECTED:
             status = SubsystemStatus.OFFLINE
-        elif st == CameraStatus.CONNECTING:
-            status = SubsystemStatus.DEGRADED
-        elif drops > 0:
+        elif st == CameraStatus.CONNECTING or drops > 0:
             status = SubsystemStatus.DEGRADED
         else:
             status = SubsystemStatus.HEALTHY

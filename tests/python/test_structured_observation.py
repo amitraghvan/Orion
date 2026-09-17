@@ -13,7 +13,7 @@ from orion_ai.interaction.multimodal_schemas import (
 from orion_ai.interaction.object_schemas import ObjectObservation
 from orion_ai.pose.schemas import HumanPose, Keypoint2D
 from orion_ai.runtime.observation import PipelineMetrics, StructuredObservation
-from orion_ai.tracking.schemas import TrackState, TrackedObject
+from orion_ai.tracking.schemas import TrackedObject, TrackState
 
 
 def test_canonical_structured_observation_creation():
@@ -35,7 +35,9 @@ def test_canonical_structured_observation_creation():
     )
 
     # Pose: 17 keypoints
-    kpts = [Keypoint2D(id=i, name=f"kpt_{i}", x=150.0 + i, y=100.0 + i, score=0.8) for i in range(17)]
+    kpts = [
+        Keypoint2D(id=i, name=f"kpt_{i}", x=150.0 + i, y=100.0 + i, score=0.8) for i in range(17)
+    ]
     pose = HumanPose(
         person_id=1,
         bbox=BoundingBox2D(x_min=100.0, y_min=50.0, x_max=300.0, y_max=450.0),

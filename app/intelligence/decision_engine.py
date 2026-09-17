@@ -2,15 +2,13 @@
 
 from __future__ import annotations
 
-import math
 from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Any
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, Field
-
 from app.core.logging import get_logger
+from pydantic import BaseModel, Field
 
 logger = get_logger("app.intelligence.decision")
 
@@ -128,7 +126,7 @@ class ProtocolDecisionEngine:
 
         current_step = spec.steps[current_step_index]
         expected_actions = [a.lower() for a in getattr(current_step, "expected_actions", [])]
-        step_id = getattr(current_step, "step_id", f"step_{current_step_index+1}")
+        step_id = getattr(current_step, "step_id", f"step_{current_step_index + 1}")
         step_num = getattr(current_step, "step_number", current_step_index + 1)
         mapped_action = self.mapper.map_action(observed_activity).lower()
 
@@ -155,7 +153,11 @@ class ProtocolDecisionEngine:
             )
 
         # 2. Check confidence & entropy invariants
-        min_conf = getattr(getattr(current_step, "thresholds", None), "activity_confidence_min", self.default_min_confidence)
+        min_conf = getattr(
+            getattr(current_step, "thresholds", None),
+            "activity_confidence_min",
+            self.default_min_confidence,
+        )
         if confidence < min_conf or entropy > self.default_max_entropy:
             return ProtocolDecision(
                 status=DecisionStatus.STEP_UNCERTAIN,
@@ -186,7 +188,10 @@ class ProtocolDecisionEngine:
             )
 
         # 4. Check if observed action satisfies current step
-        if any(mapped_action == exp or mapped_action in exp or exp in mapped_action for exp in expected_actions):
+        if any(
+            mapped_action == exp or mapped_action in exp or exp in mapped_action
+            for exp in expected_actions
+        ):
             return ProtocolDecision(
                 status=DecisionStatus.VALID,
                 step_id=step_id,
@@ -201,8 +206,9 @@ class ProtocolDecisionEngine:
             )
 
         # 5. Check if action corresponds to wrong object
-        if ("yellow" in mapped_action and any("red" in exp for exp in expected_actions)) or \
-           ("red" in mapped_action and any("yellow" in exp for exp in expected_actions)):
+        if ("yellow" in mapped_action and any("red" in exp for exp in expected_actions)) or (
+            "red" in mapped_action and any("yellow" in exp for exp in expected_actions)
+        ):
             return ProtocolDecision(
                 status=DecisionStatus.WRONG_OBJECT,
                 step_id=step_id,

@@ -64,7 +64,11 @@ class PoseBasedHandExtractor(HandPerceptionInterface):
         # Get frame dimensions if frame_buffer is numpy array
         img_w: float = 1920.0
         img_h: float = 1080.0
-        if frame_buffer is not None and hasattr(frame_buffer, "shape") and len(frame_buffer.shape) >= 2:
+        if (
+            frame_buffer is not None
+            and hasattr(frame_buffer, "shape")
+            and len(frame_buffer.shape) >= 2
+        ):
             img_h = float(frame_buffer.shape[0])
             img_w = float(frame_buffer.shape[1])
 
@@ -75,7 +79,7 @@ class PoseBasedHandExtractor(HandPerceptionInterface):
             pad = self.padding_px
             if self.adaptive_scale and pose.bbox:
                 # Approximate hand size as roughly ~10-15% of person height/diagonal
-                person_diag = (pose.bbox.width ** 2 + pose.bbox.height ** 2) ** 0.5
+                person_diag = (pose.bbox.width**2 + pose.bbox.height**2) ** 0.5
                 if person_diag > 10.0:
                     pad = max(20.0, min(80.0, person_diag * 0.08))
 
@@ -85,9 +89,17 @@ class PoseBasedHandExtractor(HandPerceptionInterface):
 
             for kpt in pose.keypoints_2d:
                 name_lower = kpt.name.lower()
-                if kpt.id == COCO_LEFT_WRIST_ID or "left_wrist" in name_lower or name_lower == "l_wrist":
+                if (
+                    kpt.id == COCO_LEFT_WRIST_ID
+                    or "left_wrist" in name_lower
+                    or name_lower == "l_wrist"
+                ):
                     lw_kpt = kpt
-                elif kpt.id == COCO_RIGHT_WRIST_ID or "right_wrist" in name_lower or name_lower == "r_wrist":
+                elif (
+                    kpt.id == COCO_RIGHT_WRIST_ID
+                    or "right_wrist" in name_lower
+                    or name_lower == "r_wrist"
+                ):
                     rw_kpt = kpt
 
             # Process Left Hand

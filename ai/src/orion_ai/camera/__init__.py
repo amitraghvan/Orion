@@ -31,4 +31,3 @@ __all__ = [
     "Resolution",
     "authoritative_camera_manager",
 ]
-

@@ -3,13 +3,9 @@
 from __future__ import annotations
 
 import time
-from typing import Any
 
-import cv2
 import numpy as np
-
 from app.core.config import get_config
-from app.core.event_bus import event_bus
 from app.core.logging import get_logger
 from app.core.state_manager import PerceptionSnapshot, state_manager
 from app.intelligence.hand_object_engine import HandObjectInteractionEngine
@@ -66,7 +62,9 @@ class IntelligenceEngine:
 
         return True
 
-    def process_frame(self, frame_bgr: np.ndarray, frame_id: int, timestamp: float) -> PerceptionSnapshot:
+    def process_frame(
+        self, frame_bgr: np.ndarray, frame_id: int, timestamp: float
+    ) -> PerceptionSnapshot:
         """Execute complete perception pipeline on a single video frame."""
         t0 = time.perf_counter()
         self._frame_count += 1
@@ -92,12 +90,14 @@ class IntelligenceEngine:
                     for i in range(len(boxes)):
                         cid = int(cls_ids[i])
                         cname = names.get(cid, str(cid)) if isinstance(names, dict) else str(cid)
-                        raw_dets.append({
-                            "bbox": boxes[i].tolist(),
-                            "confidence": float(confs[i]),
-                            "class_id": cid,
-                            "class_name": cname,
-                        })
+                        raw_dets.append(
+                            {
+                                "bbox": boxes[i].tolist(),
+                                "confidence": float(confs[i]),
+                                "class_id": cid,
+                                "class_name": cname,
+                            }
+                        )
 
                     # Track detections
                     detected_objects = self.tracker.update(raw_dets)

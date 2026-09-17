@@ -6,18 +6,46 @@ import numpy as np
 
 # COCO keypoint names
 COCO_KEYPOINTS = [
-    "nose", "left_eye", "right_eye", "left_ear", "right_ear",
-    "left_shoulder", "right_shoulder", "left_elbow", "right_elbow",
-    "left_wrist", "right_wrist", "left_hip", "right_hip",
-    "left_knee", "right_knee", "left_ankle", "right_ankle"
+    "nose",
+    "left_eye",
+    "right_eye",
+    "left_ear",
+    "right_ear",
+    "left_shoulder",
+    "right_shoulder",
+    "left_elbow",
+    "right_elbow",
+    "left_wrist",
+    "right_wrist",
+    "left_hip",
+    "right_hip",
+    "left_knee",
+    "right_knee",
+    "left_ankle",
+    "right_ankle",
 ]
 
 # Standard COCO skeletal bone connections
 COCO_BONES = [
-    (15, 13), (13, 11), (16, 14), (14, 12), (11, 12),
-    (5, 11), (6, 12), (5, 6), (5, 7), (6, 8),
-    (7, 9), (8, 10), (1, 2), (0, 1), (0, 2),
-    (1, 3), (2, 4), (3, 5), (4, 6),
+    (15, 13),
+    (13, 11),
+    (16, 14),
+    (14, 12),
+    (11, 12),
+    (5, 11),
+    (6, 12),
+    (5, 6),
+    (5, 7),
+    (6, 8),
+    (7, 9),
+    (8, 10),
+    (1, 2),
+    (0, 1),
+    (0, 2),
+    (1, 3),
+    (2, 4),
+    (3, 5),
+    (4, 6),
 ]
 
 
@@ -66,14 +94,16 @@ class PoseEstimatorWrapper:
                 lw = kpts[9][:2].tolist() if kpts[9][2] > 0.2 else None
                 rw = kpts[10][:2].tolist() if kpts[10][2] > 0.2 else None
 
-                poses.append({
-                    "person_id": i + 1,
-                    "bbox": bbox,
-                    "confidence": conf,
-                    "keypoints": kpts,
-                    "left_wrist": lw,
-                    "right_wrist": rw,
-                })
+                poses.append(
+                    {
+                        "person_id": i + 1,
+                        "bbox": bbox,
+                        "confidence": conf,
+                        "keypoints": kpts,
+                        "left_wrist": lw,
+                        "right_wrist": rw,
+                    }
+                )
             return poses
         except Exception:
             return []

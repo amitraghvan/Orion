@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import sys
 import threading
-from typing import Any
 
 import numpy as np
 from PySide6.QtCore import QObject, Signal
@@ -16,7 +15,6 @@ from app.core.config import get_config
 from app.core.lifecycle import lifecycle
 from app.core.logging import get_logger
 from app.core.paths import paths
-from app.core.state_manager import state_manager
 from app.database.database import db_manager
 from app.experiments.experiment_engine import experiment_engine
 from app.intelligence.intelligence_engine import intelligence_engine
@@ -112,7 +110,10 @@ class OrionApplication:
         )
         success = camera_manager.start()
         if not success:
-            logger.warning("Failed to open requested camera source; falling back to sample replay video", source=source)
+            logger.warning(
+                "Failed to open requested camera source; falling back to sample replay video",
+                source=source,
+            )
             sample_vid = paths.assets_dir / "sample_replay.mp4"
             camera_manager.configure(
                 source=str(sample_vid),
@@ -161,7 +162,11 @@ class OrionApplication:
     def _stop_inference(self) -> None:
         """Halt inference consumer worker."""
         self._inference_running = False
-        if hasattr(self, "_inference_thread") and self._inference_thread and self._inference_thread.is_alive():
+        if (
+            hasattr(self, "_inference_thread")
+            and self._inference_thread
+            and self._inference_thread.is_alive()
+        ):
             self._inference_thread.join(timeout=1.0)
 
     def _inference_worker(self) -> None:
@@ -196,7 +201,7 @@ class OrionApplication:
             # 5. Emit thread-safe Signal to Qt GUI
             hud_text = (
                 f"FPS: {camera_manager.actual_fps:.1f} | Frame: {frame_id}\n"
-                f"Act: {snapshot.recognized_activity.upper()} ({snapshot.activity_confidence*100:.0f}%)"
+                f"Act: {snapshot.recognized_activity.upper()} ({snapshot.activity_confidence * 100:.0f}%)"
             )
             try:
                 self.dispatcher.frame_ready.emit(

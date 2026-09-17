@@ -75,7 +75,7 @@ class NextStepGuidanceEngine:
             if alert.severity in ("WARNING", "CRITICAL", "EMERGENCY"):
                 hazards.append(f"[{alert.severity}] {alert.spoken_message or alert.alert_id}")
 
-        is_last = (current_idx == total_steps - 1)
+        is_last = current_idx == total_steps - 1
 
         return NextStepRecommendation(
             step_id=step.step_id,

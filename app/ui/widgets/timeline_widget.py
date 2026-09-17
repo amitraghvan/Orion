@@ -15,7 +15,9 @@ class StepTimelineWidget(QWidget):
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.setFixedHeight(75)
-        self.setStyleSheet("background-color: #080c14; border: 1px solid #1e293b; border-radius: 8px;")
+        self.setStyleSheet(
+            "background-color: #080c14; border: 1px solid #1e293b; border-radius: 8px;"
+        )
 
         self._steps: list[dict[str, Any]] = []
         self._current_step_num: int = 1
@@ -35,7 +37,9 @@ class StepTimelineWidget(QWidget):
 
         if not self._steps:
             painter.setPen(QColor("#64748b"))
-            painter.drawText(self.rect(), Qt.AlignCenter, "No active experiment protocol steps loaded")
+            painter.drawText(
+                self.rect(), Qt.AlignCenter, "No active experiment protocol steps loaded"
+            )
             return
 
         w = self.width()

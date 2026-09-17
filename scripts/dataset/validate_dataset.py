@@ -12,10 +12,10 @@ import yaml
 
 def validate_bas_dataset(dataset_dir: str | Path) -> dict:
     base = Path(dataset_dir)
-    print(f"================================================================")
-    print(f" ORION BAS DATASET INTEGRITY VALIDATOR")
+    print("================================================================")
+    print(" ORION BAS DATASET INTEGRITY VALIDATOR")
     print(f" Target: {base.resolve()}")
-    print(f"================================================================\n")
+    print("================================================================\n")
 
     report = {
         "valid": True,
@@ -76,7 +76,9 @@ def validate_bas_dataset(dataset_dir: str | Path) -> dict:
     report["total_images"] = len(img_files)
     report["valid_images"] = len(img_files)
 
-    report["valid"] = (report["corrupt_npz"] == 0 and report["corrupt_images"] == 0 and len(report["errors"]) == 0)
+    report["valid"] = (
+        report["corrupt_npz"] == 0 and report["corrupt_images"] == 0 and len(report["errors"]) == 0
+    )
 
     print(f"✓ Experiment Definitions: {report['definitions_found']}")
     print(f"✓ Skeleton Sequences:     {report['valid_npz']}/{report['total_npz']} valid")
@@ -91,7 +93,9 @@ def validate_bas_dataset(dataset_dir: str | Path) -> dict:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="ORION BAS Dataset Integrity Validator")
-    parser.add_argument("--dataset", default="datasets/bas_experiment", help="Path to dataset directory")
+    parser.add_argument(
+        "--dataset", default="datasets/bas_experiment", help="Path to dataset directory"
+    )
     args = parser.parse_args()
 
     rep = validate_bas_dataset(args.dataset)

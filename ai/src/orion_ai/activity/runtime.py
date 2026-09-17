@@ -206,7 +206,9 @@ class TemporalHARRuntime:
                         is_nominal=is_nominal,
                         model_version=self.classifier.version,
                     )
-                    for cls, prob in sorted(smoothed_probs.items(), key=lambda x: x[1], reverse=True)
+                    for cls, prob in sorted(
+                        smoothed_probs.items(), key=lambda x: x[1], reverse=True
+                    )
                 ]
 
                 result = ActivityRecognitionResult(

@@ -270,7 +270,9 @@ class OpenCVCameraDriver(CameraDriverInterface):
                             try:
                                 if self._cap:
                                     self._cap.release()
-                                dev_idx = int(self.source) if str(self.source).isdigit() else self.source
+                                dev_idx = (
+                                    int(self.source) if str(self.source).isdigit() else self.source
+                                )
                                 self._cap = cv2.VideoCapture(dev_idx)
                                 if self._cap and self._cap.isOpened():
                                     self._cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.target_width)
@@ -287,7 +289,10 @@ class OpenCVCameraDriver(CameraDriverInterface):
                                 logger.debug("Camera recovery attempt failed", error=str(rec_exc))
 
                         if not reopened:
-                            logger.warning("Camera reconnection pending; waiting before next retry", source=str(self.source))
+                            logger.warning(
+                                "Camera reconnection pending; waiting before next retry",
+                                source=str(self.source),
+                            )
                             time.sleep(0.5)
                             consecutive_drops = 0
                         continue

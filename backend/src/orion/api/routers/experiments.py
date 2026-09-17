@@ -20,7 +20,6 @@ if TYPE_CHECKING:
 router = APIRouter(prefix="/experiments", tags=["experiments"])
 
 
-
 class LoadProtocolRequest(BaseModel):
     """Request payload for loading an experiment protocol."""
 
@@ -277,16 +276,76 @@ async def list_available_experiments() -> list[dict[str, Any]]:
             pass
 
     return [
-        {"code": "E01_A", "experiment_id": "BAS-EXP-E01-A", "title": "E01 Detecting Colour (Variant A: Yellow then Red)", "step_count": 4, "protocol_path": "configs/protocols/bas_e01_a.yaml"},
-        {"code": "E01_B", "experiment_id": "BAS-EXP-E01-B", "title": "E01 Detecting Colour (Variant B: Red then Yellow)", "step_count": 4, "protocol_path": "configs/protocols/bas_e01_b.yaml"},
-        {"code": "E02_A", "experiment_id": "BAS-EXP-E02-A", "title": "E02 Interchanging the Boxes (Variant A)", "step_count": 3, "protocol_path": "configs/protocols/bas_e02_a.yaml"},
-        {"code": "E02_B", "experiment_id": "BAS-EXP-E02-B", "title": "E02 Interchanging the Boxes (Variant B)", "step_count": 3, "protocol_path": "configs/protocols/bas_e02_b.yaml"},
-        {"code": "E03_A", "experiment_id": "BAS-EXP-E03-A", "title": "E03 Overlapping the Boxes (Variant A)", "step_count": 2, "protocol_path": "configs/protocols/bas_e03_a.yaml"},
-        {"code": "E03_B", "experiment_id": "BAS-EXP-E03-B", "title": "E03 Overlapping the Boxes (Variant B)", "step_count": 2, "protocol_path": "configs/protocols/bas_e03_b.yaml"},
-        {"code": "E04_A", "experiment_id": "BAS-EXP-E04-A", "title": "E04 Moving (Variant A)", "step_count": 2, "protocol_path": "configs/protocols/bas_e04_a.yaml"},
-        {"code": "E04_B", "experiment_id": "BAS-EXP-E04-B", "title": "E04 Moving (Variant B)", "step_count": 2, "protocol_path": "configs/protocols/bas_e04_b.yaml"},
-        {"code": "E05_A", "experiment_id": "BAS-EXP-E05-A", "title": "E05 In Container (Variant A)", "step_count": 4, "protocol_path": "configs/protocols/bas_e05_a.yaml"},
-        {"code": "E05_B", "experiment_id": "BAS-EXP-E05-B", "title": "E05 In Container (Variant B)", "step_count": 4, "protocol_path": "configs/protocols/bas_e05_b.yaml"},
+        {
+            "code": "E01_A",
+            "experiment_id": "BAS-EXP-E01-A",
+            "title": "E01 Detecting Colour (Variant A: Yellow then Red)",
+            "step_count": 4,
+            "protocol_path": "configs/protocols/bas_e01_a.yaml",
+        },
+        {
+            "code": "E01_B",
+            "experiment_id": "BAS-EXP-E01-B",
+            "title": "E01 Detecting Colour (Variant B: Red then Yellow)",
+            "step_count": 4,
+            "protocol_path": "configs/protocols/bas_e01_b.yaml",
+        },
+        {
+            "code": "E02_A",
+            "experiment_id": "BAS-EXP-E02-A",
+            "title": "E02 Interchanging the Boxes (Variant A)",
+            "step_count": 3,
+            "protocol_path": "configs/protocols/bas_e02_a.yaml",
+        },
+        {
+            "code": "E02_B",
+            "experiment_id": "BAS-EXP-E02-B",
+            "title": "E02 Interchanging the Boxes (Variant B)",
+            "step_count": 3,
+            "protocol_path": "configs/protocols/bas_e02_b.yaml",
+        },
+        {
+            "code": "E03_A",
+            "experiment_id": "BAS-EXP-E03-A",
+            "title": "E03 Overlapping the Boxes (Variant A)",
+            "step_count": 2,
+            "protocol_path": "configs/protocols/bas_e03_a.yaml",
+        },
+        {
+            "code": "E03_B",
+            "experiment_id": "BAS-EXP-E03-B",
+            "title": "E03 Overlapping the Boxes (Variant B)",
+            "step_count": 2,
+            "protocol_path": "configs/protocols/bas_e03_b.yaml",
+        },
+        {
+            "code": "E04_A",
+            "experiment_id": "BAS-EXP-E04-A",
+            "title": "E04 Moving (Variant A)",
+            "step_count": 2,
+            "protocol_path": "configs/protocols/bas_e04_a.yaml",
+        },
+        {
+            "code": "E04_B",
+            "experiment_id": "BAS-EXP-E04-B",
+            "title": "E04 Moving (Variant B)",
+            "step_count": 2,
+            "protocol_path": "configs/protocols/bas_e04_b.yaml",
+        },
+        {
+            "code": "E05_A",
+            "experiment_id": "BAS-EXP-E05-A",
+            "title": "E05 In Container (Variant A)",
+            "step_count": 4,
+            "protocol_path": "configs/protocols/bas_e05_a.yaml",
+        },
+        {
+            "code": "E05_B",
+            "experiment_id": "BAS-EXP-E05-B",
+            "title": "E05 In Container (Variant B)",
+            "step_count": 4,
+            "protocol_path": "configs/protocols/bas_e05_b.yaml",
+        },
     ]
 
 
@@ -334,19 +393,32 @@ async def get_experiment_summary(
     records = res.scalars().all()
 
     violations = [
-        r for r in records
-        if r.status in ("OUT_OF_SEQUENCE", "SKIPPED", "WRONG_OBJECT", "INTERRUPTED", "TIMEOUT", "INVALID_ACTION")
+        r
+        for r in records
+        if r.status
+        in (
+            "OUT_OF_SEQUENCE",
+            "SKIPPED",
+            "WRONG_OBJECT",
+            "INTERRUPTED",
+            "TIMEOUT",
+            "INVALID_ACTION",
+        )
     ]
 
     total_steps = len(service.fsm.spec.steps) if service.fsm.spec else 0
-    current_step_num = service.fsm.current_step.step_number if service.fsm.current_step else total_steps
+    current_step_num = (
+        service.fsm.current_step.step_number if service.fsm.current_step else total_steps
+    )
     steps_completed = total_steps if fsm_state == "COMPLETED" else max(0, current_step_num - 1)
 
     return {
         "experiment_id": service.experiment_id,
         "run_id": run_id,
         "fsm_state": fsm_state,
-        "status": "COMPLETED" if (fsm_state == "COMPLETED" and len(violations) == 0) else ("VIOLATION" if len(violations) > 0 else fsm_state),
+        "status": "COMPLETED"
+        if (fsm_state == "COMPLETED" and len(violations) == 0)
+        else ("VIOLATION" if len(violations) > 0 else fsm_state),
         "steps_completed": steps_completed,
         "total_steps": total_steps,
         "total_decisions": len(records),

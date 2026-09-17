@@ -1,7 +1,8 @@
 """Generate canonical protocol YAMLs for all 5 BAS experiments and variants."""
 
-import yaml
 from pathlib import Path
+
+import yaml
 
 BASE_METADATA = {
     "lead_agency": "ISRO HSFC",
@@ -265,13 +266,16 @@ EXPERIMENTS_DEF = {
     "E05_A": {
         "id": "BAS-EXP-E05-A",
         "title": "E05 In Container (Variant A)",
-        "objects": OBJECTS_BASE + [{
-            "object_id": "container",
-            "label": "container",
-            "required": True,
-            "expected_detection_model": "bas-det-yolo11-v1",
-            "min_confidence": 0.65,
-        }],
+        "objects": OBJECTS_BASE
+        + [
+            {
+                "object_id": "container",
+                "label": "container",
+                "required": True,
+                "expected_detection_model": "bas-det-yolo11-v1",
+                "min_confidence": 0.65,
+            }
+        ],
         "steps": [
             {
                 "step_id": "E05_A_S01",
@@ -310,13 +314,16 @@ EXPERIMENTS_DEF = {
     "E05_B": {
         "id": "BAS-EXP-E05-B",
         "title": "E05 In Container (Variant B)",
-        "objects": OBJECTS_BASE + [{
-            "object_id": "container",
-            "label": "container",
-            "required": True,
-            "expected_detection_model": "bas-det-yolo11-v1",
-            "min_confidence": 0.65,
-        }],
+        "objects": OBJECTS_BASE
+        + [
+            {
+                "object_id": "container",
+                "label": "container",
+                "required": True,
+                "expected_detection_model": "bas-det-yolo11-v1",
+                "min_confidence": 0.65,
+            }
+        ],
         "steps": [
             {
                 "step_id": "E05_B_S01",
@@ -354,35 +361,38 @@ EXPERIMENTS_DEF = {
     },
 }
 
+
 def generate_yaml(code: str, data: dict) -> dict:
     steps = []
     for s in data["steps"]:
-        steps.append({
-            "step_id": s["step_id"],
-            "step_number": s["step_number"],
-            "step_order": s["step_number"],
-            "description": s["description"],
-            "expected_activity": s["expected_activity"],
-            "expected_actions": s["expected_actions"],
-            "optional": False,
-            "allowed_transitions": s["allowed_transitions"],
-            "timeouts": {
-                "nominal_duration_seconds": 30,
-                "max_timeout_seconds": 90,
-            },
-            "thresholds": {
-                "activity_confidence_min": 0.65,
-                "pose_tracking_stability_min": 0.75,
-                "interaction_proximity_px": 100.0,
-            },
-            "validation_rules": [
-                {
-                    "rule_id": f"RULE-{s['step_id']}",
-                    "predicate": "interaction_active == true",
-                    "severity": "WARNING",
-                }
-            ],
-        })
+        steps.append(
+            {
+                "step_id": s["step_id"],
+                "step_number": s["step_number"],
+                "step_order": s["step_number"],
+                "description": s["description"],
+                "expected_activity": s["expected_activity"],
+                "expected_actions": s["expected_actions"],
+                "optional": False,
+                "allowed_transitions": s["allowed_transitions"],
+                "timeouts": {
+                    "nominal_duration_seconds": 30,
+                    "max_timeout_seconds": 90,
+                },
+                "thresholds": {
+                    "activity_confidence_min": 0.65,
+                    "pose_tracking_stability_min": 0.75,
+                    "interaction_proximity_px": 100.0,
+                },
+                "validation_rules": [
+                    {
+                        "rule_id": f"RULE-{s['step_id']}",
+                        "predicate": "interaction_active == true",
+                        "severity": "WARNING",
+                    }
+                ],
+            }
+        )
 
     spec = {
         "schema_version": "1.0.0",
@@ -420,10 +430,11 @@ def generate_yaml(code: str, data: dict) -> dict:
     }
     return spec
 
+
 def main():
     target_dir = Path("configs/protocols")
     target_dir.mkdir(parents=True, exist_ok=True)
-    
+
     index = {}
     for code, data in EXPERIMENTS_DEF.items():
         spec = generate_yaml(code, data)
@@ -438,12 +449,14 @@ def main():
             "file": str(file_path),
             "step_count": len(spec["steps"]),
         }
-    
+
     # Save canonical bas_experiments_index.json
     import json
+
     with open(target_dir / "experiments_index.json", "w") as f:
         json.dump(index, f, indent=2)
     print("Generated: configs/protocols/experiments_index.json")
+
 
 if __name__ == "__main__":
     main()

@@ -2,9 +2,6 @@
 
 from __future__ import annotations
 
-import math
-from typing import Any
-
 
 class ConfidenceManager:
     """Enforces confidence thresholds, entropy gating, and safety invariants."""

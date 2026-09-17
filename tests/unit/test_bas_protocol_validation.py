@@ -1,13 +1,16 @@
 """Unit tests for BAS experiments protocol validation and violation detection."""
 
-import pytest
 from datetime import UTC, datetime
+
+import pytest
 from experiments.loader import load_protocol
+
 from orion.events.schemas import ActivityRecognized
 from orion.protocol.action_mapping import ActivityToActionMapper
 from orion.protocol.decision_engine import DecisionStatus, ProtocolDecisionEngine
 from orion.protocol.service import ProtocolService
 from orion.protocol.state_machine import ProtocolState
+
 
 def test_load_all_bas_protocols():
     """Verify that all 10 BAS protocols load cleanly with valid steps."""
@@ -16,6 +19,7 @@ def test_load_all_bas_protocols():
             spec = load_protocol(f"configs/protocols/bas_{exp}_{var}.yaml")
             assert spec.metadata.experiment_id.startswith("BAS-EXP")
             assert len(spec.steps) >= 2
+
 
 def test_wrong_object_violation_detection():
     """Verify that manipulating a red box when yellow is expected flags WRONG_OBJECT."""
@@ -44,6 +48,7 @@ def test_wrong_object_violation_detection():
     assert dec2.status == DecisionStatus.WRONG_OBJECT
     assert "Wrong object" in dec2.explanation
 
+
 def test_valid_step_execution_and_next_step():
     """Verify that expected action advances step and produces next step recommendation."""
     service = ProtocolService()
@@ -64,6 +69,7 @@ def test_valid_step_execution_and_next_step():
     )
 
     import asyncio
+
     # Send twice to satisfy debounce threshold
     asyncio.run(service.process_activity(event_yellow))
     dec = asyncio.run(service.process_activity(event_yellow))

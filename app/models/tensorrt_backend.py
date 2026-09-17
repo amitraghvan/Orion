@@ -29,7 +29,9 @@ class TensorRTBackend(InferenceBackend):
             import tensorrt as trt
 
             if not path.is_file():
-                logger.warning("TensorRT engine file not found, seeking ONNX/PyTorch fallback", path=str(path))
+                logger.warning(
+                    "TensorRT engine file not found, seeking ONNX/PyTorch fallback", path=str(path)
+                )
                 return self._setup_fallback(path)
 
             logger_trt = trt.Logger(trt.Logger.WARNING)
@@ -42,7 +44,9 @@ class TensorRTBackend(InferenceBackend):
                 logger.info("TensorRT engine successfully deserialized", path=path.name)
                 return True
         except (ImportError, Exception) as exc:
-            logger.warning("TensorRT not available on this platform, activating fallback", error=str(exc))
+            logger.warning(
+                "TensorRT not available on this platform, activating fallback", error=str(exc)
+            )
 
         # 2. Setup fallback to ONNX or PyTorch
         return self._setup_fallback(path)
@@ -59,9 +63,11 @@ class TensorRTBackend(InferenceBackend):
             if candidate.is_file():
                 if candidate.suffix == ".onnx":
                     from app.models.onnx_backend import ONNXBackend
+
                     self._fallback_backend = ONNXBackend(str(candidate), device=self.device)
                 else:
                     from app.models.pytorch_backend import PyTorchBackend
+
                     self._fallback_backend = PyTorchBackend(str(candidate), device=self.device)
 
                 if self._fallback_backend.load():
@@ -69,7 +75,9 @@ class TensorRTBackend(InferenceBackend):
                     logger.info("Activated graceful fallback for model", fallback=candidate.name)
                     return True
 
-        logger.error("No valid TensorRT engine or fallback model found for", path=str(original_path))
+        logger.error(
+            "No valid TensorRT engine or fallback model found for", path=str(original_path)
+        )
         return False
 
     def predict(self, input_data: Any) -> Any:

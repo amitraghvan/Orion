@@ -1,8 +1,8 @@
 """End-to-end golden scenarios test for ExperimentEngine protocol tracking and decision dispatch."""
 
 from pathlib import Path
-import pytest
 
+import pytest
 from app.core.airgap import enforce_airgap
 from app.experiments.experiment_engine import experiment_engine
 from app.intelligence.decision_engine import DecisionStatus

@@ -4,11 +4,10 @@ from __future__ import annotations
 
 import cv2
 import numpy as np
+from app.intelligence.pose_estimator import COCO_BONES
 from PySide6.QtCore import QPointF, QRectF, Qt
 from PySide6.QtGui import QBrush, QColor, QFont, QImage, QPainter, QPen
 from PySide6.QtWidgets import QWidget
-
-from app.intelligence.pose_estimator import COCO_BONES
 
 
 class VideoViewportWidget(QWidget):
@@ -71,7 +70,9 @@ class VideoViewportWidget(QWidget):
             painter.setPen(QColor("#475569"))
             font = QFont("Helvetica", 13, QFont.Bold)
             painter.setFont(font)
-            painter.drawText(self.rect(), Qt.AlignCenter, "OPTICAL SENSOR FEED OFFLINE\nAwaiting video input")
+            painter.drawText(
+                self.rect(), Qt.AlignCenter, "OPTICAL SENSOR FEED OFFLINE\nAwaiting video input"
+            )
             return
 
         # Calculate aspect-ratio preserving dimensions
@@ -169,7 +170,11 @@ class VideoViewportWidget(QWidget):
             painter.drawRect(QRectF(x1, y1, w, h))
 
             # Draw label banner
-            label = f"{cname.upper()} #{tid} ({conf*100:.0f}%)" if tid else f"{cname.upper()} ({conf*100:.0f}%)"
+            label = (
+                f"{cname.upper()} #{tid} ({conf * 100:.0f}%)"
+                if tid
+                else f"{cname.upper()} ({conf * 100:.0f}%)"
+            )
             text_rect = painter.fontMetrics().boundingRect(label)
             badge_w = text_rect.width() + 10
             badge_h = text_rect.height() + 4
@@ -191,7 +196,9 @@ class VideoViewportWidget(QWidget):
             h = (box[3] - box[1]) * scale
             painter.drawEllipse(QRectF(x1, y1, w, h))
 
-    def _draw_interaction_vectors(self, painter: QPainter, scale: float, ox: float, oy: float) -> None:
+    def _draw_interaction_vectors(
+        self, painter: QPainter, scale: float, ox: float, oy: float
+    ) -> None:
         vector_pen = QPen(QColor("#a855f7"), 2, Qt.SolidLine)
         painter.setPen(vector_pen)
 

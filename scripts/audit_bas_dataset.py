@@ -9,10 +9,11 @@ Generates:
 from __future__ import annotations
 
 import glob
+import hashlib
 import json
 import os
-import hashlib
 from pathlib import Path
+
 import cv2
 
 RAW_DATA_ROOT = "/Users/amitkumar/Downloads/BAS_REAL_DATA"
@@ -33,6 +34,7 @@ NUM_TO_EXP = {
     "10": ("E05", "B", "In Container: Pick Red, Check, Pick Yellow, Check"),
 }
 
+
 def calculate_file_hash(filepath: str) -> str:
     hasher = hashlib.sha256()
     with open(filepath, "rb") as f:
@@ -40,12 +42,13 @@ def calculate_file_hash(filepath: str) -> str:
             hasher.update(chunk)
     return hasher.hexdigest()
 
+
 def audit_video(filepath: str, seen_hashes: dict[str, str]) -> dict:
     filename = os.path.basename(filepath)
     rel_path = os.path.relpath(filepath, RAW_DATA_ROOT)
     file_size_bytes = os.path.getsize(filepath)
     file_hash = calculate_file_hash(filepath)
-    
+
     is_duplicate = file_hash in seen_hashes
     duplicate_of = seen_hashes.get(file_hash)
     if not is_duplicate:
@@ -53,14 +56,14 @@ def audit_video(filepath: str, seen_hashes: dict[str, str]) -> dict:
 
     cap = cv2.VideoCapture(filepath)
     readability = cap.isOpened()
-    
+
     fps = 0.0
     width = 0
     height = 0
     total_frames = 0
     codec = "unknown"
     duration_s = 0.0
-    
+
     if readability:
         fps = round(cap.get(cv2.CAP_PROP_FPS), 2)
         width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -111,7 +114,7 @@ def audit_video(filepath: str, seen_hashes: dict[str, str]) -> dict:
         else:
             invalid_type = "UNKNOWN_VIOLATION"
             mapping_status = "UNRESOLVED"
-        
+
         # Test invalid videos belong to E01 protocol evaluation suite
         experiment_id = "E01"
         variant = "A"
@@ -148,10 +151,11 @@ def audit_video(filepath: str, seen_hashes: dict[str, str]) -> dict:
         "codec": codec,
     }
 
+
 def main():
     video_files = sorted(glob.glob(f"{RAW_DATA_ROOT}/**/*.mp4", recursive=True))
     print(f"Discovered {len(video_files)} raw video files.")
-    
+
     seen_hashes: dict[str, str] = {}
     audit_results = [audit_video(f, seen_hashes) for f in video_files]
 
@@ -173,13 +177,19 @@ def main():
         f.write(f"- **Total Raw Videos**: {len(audit_results)}\n")
         f.write(f"- **Valid Execution Videos**: {valid_count}\n")
         f.write(f"- **Invalid / Deviation Videos**: {invalid_count}\n")
-        f.write(f"- **Total Video Duration**: {total_duration:.1f} seconds ({total_duration/60:.1f} minutes)\n")
+        f.write(
+            f"- **Total Video Duration**: {total_duration:.1f} seconds ({total_duration / 60:.1f} minutes)\n"
+        )
         f.write(f"- **Total Recorded Frames**: {total_frames:,}\n")
         f.write(f"- **All Files Readable**: {all(r['readability'] for r in audit_results)}\n")
-        f.write(f"- **Duplicate Files Detected**: {any(r['is_duplicate'] for r in audit_results)}\n\n")
+        f.write(
+            f"- **Duplicate Files Detected**: {any(r['is_duplicate'] for r in audit_results)}\n\n"
+        )
 
         f.write("## 2. Experiment & Variant Distribution\n\n")
-        f.write("| Video ID | Subject | Exp | Var | Valid? | Type / Description | Duration | FPS | Resolution |\n")
+        f.write(
+            "| Video ID | Subject | Exp | Var | Valid? | Type / Description | Duration | FPS | Resolution |\n"
+        )
         f.write("|---|---|---|---|---|---|---|---|---|\n")
         for r in audit_results:
             status_str = "VALID" if r["is_valid"] else f"INVALID ({r['invalid_type']})"
@@ -191,11 +201,16 @@ def main():
 
         f.write("\n## 3. Data Integrity & Mapping Assessment\n\n")
         f.write("- **Subjects Available**: SP01 (EP), SP02 (YP), SP03 (ZP), SP04 (AP).\n")
-        f.write("- **Subject Partitioning Strategy**: SP01, SP02 for Training; SP03 for Validation; SP04 for Held-Out Testing.\n")
-        f.write("- **Invalid Testing Suite**: 3 real recordings testing Interruption, Wrong Object, and Wrong Order violations.\n")
+        f.write(
+            "- **Subject Partitioning Strategy**: SP01, SP02 for Training; SP03 for Validation; SP04 for Held-Out Testing.\n"
+        )
+        f.write(
+            "- **Invalid Testing Suite**: 3 real recordings testing Interruption, Wrong Object, and Wrong Order violations.\n"
+        )
         f.write("- **Unresolved Mappings**: 0 (all 20 videos mapped with 100% certainty).\n")
 
     print(f"Written: {md_path}")
+
 
 if __name__ == "__main__":
     main()

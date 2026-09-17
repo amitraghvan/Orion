@@ -1,13 +1,14 @@
 """Tests for failure handling, fault containment, and graceful degradation."""
 
 from pathlib import Path
+
 import numpy as np
 import pytest
+from app.audio.tts_engine import TTSEngine
 
 from orion.core.exceptions import CameraError
 from orion_ai.camera.camera_manager import CameraManager
 from orion_ai.camera.camera_sources import CameraStatus, LiveCameraSource, ReplayVideoSource
-from app.audio.tts_engine import TTSEngine
 
 
 def test_corrupt_or_missing_replay_graceful_handling(tmp_path):

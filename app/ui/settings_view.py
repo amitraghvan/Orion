@@ -2,24 +2,20 @@
 
 from __future__ import annotations
 
-from PySide6.QtCore import Qt
+from app.core.config import get_config
+from app.core.paths import paths
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
     QDoubleSpinBox,
     QFrame,
     QGridLayout,
-    QHBoxLayout,
     QLabel,
     QLineEdit,
     QPushButton,
-    QSpinBox,
     QVBoxLayout,
     QWidget,
 )
-
-from app.core.config import get_config
-from app.core.paths import paths
 
 
 class SettingsView(QWidget):
@@ -37,7 +33,9 @@ class SettingsView(QWidget):
 
         # Settings Form Card
         frame = QFrame()
-        frame.setStyleSheet("background-color: #080c14; border: 1px solid #1e293b; border-radius: 8px; padding: 20px;")
+        frame.setStyleSheet(
+            "background-color: #080c14; border: 1px solid #1e293b; border-radius: 8px; padding: 20px;"
+        )
         grid = QGridLayout(frame)
         grid.setSpacing(14)
 
@@ -105,7 +103,9 @@ class SettingsView(QWidget):
 
         # Save Button
         save_btn = QPushButton("💾 SAVE CONFIGURATION")
-        save_btn.setStyleSheet("background-color: #0284c7; color: white; font-weight: bold; padding: 10px; border-radius: 6px; font-size: 13px;")
+        save_btn.setStyleSheet(
+            "background-color: #0284c7; color: white; font-weight: bold; padding: 10px; border-radius: 6px; font-size: 13px;"
+        )
         save_btn.clicked.connect(self._save_settings)
         layout.addWidget(save_btn)
 
@@ -113,7 +113,9 @@ class SettingsView(QWidget):
 
     def _create_label(self, text: str) -> QLabel:
         lbl = QLabel(text)
-        lbl.setStyleSheet("color: #94a3b8; font-size: 11px; font-weight: bold; font-family: monospace;")
+        lbl.setStyleSheet(
+            "color: #94a3b8; font-size: 11px; font-weight: bold; font-family: monospace;"
+        )
         return lbl
 
     def _load_current_values(self) -> None:

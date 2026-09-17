@@ -4,21 +4,6 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
-from PySide6.QtCore import Qt, QTimer
-from PySide6.QtGui import QAction, QFont, QIcon
-from PySide6.QtWidgets import (
-    QButtonGroup,
-    QFrame,
-    QHBoxLayout,
-    QLabel,
-    QMainWindow,
-    QPushButton,
-    QStackedWidget,
-    QVBoxLayout,
-    QWidget,
-)
-
-from app.core.paths import paths
 from app.core.state_manager import state_manager
 from app.ui.activity_view import ActivityView
 from app.ui.dashboard import DashboardView
@@ -31,6 +16,18 @@ from app.ui.recordings_view import RecordingsView
 from app.ui.reports_view import ReportsView
 from app.ui.settings_view import SettingsView
 from app.ui.widgets.status_pill import StatusPill
+from PySide6.QtCore import QTimer
+from PySide6.QtWidgets import (
+    QButtonGroup,
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QMainWindow,
+    QPushButton,
+    QStackedWidget,
+    QVBoxLayout,
+    QWidget,
+)
 
 
 class MainWindow(QMainWindow):
@@ -87,16 +84,22 @@ class MainWindow(QMainWindow):
         # 1. Top Station Cockpit Header Bar
         # ---------------------------------------------------------------------
         top_bar = QFrame()
-        top_bar.setStyleSheet("background-color: #080c14; border-bottom: 1px solid #1e293b; min-height: 48px;")
+        top_bar.setStyleSheet(
+            "background-color: #080c14; border-bottom: 1px solid #1e293b; min-height: 48px;"
+        )
         t_layout = QHBoxLayout(top_bar)
         t_layout.setContentsMargins(16, 6, 16, 6)
         t_layout.setSpacing(12)
 
         # Brand
         brand_lbl = QLabel("ORION")
-        brand_lbl.setStyleSheet("color: #38bdf8; font-size: 16px; font-weight: 900; letter-spacing: 2px;")
+        brand_lbl.setStyleSheet(
+            "color: #38bdf8; font-size: 16px; font-weight: 900; letter-spacing: 2px;"
+        )
         sub_lbl = QLabel("BAS AI COPILOT")
-        sub_lbl.setStyleSheet("color: #64748b; font-size: 9px; font-weight: 700; letter-spacing: 1px;")
+        sub_lbl.setStyleSheet(
+            "color: #64748b; font-size: 9px; font-weight: 700; letter-spacing: 1px;"
+        )
 
         t_layout.addWidget(brand_lbl)
         t_layout.addWidget(sub_lbl)
@@ -121,7 +124,9 @@ class MainWindow(QMainWindow):
 
         # UTC Station Clock
         self.clock_lbl = QLabel("2026-09-16 00:00:00 UTC")
-        self.clock_lbl.setStyleSheet("color: #94a3b8; font-family: monospace; font-size: 12px; font-weight: bold;")
+        self.clock_lbl.setStyleSheet(
+            "color: #94a3b8; font-family: monospace; font-size: 12px; font-weight: bold;"
+        )
         t_layout.addWidget(self.clock_lbl)
 
         root_layout.addWidget(top_bar)
@@ -143,7 +148,9 @@ class MainWindow(QMainWindow):
         s_layout.setSpacing(4)
 
         nav_title = QLabel("MISSION MODULES")
-        nav_title.setStyleSheet("color: #475569; font-size: 10px; font-weight: 800; padding: 6px 12px; letter-spacing: 1px;")
+        nav_title.setStyleSheet(
+            "color: #475569; font-size: 10px; font-weight: 800; padding: 6px 12px; letter-spacing: 1px;"
+        )
         s_layout.addWidget(nav_title)
 
         self.btn_group = QButtonGroup(self)
@@ -177,7 +184,9 @@ class MainWindow(QMainWindow):
 
         # Air-gapped badge
         badge = QFrame()
-        badge.setStyleSheet("background-color: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 8px;")
+        badge.setStyleSheet(
+            "background-color: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 8px;"
+        )
         bg_layout = QVBoxLayout(badge)
         bg_layout.setContentsMargins(8, 6, 8, 6)
         bg_lbl1 = QLabel("100% OFFLINE")
@@ -203,16 +212,16 @@ class MainWindow(QMainWindow):
         self.diagnostics_view = DiagnosticsView()
         self.settings_view = SettingsView()
 
-        self.stack.addWidget(self.dashboard_view)   # 0
-        self.stack.addWidget(self.live_view)        # 1
+        self.stack.addWidget(self.dashboard_view)  # 0
+        self.stack.addWidget(self.live_view)  # 1
         self.stack.addWidget(self.experiment_view)  # 2
-        self.stack.addWidget(self.activity_view)    # 3
+        self.stack.addWidget(self.activity_view)  # 3
         self.stack.addWidget(self.recordings_view)  # 4
-        self.stack.addWidget(self.reports_view)     # 5
-        self.stack.addWidget(self.model_view)       # 6
-        self.stack.addWidget(self.dataset_view)     # 7
-        self.stack.addWidget(self.diagnostics_view) # 8
-        self.stack.addWidget(self.settings_view)    # 9
+        self.stack.addWidget(self.reports_view)  # 5
+        self.stack.addWidget(self.model_view)  # 6
+        self.stack.addWidget(self.dataset_view)  # 7
+        self.stack.addWidget(self.diagnostics_view)  # 8
+        self.stack.addWidget(self.settings_view)  # 9
 
         b_layout.addWidget(self.stack, stretch=1)
         root_layout.addWidget(body, stretch=1)
@@ -221,7 +230,9 @@ class MainWindow(QMainWindow):
         # 3. Bottom Status Footer
         # ---------------------------------------------------------------------
         footer = QFrame()
-        footer.setStyleSheet("background-color: #080c14; border-top: 1px solid #1e293b; min-height: 28px;")
+        footer.setStyleSheet(
+            "background-color: #080c14; border-top: 1px solid #1e293b; min-height: 28px;"
+        )
         f_layout = QHBoxLayout(footer)
         f_layout.setContentsMargins(16, 4, 16, 4)
         f_layout.setSpacing(16)
@@ -233,9 +244,13 @@ class MainWindow(QMainWindow):
         f_layout.addStretch()
 
         self.footer_fps_lbl = QLabel("FPS: 0.0")
-        self.footer_fps_lbl.setStyleSheet("color: #38bdf8; font-family: monospace; font-size: 10px; font-weight: bold;")
+        self.footer_fps_lbl.setStyleSheet(
+            "color: #38bdf8; font-family: monospace; font-size: 10px; font-weight: bold;"
+        )
         self.footer_lat_lbl = QLabel("LAT: 0.0 ms")
-        self.footer_lat_lbl.setStyleSheet("color: #a855f7; font-family: monospace; font-size: 10px; font-weight: bold;")
+        self.footer_lat_lbl.setStyleSheet(
+            "color: #a855f7; font-family: monospace; font-size: 10px; font-weight: bold;"
+        )
         self.footer_eng_lbl = QLabel("C++ ENGINE: ENGAGED")
         self.footer_eng_lbl.setStyleSheet("color: #10b981; font-size: 10px; font-weight: bold;")
 

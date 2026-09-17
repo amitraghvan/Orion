@@ -63,7 +63,9 @@ def load_protocol(file_path: str | Path) -> ExperimentSpecification:
         raise ProtocolLoadError(f"Failed to parse protocol file {path}: {e}") from e
 
     if not isinstance(raw_content, dict):
-        raise ProtocolValidationError(f"Invalid protocol root: expected dict, got {type(raw_content).__name__}")
+        raise ProtocolValidationError(
+            f"Invalid protocol root: expected dict, got {type(raw_content).__name__}"
+        )
 
     try:
         spec = ExperimentSpecification.model_validate(raw_content)
@@ -72,7 +74,9 @@ def load_protocol(file_path: str | Path) -> ExperimentSpecification:
 
     # Structural validations
     if not spec.steps:
-        raise ProtocolValidationError(f"Protocol {spec.metadata.experiment_id} must contain at least 1 step")
+        raise ProtocolValidationError(
+            f"Protocol {spec.metadata.experiment_id} must contain at least 1 step"
+        )
 
     step_ids = set()
     step_numbers = set()

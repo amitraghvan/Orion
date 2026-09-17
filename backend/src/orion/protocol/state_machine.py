@@ -18,7 +18,6 @@ if TYPE_CHECKING:
 class ProtocolState(StrEnum):
     """The 11 discrete states of the Protocol Lifecycle FSM."""
 
-
     IDLE = "IDLE"
     LOADED = "LOADED"
     PRECHECK = "PRECHECK"
@@ -54,8 +53,18 @@ class ProtocolStateMachine:
     # Valid transitions mapping
     VALID_TRANSITIONS: dict[ProtocolState, set[ProtocolState]] = {
         ProtocolState.IDLE: {ProtocolState.LOADED, ProtocolState.DEGRADED},
-        ProtocolState.LOADED: {ProtocolState.PRECHECK, ProtocolState.RUNNING, ProtocolState.IDLE, ProtocolState.DEGRADED},
-        ProtocolState.PRECHECK: {ProtocolState.RUNNING, ProtocolState.LOADED, ProtocolState.ABORTED, ProtocolState.DEGRADED},
+        ProtocolState.LOADED: {
+            ProtocolState.PRECHECK,
+            ProtocolState.RUNNING,
+            ProtocolState.IDLE,
+            ProtocolState.DEGRADED,
+        },
+        ProtocolState.PRECHECK: {
+            ProtocolState.RUNNING,
+            ProtocolState.LOADED,
+            ProtocolState.ABORTED,
+            ProtocolState.DEGRADED,
+        },
         ProtocolState.RUNNING: {
             ProtocolState.STEP_IN_PROGRESS,
             ProtocolState.STEP_COMPLETED,
@@ -95,8 +104,18 @@ class ProtocolStateMachine:
             ProtocolState.ABORTED,
             ProtocolState.DEGRADED,
         },
-        ProtocolState.COMPLETED: {ProtocolState.IDLE, ProtocolState.LOADED, ProtocolState.RUNNING, ProtocolState.DEGRADED},
-        ProtocolState.ABORTED: {ProtocolState.IDLE, ProtocolState.LOADED, ProtocolState.RUNNING, ProtocolState.DEGRADED},
+        ProtocolState.COMPLETED: {
+            ProtocolState.IDLE,
+            ProtocolState.LOADED,
+            ProtocolState.RUNNING,
+            ProtocolState.DEGRADED,
+        },
+        ProtocolState.ABORTED: {
+            ProtocolState.IDLE,
+            ProtocolState.LOADED,
+            ProtocolState.RUNNING,
+            ProtocolState.DEGRADED,
+        },
         ProtocolState.DEGRADED: {ProtocolState.IDLE, ProtocolState.LOADED, ProtocolState.RUNNING},
     }
 
@@ -160,7 +179,9 @@ class ProtocolStateMachine:
 
     def load_protocol(self, spec: ExperimentSpecification) -> None:
         """Load an ExperimentSpecification into the FSM."""
-        self._transition_to(ProtocolState.LOADED, reason=f"Loaded protocol {spec.metadata.experiment_id}")
+        self._transition_to(
+            ProtocolState.LOADED, reason=f"Loaded protocol {spec.metadata.experiment_id}"
+        )
         self._spec = spec
         self._current_step_index = 0
         self._run_id = None
@@ -169,7 +190,9 @@ class ProtocolStateMachine:
 
     def start_precheck(self) -> None:
         """Move from LOADED to PRECHECK."""
-        self._transition_to(ProtocolState.PRECHECK, reason="Beginning workstation and hardware precheck")
+        self._transition_to(
+            ProtocolState.PRECHECK, reason="Beginning workstation and hardware precheck"
+        )
 
     def start_run(self, run_id: str, actor_track_id: int | None = None) -> None:
         """Initialize an experiment execution run."""
@@ -220,7 +243,9 @@ class ProtocolStateMachine:
                 reason=f"Advanced to step {self._spec.steps[self._current_step_index].step_id}",
             )
             return True
-        self._transition_to(ProtocolState.COMPLETED, reason="All protocol steps completed successfully")
+        self._transition_to(
+            ProtocolState.COMPLETED, reason="All protocol steps completed successfully"
+        )
         return False
 
     def skip_to_step(self, target_step_id: str, reason: str = "Operator jump") -> bool:
@@ -249,7 +274,9 @@ class ProtocolStateMachine:
             self.advance_step()
         elif res == "RETRY":
             self._step_start_time = datetime.now(UTC)
-            self._transition_to(ProtocolState.STEP_IN_PROGRESS, reason="Operator requested step retry")
+            self._transition_to(
+                ProtocolState.STEP_IN_PROGRESS, reason="Operator requested step retry"
+            )
         elif res == "ABORT":
             self.abort(reason="Operator chose to abort on blocked deviation")
         else:
@@ -257,14 +284,24 @@ class ProtocolStateMachine:
 
     def process_decision(self, decision: ProtocolDecision) -> None:
         """Update FSM state based on an evaluated ProtocolDecision."""
-        if self._state in (ProtocolState.IDLE, ProtocolState.LOADED, ProtocolState.PRECHECK, ProtocolState.PAUSED, ProtocolState.COMPLETED, ProtocolState.ABORTED, ProtocolState.DEGRADED):
+        if self._state in (
+            ProtocolState.IDLE,
+            ProtocolState.LOADED,
+            ProtocolState.PRECHECK,
+            ProtocolState.PAUSED,
+            ProtocolState.COMPLETED,
+            ProtocolState.ABORTED,
+            ProtocolState.DEGRADED,
+        ):
             return
 
         status = decision.status
 
         if status == DecisionStatus.VALID:
             # Current step is successfully completed
-            self._transition_to(ProtocolState.STEP_COMPLETED, reason=f"Valid step execution: {decision.explanation}")
+            self._transition_to(
+                ProtocolState.STEP_COMPLETED, reason=f"Valid step execution: {decision.explanation}"
+            )
             # Automatically advance or complete
             self.advance_step()
 
@@ -276,11 +313,15 @@ class ProtocolStateMachine:
             DecisionStatus.TIMEOUT,
             DecisionStatus.INVALID_ACTION,
         ):
-            self._transition_to(ProtocolState.BLOCKED, reason=f"Deviation ({status.value}): {decision.explanation}")
+            self._transition_to(
+                ProtocolState.BLOCKED, reason=f"Deviation ({status.value}): {decision.explanation}"
+            )
 
         elif status == DecisionStatus.WAITING_FOR_EVIDENCE:
             if self._state == ProtocolState.RUNNING and decision.debounce_count > 0:
-                self._transition_to(ProtocolState.STEP_IN_PROGRESS, reason="Action observed; step in progress")
+                self._transition_to(
+                    ProtocolState.STEP_IN_PROGRESS, reason="Action observed; step in progress"
+                )
 
         elif status == DecisionStatus.STEP_UNCERTAIN:
             # Maintain active progress without blocking or passing

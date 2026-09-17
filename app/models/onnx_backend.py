@@ -45,7 +45,9 @@ class ONNXBackend(InferenceBackend):
             self._output_names = [o.name for o in self._session.get_outputs()]
 
             self._is_loaded = True
-            logger.info("ONNX session created", path=path.name, providers=self._session.get_providers())
+            logger.info(
+                "ONNX session created", path=path.name, providers=self._session.get_providers()
+            )
             return True
         except Exception as exc:
             logger.error("Failed to load ONNX model", path=str(path), error=str(exc))
@@ -61,9 +63,8 @@ class ONNXBackend(InferenceBackend):
         elif isinstance(input_data, (list, tuple)):
             for name, val in zip(self._input_names, input_data):
                 feed_dict[name] = val
-        else:
-            if self._input_names:
-                feed_dict[self._input_names[0]] = input_data
+        elif self._input_names:
+            feed_dict[self._input_names[0]] = input_data
 
         return self._session.run(self._output_names, feed_dict)
 

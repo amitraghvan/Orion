@@ -19,11 +19,11 @@ from pathlib import Path
 
 import numpy as np
 import torch
-import torch.nn as nn
+from torch import nn
 from torch.utils.data import DataLoader, Dataset
 
-from orion_ai.activity.stgcn.model import STGCNHARModel
 from orion_ai.activity.augmentation import SkeletonKineticAugmenter
+from orion_ai.activity.stgcn.model import STGCNHARModel
 
 SEQUENCES_DIR = Path("datasets/bas_experiment/sequences")
 MODELS_DIR = Path("models/bas_experiment")
@@ -35,8 +35,11 @@ EPOCHS = 35
 BATCH_SIZE = 16
 LEARNING_RATE = 1e-3
 
+
 class BASSequenceDataset(Dataset):
-    def __init__(self, npz_files: list[str], augmenter: SkeletonKineticAugmenter | None = None) -> None:
+    def __init__(
+        self, npz_files: list[str], augmenter: SkeletonKineticAugmenter | None = None
+    ) -> None:
         self.files = npz_files
         self.augmenter = augmenter
         self.data: list[tuple[np.ndarray, int]] = []
@@ -55,12 +58,14 @@ class BASSequenceDataset(Dataset):
             x = self.augmenter(x)
         return torch.from_numpy(x), torch.tensor(y, dtype=torch.long)
 
+
 def compute_sha256(filepath: Path) -> str:
     hasher = hashlib.sha256()
     with open(filepath, "rb") as f:
         while chunk := f.read(65536):
             hasher.update(chunk)
     return hasher.hexdigest()
+
 
 def main():
     torch.manual_seed(42)
@@ -70,7 +75,13 @@ def main():
     MODELS_DIR.mkdir(parents=True, exist_ok=True)
     CHECKPOINTS_DIR.mkdir(parents=True, exist_ok=True)
 
-    device = torch.device("cuda" if torch.cuda.is_available() else ("mps" if hasattr(torch.backends, "mps") and torch.backends.mps.is_available() else "cpu"))
+    device = torch.device(
+        "cuda"
+        if torch.cuda.is_available()
+        else (
+            "mps" if hasattr(torch.backends, "mps") and torch.backends.mps.is_available() else "cpu"
+        )
+    )
     print(f"Execution Device: {device}")
 
     train_files = sorted(glob.glob(str(SEQUENCES_DIR / "train" / "*.npz")))
@@ -113,8 +124,11 @@ def main():
             print(f"Loading pretrained backbone from {PRETRAINED_WEIGHTS}...")
             state_dict = torch.load(PRETRAINED_WEIGHTS, map_location="cpu")
             filtered_dict = {
-                k: v for k, v in state_dict.items()
-                if not k.startswith("fcn") and k in model.state_dict() and v.shape == model.state_dict()[k].shape
+                k: v
+                for k, v in state_dict.items()
+                if not k.startswith("fcn")
+                and k in model.state_dict()
+                and v.shape == model.state_dict()[k].shape
             }
             model.load_state_dict(filtered_dict, strict=False)
             print(f"Successfully transferred {len(filtered_dict)} backbone layers.")
@@ -188,7 +202,9 @@ def main():
             "lr": round(optimizer.param_groups[0]["lr"], 6),
         }
         history.append(epoch_stats)
-        print(f"Epoch [{epoch:02d}/{EPOCHS:02d}] Train Loss: {train_loss:.4f} Acc: {train_acc:.4f} | Val Loss: {val_loss:.4f} Acc: {val_acc:.4f}")
+        print(
+            f"Epoch [{epoch:02d}/{EPOCHS:02d}] Train Loss: {train_loss:.4f} Acc: {train_acc:.4f} | Val Loss: {val_loss:.4f} Acc: {val_acc:.4f}"
+        )
 
         # Checkpoint save
         ckpt_path = CHECKPOINTS_DIR / f"epoch_{epoch:02d}.pt"
@@ -255,6 +271,7 @@ def main():
 
     print(f"\nTraining Complete in {total_time}s! Best Val Accuracy: {best_val_acc * 100:.2f}%")
     print(f"Artifacts saved to: {MODELS_DIR}")
+
 
 if __name__ == "__main__":
     main()

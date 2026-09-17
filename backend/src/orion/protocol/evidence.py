@@ -11,7 +11,6 @@ if TYPE_CHECKING:
     from orion.events.schemas import ActivityRecognized
 
 
-
 class ProtocolEvidence(BaseModel):
     """Immutable evidence snapshot linking computer vision/HAR observations to protocol decisions."""
 
@@ -64,12 +63,17 @@ class ProtocolEvidence(BaseModel):
             probabilities=probabilities,
             bbox=bbox,
             keypoints_summary=keypoints_summary,
-            captured_at_iso=event.timestamp.isoformat() if hasattr(event, "timestamp") and event.timestamp else datetime.now(UTC).isoformat(),
-            hand_observations_summary=metadata.get("hands") or metadata.get("hand_observations_summary"),
-            object_observations_summary=metadata.get("objects") or metadata.get("object_observations_summary"),
+            captured_at_iso=event.timestamp.isoformat()
+            if hasattr(event, "timestamp") and event.timestamp
+            else datetime.now(UTC).isoformat(),
+            hand_observations_summary=metadata.get("hands")
+            or metadata.get("hand_observations_summary"),
+            object_observations_summary=metadata.get("objects")
+            or metadata.get("object_observations_summary"),
             interaction_state=metadata.get("interaction_state"),
             evidence_quality_level=metadata.get("evidence_quality_level"),
             evidence_state=metadata.get("evidence_state"),
-            multimodal_confidence=float(metadata["multimodal_confidence"]) if "multimodal_confidence" in metadata else None,
+            multimodal_confidence=float(metadata["multimodal_confidence"])
+            if "multimodal_confidence" in metadata
+            else None,
         )
-

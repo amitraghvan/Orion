@@ -21,7 +21,9 @@ from orion_ai.runtime.coordinator import PerceptionPipelineCoordinator
 from orion_ai.tracking.byte_tracker import ByteTracker
 
 
-async def run_replay_smoke_test(video_path: str, protocol_path: str = "configs/protocols/bas_e01_a.yaml", max_frames: int = 40) -> int:
+async def run_replay_smoke_test(
+    video_path: str, protocol_path: str = "configs/protocols/bas_e01_a.yaml", max_frames: int = 40
+) -> int:
     print("==================================================================")
     print("🎬 ORION BAS AI COPILOT — REPLAY VIDEO SMOKE TEST")
     print(f"Video source:  {video_path}")
@@ -44,6 +46,7 @@ async def run_replay_smoke_test(video_path: str, protocol_path: str = "configs/p
     camera = OpenCVCameraDriver(source=video_path, loop=False, target_fps=30)
 
     import torch
+
     device = "mps" if torch.backends.mps.is_available() else "cpu"
 
     detector = YOLOEdgeDetector(confidence_threshold=0.25, device=device)
@@ -99,7 +102,9 @@ async def run_replay_smoke_test(video_path: str, protocol_path: str = "configs/p
         print(f"  Frames processed: {processed}")
         print(f"  FPS:              {processed / total_elapsed:.1f}")
         print(f"  FSM State:        {protocol_service.state}")
-        print(f"  Current Step:     {protocol_service.fsm.current_step.step_id if protocol_service.fsm.current_step else 'None'}")
+        print(
+            f"  Current Step:     {protocol_service.fsm.current_step.step_id if protocol_service.fsm.current_step else 'None'}"
+        )
         print(f"  Last Decision UTC:{protocol_service._last_decision_utc}")
 
         assert processed >= 10, "Replay did not process minimal frames"
@@ -115,7 +120,11 @@ async def run_replay_smoke_test(video_path: str, protocol_path: str = "configs/p
 
 
 if __name__ == "__main__":
-    canonical_video = sys.argv[1] if len(sys.argv) > 1 else "/Users/amitkumar/Downloads/BAS_REAL_DATA/VALID/SP04/AP01.mp4"
+    canonical_video = (
+        sys.argv[1]
+        if len(sys.argv) > 1
+        else "/Users/amitkumar/Downloads/BAS_REAL_DATA/VALID/SP04/AP01.mp4"
+    )
     if not Path(canonical_video).exists():
         fallback = Path("assets/sample_replay.mp4")
         if fallback.exists():

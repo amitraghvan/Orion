@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Literal
+from typing import Literal
 
 import yaml
 from pydantic import BaseModel, Field
@@ -159,7 +159,9 @@ def load_config(config_path: Path | None = None) -> OrionConfig:
             raw_data = yaml.safe_load(f) or {}
         return OrionConfig.model_validate(raw_data)
     except Exception as exc:
-        raise ConfigurationError(f"Failed to parse configuration file '{target_path}': {exc}") from exc
+        raise ConfigurationError(
+            f"Failed to parse configuration file '{target_path}': {exc}"
+        ) from exc
 
 
 # Global configuration instance

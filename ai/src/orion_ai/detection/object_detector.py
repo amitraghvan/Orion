@@ -48,7 +48,9 @@ class ObjectDetector(DetectorInterface):
     ) -> None:
         self.confidence_threshold = confidence_threshold
         self.device = device
-        self.target_classes = set(target_classes) if target_classes is not None else DEFAULT_PROTOCOL_CLASSES
+        self.target_classes = (
+            set(target_classes) if target_classes is not None else DEFAULT_PROTOCOL_CLASSES
+        )
         self.model: Any = None
         self._is_loaded: bool = False
         self._model_path: str | None = None

@@ -1,6 +1,5 @@
 """Generates a deterministic local test video for optical perception replay and automated integration testing."""
 
-import urllib.request
 from pathlib import Path
 
 import cv2

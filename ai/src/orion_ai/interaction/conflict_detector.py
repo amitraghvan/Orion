@@ -70,8 +70,15 @@ class ModalityConflictDetector:
             # Check 3: Active grasp claimed, but interaction state is far away (NO_INTERACTION with distance > 0.5)
             if act_lower in ("grasp_tool", "manipulate_sample") and activity_confidence >= 0.7:
                 contact_or_near = [
-                    i for i in interactions
-                    if i.state in (InteractionState.CONTACT, InteractionState.GRASPING, InteractionState.MANIPULATING, InteractionState.NEAR)
+                    i
+                    for i in interactions
+                    if i.state
+                    in (
+                        InteractionState.CONTACT,
+                        InteractionState.GRASPING,
+                        InteractionState.MANIPULATING,
+                        InteractionState.NEAR,
+                    )
                 ]
                 if interactions and not contact_or_near:
                     min_dist = min(i.distance_normalized for i in interactions)
@@ -86,7 +93,9 @@ class ModalityConflictDetector:
         # Check 4: Idle claimed, but sustained manipulation of tools is occurring
         if act_lower == "idle" and activity_confidence >= 0.6:
             active_manipulations = [
-                i for i in interactions if i.state in (InteractionState.GRASPING, InteractionState.MANIPULATING)
+                i
+                for i in interactions
+                if i.state in (InteractionState.GRASPING, InteractionState.MANIPULATING)
             ]
             if active_manipulations:
                 return ConflictCheckResult(

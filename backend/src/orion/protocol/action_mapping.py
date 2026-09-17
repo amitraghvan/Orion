@@ -6,7 +6,6 @@ if TYPE_CHECKING:
     from collections.abc import Mapping
 
 
-
 class ActivityToActionMapper:
     """Translates neural network activity classifications into protocol action vocabulary.
 
@@ -85,4 +84,6 @@ class ActivityToActionMapper:
 
     def is_known_action(self, action: str) -> bool:
         """Check if action is in recognized protocol action vocabulary."""
-        return action.strip().lower() in self._mapping.values() and action.strip().lower() != "unknown"
+        return (
+            action.strip().lower() in self._mapping.values() and action.strip().lower() != "unknown"
+        )

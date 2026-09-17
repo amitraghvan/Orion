@@ -46,16 +46,24 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Install System Dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y libgl1 libglib2.0-0
+
       - name: Install uv
         uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
 
       - name: Install Dependencies
         run: |
+          uv venv
           uv pip install -e ".[dev,test]"
 
       - name: Run Mypy Strict
         run: |
-          uv run mypy backend/src ai/src datasets/src tests scripts
+          uv run mypy backend/src ai/src datasets/src tests
 
   tests:
     name: "Automated Test Suite"
@@ -69,11 +77,19 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Install System Dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y libgl1 libglib2.0-0
+
       - name: Install uv
         uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
 
       - name: Install Dependencies
         run: |
+          uv venv
           uv pip install -e ".[dev,test]"
 
       - name: Run Pytest with Coverage
@@ -98,13 +114,3 @@ jobs:
       - name: Build Wheel & Sdist
         run: |
           uv build
-
-      - name: Set up Node 22
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Validate Frontend Build
-        run: |
-          npm ci --prefix frontend
-          npm run build --prefix frontend

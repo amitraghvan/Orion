@@ -6,7 +6,9 @@ import argparse
 from pathlib import Path
 
 
-def build_engine_from_onnx(onnx_path: str, engine_path: str | None = None, fp16: bool = True) -> bool:
+def build_engine_from_onnx(
+    onnx_path: str, engine_path: str | None = None, fp16: bool = True
+) -> bool:
     src = Path(onnx_path)
     if not src.is_file():
         print(f"❌ Source ONNX model not found: {src}")
@@ -19,6 +21,7 @@ def build_engine_from_onnx(onnx_path: str, engine_path: str | None = None, fp16:
 
     try:
         import tensorrt as trt
+
         logger = trt.Logger(trt.Logger.INFO)
         builder = trt.Builder(logger)
         network = builder.create_network(1 << int(trt.NetworkDefinitionCreationFlag.EXPLICIT_BATCH))
@@ -45,7 +48,9 @@ def build_engine_from_onnx(onnx_path: str, engine_path: str | None = None, fp16:
         print(f"✓ TensorRT engine successfully saved to: {dst}")
         return True
     except (ImportError, Exception) as exc:
-        print(f"⚠️ TensorRT build skipped: {exc} (Graceful fallback to ONNX/PyTorch will be used at runtime).")
+        print(
+            f"⚠️ TensorRT build skipped: {exc} (Graceful fallback to ONNX/PyTorch will be used at runtime)."
+        )
         return False
 
 

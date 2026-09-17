@@ -11,7 +11,6 @@ from typing import Any
 
 import cv2
 import numpy as np
-
 from app.core.config import get_config
 from app.core.logging import get_logger
 from app.core.state_manager import state_manager
@@ -21,6 +20,7 @@ logger = get_logger("app.recording.recorder")
 
 try:
     import orion_native
+
     _HAS_NATIVE_RECORDER = True
 except ImportError:
     _HAS_NATIVE_RECORDER = False
@@ -63,7 +63,9 @@ class ExperimentRecorder:
         with self._lock:
             return self._video_path
 
-    def start_recording(self, experiment_id: str, run_id: str, width: int = 1280, height: int = 720, fps: int = 30) -> bool:
+    def start_recording(
+        self, experiment_id: str, run_id: str, width: int = 1280, height: int = 720, fps: int = 30
+    ) -> bool:
         """Commence background video recording for experiment session."""
         with self._lock:
             if self._is_recording:
@@ -87,17 +89,23 @@ class ExperimentRecorder:
             self._video_path = self._session_dir / "experiment.mp4"
 
             fourcc = cv2.VideoWriter_fourcc(*cfg.recording.codec)
-            self._cv_writer = cv2.VideoWriter(str(self._video_path), fourcc, self._fps, (self._width, self._height))
+            self._cv_writer = cv2.VideoWriter(
+                str(self._video_path), fourcc, self._fps, (self._width, self._height)
+            )
 
             if not self._cv_writer.isOpened():
                 # Try fallback mp4v or avc1
                 fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-                self._cv_writer = cv2.VideoWriter(str(self._video_path), fourcc, self._fps, (self._width, self._height))
+                self._cv_writer = cv2.VideoWriter(
+                    str(self._video_path), fourcc, self._fps, (self._width, self._height)
+                )
 
             self._is_recording = True
             state_manager.set_recording(True)
 
-            self._worker_thread = threading.Thread(target=self._write_worker, name="RecorderWorkerThread", daemon=True)
+            self._worker_thread = threading.Thread(
+                target=self._write_worker, name="RecorderWorkerThread", daemon=True
+            )
             self._worker_thread.start()
             logger.info("Started session recording", output=str(self._video_path))
             return True
@@ -111,7 +119,11 @@ class ExperimentRecorder:
         except queue.Full:
             pass  # Drop frame to preserve real-time stability
 
-    def stop_recording(self, events: list[dict[str, Any]] | None = None, timeline: list[dict[str, Any]] | None = None) -> dict[str, Any] | None:
+    def stop_recording(
+        self,
+        events: list[dict[str, Any]] | None = None,
+        timeline: list[dict[str, Any]] | None = None,
+    ) -> dict[str, Any] | None:
         """Finalize video container and write metadata manifests."""
         with self._lock:
             if not self._is_recording:
@@ -145,7 +157,11 @@ class ExperimentRecorder:
             if timeline:
                 storage_manager.write_timeline_log(self._session_dir, timeline)
 
-        logger.info("Finalized experiment recording", duration=round(duration, 1), frames=self._frames_written)
+        logger.info(
+            "Finalized experiment recording",
+            duration=round(duration, 1),
+            frames=self._frames_written,
+        )
         return metadata
 
     def _write_worker(self) -> None:

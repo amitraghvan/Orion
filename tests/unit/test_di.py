@@ -33,4 +33,3 @@ def test_get_event_bus_not_implemented() -> None:
             get_event_bus()
     finally:
         di_container._event_bus_instance = saved_bus
-

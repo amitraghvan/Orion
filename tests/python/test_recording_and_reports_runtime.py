@@ -1,10 +1,10 @@
 """Integration test verifying end-to-end mission recording and structured reporting lifecycle."""
 
 from pathlib import Path
+
 import cv2
 import numpy as np
 import pytest
-
 from app.core.paths import paths
 from app.experiments.experiment_engine import experiment_engine
 from app.recording.recorder import experiment_recorder
@@ -27,7 +27,9 @@ def test_mission_recording_and_report_generation(tmp_path: Path):
 
     # 3. Push synthetic frames at 30 FPS
     frame = np.zeros((720, 1280, 3), dtype=np.uint8)
-    cv2.putText(frame, "MISSION TEST FRAME", (100, 100), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 0), 2)
+    cv2.putText(
+        frame, "MISSION TEST FRAME", (100, 100), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 0), 2
+    )
     for _ in range(15):
         experiment_recorder.push_frame(frame)
 
@@ -36,7 +38,9 @@ def test_mission_recording_and_report_generation(tmp_path: Path):
     experiment_engine.process_observation("pick_yellow", confidence=0.95, entropy=0.15)
 
     session_dir = experiment_recorder.session_dir
-    assert session_dir is not None and session_dir.exists(), f"Session dir not created at {session_dir}"
+    assert session_dir is not None and session_dir.exists(), (
+        f"Session dir not created at {session_dir}"
+    )
 
     # 5. Stop/Finalize experiment
     experiment_engine.stop_experiment()
@@ -75,9 +79,12 @@ def test_mission_recording_and_report_generation(tmp_path: Path):
     assert run_id in md_content
     assert "Executive Procedural Summary" in md_content
 
-    json_reports = list(paths.reports_dir.glob(f"REPORT_{spec.metadata.experiment_id}_{run_id}_*.json"))
+    json_reports = list(
+        paths.reports_dir.glob(f"REPORT_{spec.metadata.experiment_id}_{run_id}_*.json")
+    )
     assert len(json_reports) >= 1, f"JSON report not found in {paths.reports_dir}"
     import json
+
     report_data = json.loads(json_reports[0].read_text(encoding="utf-8"))
     assert report_data["experiment_id"] == spec.metadata.experiment_id
     assert report_data["run_id"] == run_id

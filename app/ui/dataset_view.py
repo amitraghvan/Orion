@@ -3,9 +3,8 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
 
-from PySide6.QtCore import Qt
+from app.core.paths import paths
 from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
@@ -15,8 +14,6 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-
-from app.core.paths import paths
 
 
 class DatasetView(QWidget):
@@ -34,16 +31,22 @@ class DatasetView(QWidget):
 
         # Toolbar
         bar = QFrame()
-        bar.setStyleSheet("background-color: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 10px;")
+        bar.setStyleSheet(
+            "background-color: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 10px;"
+        )
         b_layout = QHBoxLayout(bar)
 
         title = QLabel("BAS EXPERIMENT DATASET CATALOG & INTEGRITY")
-        title.setStyleSheet("color: #38bdf8; font-size: 11px; font-weight: 800; letter-spacing: 1px;")
+        title.setStyleSheet(
+            "color: #38bdf8; font-size: 11px; font-weight: 800; letter-spacing: 1px;"
+        )
         b_layout.addWidget(title)
         b_layout.addStretch()
 
         self.val_btn = QPushButton("✔ VALIDATE INTEGRITY")
-        self.val_btn.setStyleSheet("background-color: #059669; color: white; padding: 6px 14px; border-radius: 4px; font-weight: bold;")
+        self.val_btn.setStyleSheet(
+            "background-color: #059669; color: white; padding: 6px 14px; border-radius: 4px; font-weight: bold;"
+        )
         self.val_btn.clicked.connect(self._validate_dataset)
         b_layout.addWidget(self.val_btn)
 
@@ -91,7 +94,9 @@ class DatasetView(QWidget):
             try:
                 with splits_file.open("r") as f:
                     splits_data = json.load(f)
-                info_lines.append(f"\n• Sequence Splits: Train: {splits_data.get('train_count', '-')} | Val: {splits_data.get('val_count', '-')} | Test: {splits_data.get('test_count', '-')}")
+                info_lines.append(
+                    f"\n• Sequence Splits: Train: {splits_data.get('train_count', '-')} | Val: {splits_data.get('val_count', '-')} | Test: {splits_data.get('test_count', '-')}"
+                )
             except Exception:
                 pass
 

@@ -11,7 +11,8 @@ inference pipelines. All inputs are mapped to the canonical 4-channel tensor:
 from __future__ import annotations
 
 import math
-from typing import Any
+from typing import cast
+
 import numpy as np
 
 # Canonical COCO-17 keypoint indices for interaction propagation
@@ -55,7 +56,9 @@ class CanonicalFeatureTransformer:
             return feat
 
         kpts = np.asarray(keypoints, dtype=np.float32)
-        assert kpts.shape >= (self.num_joints, 3), f"Keypoints shape must be at least ({self.num_joints}, 3), got {kpts.shape}"
+        assert kpts.shape >= (self.num_joints, 3), (
+            f"Keypoints shape must be at least ({self.num_joints}, 3), got {kpts.shape}"
+        )
 
         # Channel 0: Normalized X in [0.0, 1.0]
         x_norm = np.clip(kpts[: self.num_joints, 0] / w, 0.0, 1.0)
@@ -76,10 +79,10 @@ class CanonicalFeatureTransformer:
 
         # Invariant checks
         assert frame_feat.shape == (4, self.num_joints), f"Unexpected shape {frame_feat.shape}"
-        assert 0.0 <= np.min(frame_feat) and np.max(frame_feat) <= 1.0, (
+        assert np.min(frame_feat) >= 0.0 and np.max(frame_feat) <= 1.0, (
             f"Feature values out of range [0.0, 1.0]: min={np.min(frame_feat)}, max={np.max(frame_feat)}"
         )
-        return frame_feat
+        return cast(np.ndarray, frame_feat)
 
     def compute_proximity(
         self,
@@ -118,8 +121,7 @@ class CanonicalFeatureTransformer:
                     cy = b[1] + b[3] * 0.5
 
                 dist = math.hypot(px - cx, py - cy)
-                if dist < min_dist:
-                    min_dist = dist
+                min_dist = min(min_dist, dist)
 
         if min_dist == float("inf"):
             return 0.0
@@ -151,7 +153,7 @@ class CanonicalFeatureTransformer:
 
         min_val = float(np.min(tensor))
         max_val = float(np.max(tensor))
-        assert -0.01 <= min_val, f"Tensor contains negative values: {min_val}"
+        assert min_val >= -0.01, f"Tensor contains negative values: {min_val}"
         assert max_val <= 1.01, f"Tensor exceeds normalized range [0.0, 1.0]: {max_val}"
 
 

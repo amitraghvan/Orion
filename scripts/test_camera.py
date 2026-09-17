@@ -6,6 +6,7 @@ verifies resolutions, measures instantaneous FPS and frame read latency.
 
 import sys
 import time
+
 import cv2
 
 
@@ -51,7 +52,9 @@ def test_camera(max_devices: int = 4) -> int:
                 latencies.append((time.perf_counter() - t_f) * 1000.0)
 
         avg_lat_ms = sum(latencies) / len(latencies) if latencies else read_latency_ms
-        measured_fps = 1000.0 / avg_lat_ms if avg_lat_ms > 0 else (fps_reported if fps_reported > 0 else 30.0)
+        measured_fps = (
+            1000.0 / avg_lat_ms if avg_lat_ms > 0 else (fps_reported if fps_reported > 0 else 30.0)
+        )
 
         print(f"  Camera {idx}")
         print("  OPEN:       OK")
@@ -67,10 +70,9 @@ def test_camera(max_devices: int = 4) -> int:
         print("✅ Camera diagnostic completed: At least one optical sensor active.")
         print("==================================================================")
         return 0
-    else:
-        print("❌ No operational optical camera discovered.")
-        print("==================================================================")
-        return 1
+    print("❌ No operational optical camera discovered.")
+    print("==================================================================")
+    return 1
 
 
 if __name__ == "__main__":

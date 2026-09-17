@@ -48,12 +48,20 @@ def test_compute_bbox_iou() -> None:
 def test_hungarian_pose_association_matches_tracks_by_iou() -> None:
     """Verify that Hungarian matching associates poses with correct track IDs based on spatial overlap."""
     # Person A is on the left; Person B is on the right
-    track_left = _dummy_track(track_id=101, box=BoundingBox2D(x_min=50.0, y_min=50.0, x_max=150.0, y_max=300.0))
-    track_right = _dummy_track(track_id=202, box=BoundingBox2D(x_min=400.0, y_min=50.0, x_max=500.0, y_max=300.0))
+    track_left = _dummy_track(
+        track_id=101, box=BoundingBox2D(x_min=50.0, y_min=50.0, x_max=150.0, y_max=300.0)
+    )
+    track_right = _dummy_track(
+        track_id=202, box=BoundingBox2D(x_min=400.0, y_min=50.0, x_max=500.0, y_max=300.0)
+    )
 
     # Pose 1 corresponds to right person; Pose 2 corresponds to left person (inverted detection order)
-    pose_right = _dummy_pose(bbox=BoundingBox2D(x_min=395.0, y_min=55.0, x_max=495.0, y_max=295.0), person_id=1)
-    pose_left = _dummy_pose(bbox=BoundingBox2D(x_min=55.0, y_min=45.0, x_max=145.0, y_max=305.0), person_id=2)
+    pose_right = _dummy_pose(
+        bbox=BoundingBox2D(x_min=395.0, y_min=55.0, x_max=495.0, y_max=295.0), person_id=1
+    )
+    pose_left = _dummy_pose(
+        bbox=BoundingBox2D(x_min=55.0, y_min=45.0, x_max=145.0, y_max=305.0), person_id=2
+    )
 
     poses = [pose_right, pose_left]
     tracks = [track_left, track_right]
@@ -68,7 +76,9 @@ def test_hungarian_pose_association_matches_tracks_by_iou() -> None:
 
 def test_hungarian_pose_association_fallback_when_no_tracks() -> None:
     """Verify safe fallback when tracks list is empty."""
-    pose = _dummy_pose(bbox=BoundingBox2D(x_min=10.0, y_min=10.0, x_max=50.0, y_max=100.0), person_id=99)
+    pose = _dummy_pose(
+        bbox=BoundingBox2D(x_min=10.0, y_min=10.0, x_max=50.0, y_max=100.0), person_id=99
+    )
     poses = [pose]
 
     _associate_poses_with_tracks(poses, [], min_iou_thresh=0.2)

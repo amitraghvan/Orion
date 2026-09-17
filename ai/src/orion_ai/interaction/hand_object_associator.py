@@ -77,7 +77,10 @@ class HandObjectAssociator:
                 )
                 features_matrix[i][j] = feat
 
-                if feat.normalized_distance <= self.max_association_dist_norm or feat.overlap_ratio > 0.0:
+                if (
+                    feat.normalized_distance <= self.max_association_dist_norm
+                    or feat.overlap_ratio > 0.0
+                ):
                     # Lower cost is better: distance minus overlap bonus
                     cost = feat.normalized_distance - (0.5 * feat.overlap_ratio)
                     cost_matrix[i, j] = max(0.0, float(cost))

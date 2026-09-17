@@ -9,49 +9,65 @@ NUM_JOINTS: int = 17
 
 # COCO-17 anatomical joints
 COCO_JOINT_NAMES = [
-    "nose",            # 0
-    "left_eye",        # 1
-    "right_eye",       # 2
-    "left_ear",        # 3
-    "right_ear",       # 4
-    "left_shoulder",   # 5
+    "nose",  # 0
+    "left_eye",  # 1
+    "right_eye",  # 2
+    "left_ear",  # 3
+    "right_ear",  # 4
+    "left_shoulder",  # 5
     "right_shoulder",  # 6
-    "left_elbow",      # 7
-    "right_elbow",     # 8
-    "left_wrist",      # 9
-    "right_wrist",     # 10
-    "left_hip",        # 11
-    "right_hip",       # 12
-    "left_knee",       # 13
-    "right_knee",      # 14
-    "left_ankle",      # 15
-    "right_ankle",     # 16
+    "left_elbow",  # 7
+    "right_elbow",  # 8
+    "left_wrist",  # 9
+    "right_wrist",  # 10
+    "left_hip",  # 11
+    "right_hip",  # 12
+    "left_knee",  # 13
+    "right_knee",  # 14
+    "left_ankle",  # 15
+    "right_ankle",  # 16
 ]
 
 # Anatomical bone edges (undirected)
 COCO_BONES = [
-    (0, 1), (0, 2), (1, 3), (2, 4),           # head
-    (5, 6),                                   # shoulders
-    (5, 7), (7, 9),                           # left arm
-    (6, 8), (8, 10),                          # right arm
-    (5, 11), (6, 12),                         # torso sides
-    (11, 12),                                 # hips
-    (11, 13), (13, 15),                       # left leg
-    (12, 14), (14, 16),                       # right leg
+    (0, 1),
+    (0, 2),
+    (1, 3),
+    (2, 4),  # head
+    (5, 6),  # shoulders
+    (5, 7),
+    (7, 9),  # left arm
+    (6, 8),
+    (8, 10),  # right arm
+    (5, 11),
+    (6, 12),  # torso sides
+    (11, 12),  # hips
+    (11, 13),
+    (13, 15),  # left leg
+    (12, 14),
+    (14, 16),  # right leg
 ]
 
 # Approximate topological distance from gravity center (mid-hip / trunk root)
 # Joints with lower distance rank are "inward" (closer to torso center)
 JOINT_DISTANCE_TO_CENTER = {
-    11: 0, 12: 0,   # hips (center)
-    5: 1, 6: 1,     # shoulders
-    0: 2,           # nose / neck
-    7: 2, 8: 2,     # elbows
-    13: 2, 14: 2,   # knees
-    1: 3, 2: 3,     # eyes
-    9: 3, 10: 3,    # wrists
-    15: 3, 16: 3,   # ankles
-    3: 4, 4: 4,     # ears
+    11: 0,
+    12: 0,  # hips (center)
+    5: 1,
+    6: 1,  # shoulders
+    0: 2,  # nose / neck
+    7: 2,
+    8: 2,  # elbows
+    13: 2,
+    14: 2,  # knees
+    1: 3,
+    2: 3,  # eyes
+    9: 3,
+    10: 3,  # wrists
+    15: 3,
+    16: 3,  # ankles
+    3: 4,
+    4: 4,  # ears
 }
 
 

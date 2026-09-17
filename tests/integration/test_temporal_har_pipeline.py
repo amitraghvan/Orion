@@ -124,7 +124,9 @@ async def test_end_to_end_temporal_har_pipeline(test_engine: AsyncEngine) -> Non
 
     # Frames >= 32 must evaluate temporal HAR
     later_obs = observations[31:]
-    assert any(len(obs.activities) > 0 for obs in later_obs), "At least one frame >= 32 must have recognized activities"
+    assert any(len(obs.activities) > 0 for obs in later_obs), (
+        "At least one frame >= 32 must have recognized activities"
+    )
 
     for obs in later_obs:
         if obs.activities:

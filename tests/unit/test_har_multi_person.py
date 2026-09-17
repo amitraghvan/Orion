@@ -97,8 +97,7 @@ async def test_har_multi_person_isolation_and_track_loss() -> None:
 
     # Check that END event was emitted for Person 2
     end_events_p2 = [
-        e for e in events_collected
-        if e.track_id == 2 and e.phase == ActivityPhase.END.value
+        e for e in events_collected if e.track_id == 2 and e.phase == ActivityPhase.END.value
     ]
     assert len(end_events_p2) >= 1
     assert end_events_p2[0].evidence_metadata.get("evicted") is True

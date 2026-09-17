@@ -11,9 +11,10 @@ from __future__ import annotations
 import glob
 import json
 from pathlib import Path
+
+import matplotlib.pyplot as plt
 import numpy as np
 import torch
-import matplotlib.pyplot as plt
 
 from orion_ai.activity.stgcn.model import STGCNHARModel
 
@@ -22,12 +23,14 @@ BEST_MODEL_PATH = MODELS_DIR / "best.pt"
 TEST_SEQUENCES_DIR = Path("datasets/bas_experiment/sequences/test")
 CLASSES_JSON = Path("datasets/bas_experiment/metadata/classes.json")
 
+
 def compute_confusion_matrix(y_true: list[int], y_pred: list[int], num_classes: int) -> np.ndarray:
     cm = np.zeros((num_classes, num_classes), dtype=int)
     for t, p in zip(y_true, y_pred):
         if 0 <= t < num_classes and 0 <= p < num_classes:
             cm[t, p] += 1
     return cm
+
 
 def compute_metrics(cm: np.ndarray, classes: list[str]) -> tuple[float, float, float, float, dict]:
     total = np.sum(cm)
@@ -67,6 +70,7 @@ def compute_metrics(cm: np.ndarray, classes: list[str]) -> tuple[float, float, f
 
     return acc, macro_p, macro_r, macro_f1, per_class
 
+
 def main():
     print("=== Evaluating Trained BAS Model on Held-Out Real Videos ===")
     assert BEST_MODEL_PATH.is_file(), f"Best model not found at {BEST_MODEL_PATH}"
@@ -76,7 +80,13 @@ def main():
     classes = classes_data["classes"]
     num_classes = len(classes)
 
-    device = torch.device("cuda" if torch.cuda.is_available() else ("mps" if hasattr(torch.backends, "mps") and torch.backends.mps.is_available() else "cpu"))
+    device = torch.device(
+        "cuda"
+        if torch.cuda.is_available()
+        else (
+            "mps" if hasattr(torch.backends, "mps") and torch.backends.mps.is_available() else "cpu"
+        )
+    )
     print(f"Evaluation Device: {device}")
 
     # Load model
@@ -112,12 +122,14 @@ def main():
 
             if vid not in video_predictions:
                 video_predictions[vid] = []
-            video_predictions[vid].append({
-                "true_action": act,
-                "pred_action": classes[pred_class],
-                "confidence": conf,
-                "step_id": step,
-            })
+            video_predictions[vid].append(
+                {
+                    "true_action": act,
+                    "pred_action": classes[pred_class],
+                    "confidence": conf,
+                    "step_id": step,
+                }
+            )
 
     cm = compute_confusion_matrix(y_true, y_pred, num_classes)
     acc, prec_macro, rec_macro, f1_macro, per_class = compute_metrics(cm, classes)
@@ -135,8 +147,11 @@ def main():
     for i in range(num_classes):
         for j in range(num_classes):
             plt.text(
-                j, i, format(cm[i, j], "d"),
-                ha="center", va="center",
+                j,
+                i,
+                format(cm[i, j], "d"),
+                ha="center",
+                va="center",
                 color="white" if cm[i, j] > thresh else "black",
             )
 
@@ -149,8 +164,8 @@ def main():
     print(f"Saved confusion matrix: {cm_path}")
 
     # Protocol Validation Analysis across the held-out videos
-    valid_videos = [v for v in video_predictions.keys() if "VALID" in v]
-    invalid_videos = [v for v in video_predictions.keys() if "INVALID" in v]
+    valid_videos = [v for v in video_predictions if "VALID" in v]
+    invalid_videos = [v for v in video_predictions if "INVALID" in v]
 
     wrong_object_detected = False
     wrong_order_detected = False
@@ -161,10 +176,12 @@ def main():
             has_red = any(p["pred_action"] in ("pick_red", "place_red") for p in preds)
             wrong_object_detected = has_red
         elif "Wrong_Order" in v or "Wrong Order" in v or "175307" in v:
-            has_early_red = any(p["pred_action"] in ("pick_red", "place_red") for p in preds[:len(preds)//2])
+            has_early_red = any(
+                p["pred_action"] in ("pick_red", "place_red") for p in preds[: len(preds) // 2]
+            )
             wrong_order_detected = has_early_red
         elif "Interruption" in v or "183146" in v:
-            has_interruption = any(p["pred_action"] == "idle" for p in preds[len(preds)//3:])
+            has_interruption = any(p["pred_action"] == "idle" for p in preds[len(preds) // 3 :])
             interruption_detected = has_interruption
 
     protocol_metrics = {
@@ -201,6 +218,7 @@ def main():
     print(f"Macro Recall: {rec_macro * 100:.2f}%")
     print(f"Macro F1 Score: {f1_macro * 100:.2f}%")
     print("Protocol Validation Metrics:", json.dumps(protocol_metrics, indent=2))
+
 
 if __name__ == "__main__":
     main()

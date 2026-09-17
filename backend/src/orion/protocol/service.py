@@ -45,7 +45,6 @@ if TYPE_CHECKING:
 logger = get_logger("orion.protocol.service")
 
 
-
 class ProtocolService:
     """Core protocol coordination service."""
 
@@ -118,7 +117,9 @@ class ProtocolService:
         if not self.fsm.spec:
             raise ValueError("No protocol loaded. Load a protocol first.")
 
-        assigned_run_id = run_id or f"run_{datetime.now(UTC).strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:6]}"
+        assigned_run_id = (
+            run_id or f"run_{datetime.now(UTC).strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:6]}"
+        )
         self._current_run_id = assigned_run_id
         prev_state = self.fsm.state
 
@@ -126,7 +127,9 @@ class ProtocolService:
         self.decision_engine.reset_step()
         self._last_recommendation = self.guidance_engine.compute_recommendation(self.fsm)
 
-        self._emit_state_change(prev_state.value, self.fsm.state.value, reason="Experiment run started")
+        self._emit_state_change(
+            prev_state.value, self.fsm.state.value, reason="Experiment run started"
+        )
         return assigned_run_id
 
     def pause(self, reason: str = "Operator paused") -> None:
@@ -156,7 +159,9 @@ class ProtocolService:
         self.fsm.resolve_blocked(resolution)
         self.decision_engine.reset_step()
         self._last_recommendation = self.guidance_engine.compute_recommendation(self.fsm)
-        self._emit_state_change(prev_state.value, self.fsm.state.value, reason=f"Resolved: {resolution}")
+        self._emit_state_change(
+            prev_state.value, self.fsm.state.value, reason=f"Resolved: {resolution}"
+        )
 
     def skip_to_step(self, target_step_id: str) -> bool:
         """Manually jump to a designated step by ID."""
@@ -165,7 +170,9 @@ class ProtocolService:
         if success:
             self.decision_engine.reset_step()
             self._last_recommendation = self.guidance_engine.compute_recommendation(self.fsm)
-            self._emit_state_change(prev_state.value, self.fsm.state.value, reason=f"Manual jump to {target_step_id}")
+            self._emit_state_change(
+                prev_state.value, self.fsm.state.value, reason=f"Manual jump to {target_step_id}"
+            )
         return success
 
     async def on_activity_recognized(self, event: ActivityRecognized) -> None:
@@ -200,7 +207,11 @@ class ProtocolService:
             track_id = obs.activities[0].track_id if obs.activities else 0
 
         # 2. Second priority: If HAR is idle or low confidence, check physical Hand-Object Interactions
-        if not act_label and hasattr(obs, "interaction_observations") and obs.interaction_observations:
+        if (
+            not act_label
+            and hasattr(obs, "interaction_observations")
+            and obs.interaction_observations
+        ):
             for inter in obs.interaction_observations:
                 state_val = getattr(inter.state, "value", str(inter.state))
                 if state_val in ("CONTACT", "GRASPING", "MANIPULATING"):
@@ -212,7 +223,7 @@ class ProtocolService:
                         act_conf = 0.92
                         track_id = getattr(inter, "person_track_id", 0)
                         break
-                    elif "red" in obj_id:
+                    if "red" in obj_id:
                         act_label = "place_red" if "place" in expected_act else "pick_red"
                         act_conf = 0.92
                         track_id = getattr(inter, "person_track_id", 0)
@@ -230,14 +241,15 @@ class ProtocolService:
                 confidence=act_conf,
                 uncertainty_status="NOMINAL",
                 is_anomaly=False,
-                model_version=getattr(obs.top_activity, "model_version", "BAS-HAR-v1.0") if getattr(obs, "top_activity", None) else "BAS-HOI-v1.0",
+                model_version=getattr(obs.top_activity, "model_version", "BAS-HAR-v1.0")
+                if getattr(obs, "top_activity", None)
+                else "BAS-HOI-v1.0",
                 evidence_metadata={
                     "source": "observation_stream",
                     "inferred_from": "hoi" if not getattr(obs, "top_activity", None) else "har",
                 },
             )
             await self.process_activity(act_event)
-
 
     async def process_activity(
         self,
@@ -253,7 +265,10 @@ class ProtocolService:
             return None
 
         # Multi-person actor tracking filter
-        if self.fsm.actor_track_id is not None and event.track_id not in (0, self.fsm.actor_track_id):
+        if self.fsm.actor_track_id is not None and event.track_id not in (
+            0,
+            self.fsm.actor_track_id,
+        ):
             logger.debug(
                 "Ignoring activity from non-primary actor",
                 event_track=event.track_id,
@@ -316,6 +331,7 @@ class ProtocolService:
             and prev_step
         ):
             from orion.events.schemas import AlertRaised
+
             await self.event_bus.publish(
                 ProtocolDeviationDetected(
                     experiment_id=self._experiment_id,
@@ -437,12 +453,13 @@ class ProtocolService:
             self._background_tasks.add(t2)
             t2.add_done_callback(self._background_tasks.discard)
 
-
     def get_status_payload(self) -> dict[str, Any]:
         """Produce complete telemetry / REST status payload."""
         step = self.fsm.current_step
         spec = self.fsm.spec
-        recommendation = self._last_recommendation.model_dump(mode="json") if self._last_recommendation else None
+        recommendation = (
+            self._last_recommendation.model_dump(mode="json") if self._last_recommendation else None
+        )
 
         steps_summary = []
         if spec:
@@ -466,13 +483,15 @@ class ProtocolService:
                         step_st = "PENDING"
                 else:
                     step_st = "PENDING"
-                steps_summary.append({
-                    "step_id": s.step_id,
-                    "step_number": s.step_number,
-                    "description": s.description,
-                    "expected_activity": s.expected_activity,
-                    "status": step_st,
-                })
+                steps_summary.append(
+                    {
+                        "step_id": s.step_id,
+                        "step_number": s.step_number,
+                        "description": s.description,
+                        "expected_activity": s.expected_activity,
+                        "status": step_st,
+                    }
+                )
 
         return {
             "experiment_id": self._experiment_id,
@@ -486,7 +505,9 @@ class ProtocolService:
                 "step_number": step.step_number,
                 "description": step.description,
                 "expected_activity": step.expected_activity,
-            } if step else None,
+            }
+            if step
+            else None,
             "recommendation": recommendation,
             "steps": steps_summary,
             "actor_track_id": self.fsm.actor_track_id,

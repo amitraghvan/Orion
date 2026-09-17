@@ -152,7 +152,10 @@ class InteractionStateMachine:
                     tracklet.contact_persistence_frames = 0
                 else:
                     # Transient unobserved frame, retain prior state or transition to RELEASING
-                    if tracklet.current_state in (InteractionState.GRASPING, InteractionState.MANIPULATING):
+                    if tracklet.current_state in (
+                        InteractionState.GRASPING,
+                        InteractionState.MANIPULATING,
+                    ):
                         tracklet.current_state = InteractionState.RELEASING
                     tracklet.frames_in_state += 1
 
@@ -186,7 +189,11 @@ class InteractionStateMachine:
             return InteractionState.CONTACT
 
         # 2. Moving away while previously in Grasp / Manipulate
-        if curr in (InteractionState.GRASPING, InteractionState.MANIPULATING, InteractionState.CONTACT):
+        if curr in (
+            InteractionState.GRASPING,
+            InteractionState.MANIPULATING,
+            InteractionState.CONTACT,
+        ):
             if not feat.is_in_contact:
                 return InteractionState.RELEASING
 
@@ -197,7 +204,10 @@ class InteractionStateMachine:
 
         # 3. Near / Approaching
         if feat.is_near:
-            if feat.approach_velocity > 0.005 and tracklet.consecutive_near_frames >= self.min_approach_frames:
+            if (
+                feat.approach_velocity > 0.005
+                and tracklet.consecutive_near_frames >= self.min_approach_frames
+            ):
                 return InteractionState.APPROACHING
             return InteractionState.NEAR
 

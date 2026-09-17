@@ -1,14 +1,15 @@
 """Unit tests for ORION desktop configuration management."""
 
-import pytest
 from pathlib import Path
+
+import pytest
 from app.core.config import (
-    OrionConfig,
-    SystemConfig,
     CameraConfig,
     ModelsConfig,
-    load_config,
+    OrionConfig,
+    SystemConfig,
     get_config,
+    load_config,
     set_config,
 )
 

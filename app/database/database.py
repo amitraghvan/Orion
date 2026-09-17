@@ -4,14 +4,12 @@ from __future__ import annotations
 
 import threading
 from pathlib import Path
-from typing import Generator
-
-from sqlalchemy import create_engine
-from sqlalchemy.orm import Session, sessionmaker
 
 from app.core.logging import get_logger
 from app.core.paths import paths
 from app.database.models import Base
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session, sessionmaker
 
 logger = get_logger("app.database.engine")
 

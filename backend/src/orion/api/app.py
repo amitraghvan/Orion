@@ -48,7 +48,6 @@ from orion.events.schemas import (
 from orion.protocol.service import ProtocolService
 from orion_ai.activity.configs import ActivityConfig
 from orion_ai.activity.runtime import TemporalHARRuntime
-from orion_ai.camera.opencv_driver import OpenCVCameraDriver
 from orion_ai.detection.yolo_detector import YOLOEdgeDetector
 from orion_ai.pose.yolo_pose import YOLOPoseEstimator
 from orion_ai.runtime.coordinator import PerceptionPipelineCoordinator
@@ -151,7 +150,10 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     if canonical_path.is_file():
         try:
             protocol_service.load_protocol_file(canonical_path)
-            logger.info("Loaded canonical experiment protocol into ProtocolService", protocol=str(canonical_path))
+            logger.info(
+                "Loaded canonical experiment protocol into ProtocolService",
+                protocol=str(canonical_path),
+            )
         except Exception as exc:
             logger.warning("Failed to auto-load canonical protocol", error=str(exc))
     set_protocol_service_instance(protocol_service)
@@ -252,7 +254,9 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
                     device=accelerator,
                     station_id=settings.station_id,
                 )
-                logger.info("Loaded HAR model weights from %s (model_id: %s)", har_weights, model_id)
+                logger.info(
+                    "Loaded HAR model weights from %s (model_id: %s)", har_weights, model_id
+                )
             except Exception as exc:
                 logger.warning("Failed to initialize HAR runtime", error=str(exc))
 
@@ -286,7 +290,6 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     reset_db_engine()
     await event_bus.shutdown()
     logger.info("Station Copilot shutting down safely", station_id=settings.station_id)
-
 
 
 def create_app(settings: OrionSettings | None = None) -> FastAPI:

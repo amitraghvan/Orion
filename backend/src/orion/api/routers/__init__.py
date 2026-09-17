@@ -15,4 +15,3 @@ __all__ = [
     "metadata_router",
     "telemetry_ws_router",
 ]
-

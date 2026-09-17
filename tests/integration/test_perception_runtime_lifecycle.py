@@ -148,7 +148,6 @@ class MockPoseEstimator(PoseEstimatorInterface):
         )
 
 
-
 def _build_test_coordinator(bus: InMemoryEventBus) -> PerceptionPipelineCoordinator:
     return PerceptionPipelineCoordinator(
         camera=MockCameraDriver(),
@@ -178,7 +177,9 @@ def mock_app_settings() -> OrionSettings:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_1_fastapi_lifespan_starts_perception_pipeline(mock_app_settings: OrionSettings) -> None:
+async def test_1_fastapi_lifespan_starts_perception_pipeline(
+    mock_app_settings: OrionSettings,
+) -> None:
     """TEST 1: FastAPI lifespan starts the perception pipeline."""
     app = create_app(settings=mock_app_settings)
 
@@ -310,9 +311,7 @@ async def test_5_frontend_telemetry_json_serializable() -> None:
         "objects": [o.model_dump(mode="json") for o in obs.object_observations],
         "interactions": [i.model_dump(mode="json") for i in obs.interaction_observations],
         "multimodal_evidence": (
-            obs.multimodal_evidence.model_dump(mode="json")
-            if obs.multimodal_evidence
-            else None
+            obs.multimodal_evidence.model_dump(mode="json") if obs.multimodal_evidence else None
         ),
         "metrics": obs.metrics.model_dump(),
         "pipeline_status": obs.pipeline_status,
@@ -344,7 +343,9 @@ async def test_6_pipeline_failure_handled_without_unmanaged_tasks() -> None:
     coordinator = _build_test_coordinator(bus)
 
     # Force camera.read_frame to raise a transient error
-    coordinator.camera.read_frame = AsyncMock(side_effect=RuntimeError("Transient optical sensor glitch"))  # type: ignore[method-assign]
+    coordinator.camera.read_frame = AsyncMock(
+        side_effect=RuntimeError("Transient optical sensor glitch")
+    )  # type: ignore[method-assign]
     await coordinator.camera.initialize()
 
     # Start loop

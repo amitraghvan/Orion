@@ -2,8 +2,13 @@
 
 from __future__ import annotations
 
-from typing import Any
-
+from app.core.state_manager import state_manager
+from app.experiments.experiment_engine import experiment_engine
+from app.ui.widgets.alert_banner import AlertBanner
+from app.ui.widgets.guidance_card import GuidanceCard
+from app.ui.widgets.status_pill import StatusPill
+from app.ui.widgets.timeline_widget import StepTimelineWidget
+from app.ui.widgets.video_widget import VideoViewportWidget
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import (
     QFrame,
@@ -18,14 +23,6 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-
-from app.core.state_manager import state_manager
-from app.experiments.experiment_engine import experiment_engine
-from app.ui.widgets.alert_banner import AlertBanner
-from app.ui.widgets.guidance_card import GuidanceCard
-from app.ui.widgets.status_pill import StatusPill
-from app.ui.widgets.timeline_widget import StepTimelineWidget
-from app.ui.widgets.video_widget import VideoViewportWidget
 
 
 class DashboardView(QWidget):
@@ -68,13 +65,17 @@ class DashboardView(QWidget):
 
         # Telemetry event log table
         log_frame = QFrame()
-        log_frame.setStyleSheet("background-color: #0f172a; border: 1px solid #1e293b; border-radius: 6px;")
+        log_frame.setStyleSheet(
+            "background-color: #0f172a; border: 1px solid #1e293b; border-radius: 6px;"
+        )
         log_layout = QVBoxLayout(log_frame)
         log_layout.setContentsMargins(10, 8, 10, 8)
         log_layout.setSpacing(6)
 
         log_hdr = QLabel("MISSION TELEMETRY & EVENT LOG")
-        log_hdr.setStyleSheet("color: #94a3b8; font-size: 10px; font-weight: 800; letter-spacing: 1px;")
+        log_hdr.setStyleSheet(
+            "color: #94a3b8; font-size: 10px; font-weight: 800; letter-spacing: 1px;"
+        )
         log_layout.addWidget(log_hdr)
 
         self.log_table = QTableWidget(0, 3)
@@ -123,13 +124,17 @@ class DashboardView(QWidget):
 
         # Active Experiment Status Panel
         exp_frame = QFrame()
-        exp_frame.setStyleSheet("background-color: #0f172a; border: 1px solid #1e293b; border-radius: 8px; padding: 10px;")
+        exp_frame.setStyleSheet(
+            "background-color: #0f172a; border: 1px solid #1e293b; border-radius: 8px; padding: 10px;"
+        )
         exp_layout = QVBoxLayout(exp_frame)
         exp_layout.setSpacing(8)
 
         exp_hdr_layout = QHBoxLayout()
         exp_title_lbl = QLabel("EXPERIMENT STATUS & CONTROLS")
-        exp_title_lbl.setStyleSheet("color: #38bdf8; font-size: 11px; font-weight: 800; letter-spacing: 1px;")
+        exp_title_lbl.setStyleSheet(
+            "color: #38bdf8; font-size: 11px; font-weight: 800; letter-spacing: 1px;"
+        )
         self.fsm_pill = StatusPill("FSM", "IDLE", "gray")
         exp_hdr_layout.addWidget(exp_title_lbl)
         exp_hdr_layout.addStretch()
@@ -164,11 +169,15 @@ class DashboardView(QWidget):
         # Controls row
         btn_layout = QHBoxLayout()
         self.start_btn = QPushButton("▶ START MISSION")
-        self.start_btn.setStyleSheet("background-color: #059669; color: white; font-weight: bold; padding: 8px; border-radius: 4px;")
+        self.start_btn.setStyleSheet(
+            "background-color: #059669; color: white; font-weight: bold; padding: 8px; border-radius: 4px;"
+        )
         self.start_btn.clicked.connect(self._on_start_clicked)
 
         self.stop_btn = QPushButton("⏹ HALT")
-        self.stop_btn.setStyleSheet("background-color: #dc2626; color: white; font-weight: bold; padding: 8px; border-radius: 4px;")
+        self.stop_btn.setStyleSheet(
+            "background-color: #dc2626; color: white; font-weight: bold; padding: 8px; border-radius: 4px;"
+        )
         self.stop_btn.clicked.connect(self._on_stop_clicked)
         self.stop_btn.setEnabled(False)
 
@@ -180,12 +189,16 @@ class DashboardView(QWidget):
 
         # Real-time Evidence & Multimodal Panel
         evidence_frame = QFrame()
-        evidence_frame.setStyleSheet("background-color: #0f172a; border: 1px solid #1e293b; border-radius: 8px; padding: 10px;")
+        evidence_frame.setStyleSheet(
+            "background-color: #0f172a; border: 1px solid #1e293b; border-radius: 8px; padding: 10px;"
+        )
         ev_layout = QVBoxLayout(evidence_frame)
         ev_layout.setSpacing(6)
 
         ev_hdr = QLabel("MULTIMODAL EVIDENCE ENGINE")
-        ev_hdr.setStyleSheet("color: #a855f7; font-size: 11px; font-weight: 800; letter-spacing: 1px;")
+        ev_hdr.setStyleSheet(
+            "color: #a855f7; font-size: 11px; font-weight: 800; letter-spacing: 1px;"
+        )
         ev_layout.addWidget(ev_hdr)
 
         self.activity_lbl = QLabel("Recognized Activity: IDLE (100%)")
@@ -216,7 +229,9 @@ class DashboardView(QWidget):
         # 1. Update Timeline
         spec = experiment_engine.current_spec
         if spec and spec.steps:
-            steps_data = [{"step_number": s.step_number, "description": s.description} for s in spec.steps]
+            steps_data = [
+                {"step_number": s.step_number, "description": s.description} for s in spec.steps
+            ]
             self.timeline_widget.set_steps(steps_data, experiment_engine.fsm.current_step_index + 1)
             self.exp_name_lbl.setText(f"{spec.metadata.experiment_id}: {spec.metadata.title}")
 
@@ -227,7 +242,11 @@ class DashboardView(QWidget):
 
         # 2. Update FSM State
         fsm_state = experiment_engine.fsm.state.value
-        fsm_color = "green" if fsm_state in ("RUNNING", "STEP_IN_PROGRESS") else ("cyan" if fsm_state == "COMPLETED" else "gray")
+        fsm_color = (
+            "green"
+            if fsm_state in ("RUNNING", "STEP_IN_PROGRESS")
+            else ("cyan" if fsm_state == "COMPLETED" else "gray")
+        )
         self.fsm_pill.set_status(fsm_state, fsm_color)
 
         self.start_btn.setEnabled(fsm_state in ("LOADED", "IDLE", "COMPLETED", "ABORTED"))
@@ -235,9 +254,11 @@ class DashboardView(QWidget):
 
         # 3. Update Evidence
         snapshot = state_manager.latest_perception
-        act_text = f"Activity: {snapshot.recognized_activity.upper()} ({snapshot.activity_confidence*100:.0f}%)"
+        act_text = f"Activity: {snapshot.recognized_activity.upper()} ({snapshot.activity_confidence * 100:.0f}%)"
         self.activity_lbl.setText(act_text)
-        self.entropy_lbl.setText(f"Entropy: {snapshot.activity_entropy:.2f} | Status: {snapshot.uncertainty_status}")
+        self.entropy_lbl.setText(
+            f"Entropy: {snapshot.activity_entropy:.2f} | Status: {snapshot.uncertainty_status}"
+        )
         self.objects_lbl.setText(
             f"Tracked Objects: {len(snapshot.detected_objects)} | Hands: {len(snapshot.hands)} | Interactions: {len(snapshot.interactions)}"
         )

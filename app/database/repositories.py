@@ -6,13 +6,19 @@ from datetime import UTC, datetime
 from typing import Any
 
 from app.database.database import db_manager
-from app.database.models import AlertModel, ExperimentModel, ExperimentRunModel, ExperimentStepLogModel, SystemEventModel
+from app.database.models import (
+    ExperimentModel,
+    ExperimentRunModel,
+    ExperimentStepLogModel,
+)
 
 
 class ExperimentRepository:
     """Handles CRUD persistence for mission experiments and execution sessions."""
 
-    def record_run_start(self, experiment_id: str, run_id: str, title: str, total_steps: int) -> None:
+    def record_run_start(
+        self, experiment_id: str, run_id: str, title: str, total_steps: int
+    ) -> None:
         session = db_manager.get_session()
         try:
             # Ensure experiment exists
@@ -83,13 +89,20 @@ class ExperimentRepository:
     def list_all_runs(self) -> list[dict[str, Any]]:
         session = db_manager.get_session()
         try:
-            runs = session.query(ExperimentRunModel).order_by(ExperimentRunModel.start_time.desc()).limit(50).all()
+            runs = (
+                session.query(ExperimentRunModel)
+                .order_by(ExperimentRunModel.start_time.desc())
+                .limit(50)
+                .all()
+            )
             return [
                 {
                     "run_id": r.run_id,
                     "experiment_id": r.experiment_id,
                     "status": r.status,
-                    "start_time": r.start_time.strftime("%Y-%m-%d %H:%M:%S") if r.start_time else "",
+                    "start_time": r.start_time.strftime("%Y-%m-%d %H:%M:%S")
+                    if r.start_time
+                    else "",
                     "duration_seconds": round(r.duration_seconds, 1),
                     "completed_steps": r.completed_steps,
                     "total_steps": r.total_steps,

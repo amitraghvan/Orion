@@ -15,8 +15,12 @@ from app.core.state_manager import state_manager
 from app.experiments.experiment_loader import load_protocol
 from app.experiments.experiment_schema import ExperimentSpecification
 from app.experiments.sequence_manager import ProtocolState, ProtocolStateMachine
-from app.intelligence.decision_engine import DecisionStatus, ProtocolDecision, ProtocolDecisionEngine
-from app.intelligence.next_step_engine import NextStepEngine, NextStepRecommendation
+from app.intelligence.decision_engine import (
+    DecisionStatus,
+    ProtocolDecision,
+    ProtocolDecisionEngine,
+)
+from app.intelligence.next_step_engine import NextStepEngine
 
 logger = get_logger("app.experiments.engine")
 
@@ -65,7 +69,9 @@ class ExperimentEngine:
                 step_id=curr_step.step_id if curr_step else "",
                 step_name=curr_step.description if curr_step else "",
                 total_steps=len(spec.steps),
-                expected_action=curr_step.expected_actions[0] if curr_step and curr_step.expected_actions else "execute",
+                expected_action=curr_step.expected_actions[0]
+                if curr_step and curr_step.expected_actions
+                else "execute",
             )
 
             # Update guidance
@@ -75,7 +81,11 @@ class ExperimentEngine:
                 next_step_action=guidance.expected_action,
             )
 
-            logger.info("Loaded protocol successfully", exp_id=spec.metadata.experiment_id, steps=len(spec.steps))
+            logger.info(
+                "Loaded protocol successfully",
+                exp_id=spec.metadata.experiment_id,
+                steps=len(spec.steps),
+            )
             return spec
 
     def start_experiment(self) -> str:
@@ -84,7 +94,9 @@ class ExperimentEngine:
             if not self.fsm.spec:
                 raise ValueError("Cannot start experiment: No protocol loaded.")
 
-            self._active_run_id = f"RUN-{datetime.now(UTC).strftime('%Y%m%d-%H%M%S')}-{uuid4().hex[:6].upper()}"
+            self._active_run_id = (
+                f"RUN-{datetime.now(UTC).strftime('%Y%m%d-%H%M%S')}-{uuid4().hex[:6].upper()}"
+            )
             self._start_time_str = datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S UTC")
             self._start_mono = time.monotonic()
             self._timeline_events.clear()
@@ -95,6 +107,7 @@ class ExperimentEngine:
 
             # Start asynchronous session video recording
             from app.recording.recorder import experiment_recorder
+
             cfg = get_config()
             experiment_recorder.start_recording(
                 experiment_id=self.fsm.spec.metadata.experiment_id,
@@ -104,7 +117,10 @@ class ExperimentEngine:
                 fps=cfg.camera.fps,
             )
 
-            self._log_timeline("EXPERIMENT_STARTED", f"Run {self._active_run_id} started for {self.fsm.spec.metadata.experiment_id}")
+            self._log_timeline(
+                "EXPERIMENT_STARTED",
+                f"Run {self._active_run_id} started for {self.fsm.spec.metadata.experiment_id}",
+            )
 
             curr_step = self.fsm.current_step
             state_manager.set_experiment_status(
@@ -115,22 +131,28 @@ class ExperimentEngine:
                 step_id=curr_step.step_id if curr_step else "",
                 step_name=curr_step.description if curr_step else "",
                 total_steps=len(self.fsm.spec.steps),
-                expected_action=curr_step.expected_actions[0] if curr_step and curr_step.expected_actions else "execute",
+                expected_action=curr_step.expected_actions[0]
+                if curr_step and curr_step.expected_actions
+                else "execute",
             )
 
             guidance = self.next_step_engine.compute_guidance(self.fsm.spec, 0)
             state_manager.set_guidance(guidance.instruction_text, guidance.expected_action)
 
             # Trigger voice notification
-            event_bus.publish({
-                "type": "VOICE_ALERT",
-                "text": "Experiment started. Please perform Step 1.",
-                "priority": 3,
-            })
+            event_bus.publish(
+                {
+                    "type": "VOICE_ALERT",
+                    "text": "Experiment started. Please perform Step 1.",
+                    "priority": 3,
+                }
+            )
 
             return self._active_run_id
 
-    def process_observation(self, activity_label: str, confidence: float, entropy: float) -> ProtocolDecision | None:
+    def process_observation(
+        self, activity_label: str, confidence: float, entropy: float
+    ) -> ProtocolDecision | None:
         """Evaluate incoming HAR action observation against the active experiment step."""
         with self._lock:
             if not self.is_running or not self.fsm.spec:
@@ -160,41 +182,55 @@ class ExperimentEngine:
                 DecisionStatus.SKIPPED,
                 DecisionStatus.INVALID_ACTION,
             ):
-                self._step_records.append({
-                    "step_number": decision.step_number,
-                    "step_id": decision.step_id,
-                    "expected_action": decision.expected_actions[0] if decision.expected_actions else "execute",
-                    "detected_action": decision.observed_action,
-                    "status": decision.status.value,
-                    "confidence": float(decision.confidence),
-                    "timestamp": datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S UTC"),
-                    "explanation": decision.explanation,
-                })
+                self._step_records.append(
+                    {
+                        "step_number": decision.step_number,
+                        "step_id": decision.step_id,
+                        "expected_action": decision.expected_actions[0]
+                        if decision.expected_actions
+                        else "execute",
+                        "detected_action": decision.observed_action,
+                        "status": decision.status.value,
+                        "confidence": float(decision.confidence),
+                        "timestamp": datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S UTC"),
+                        "explanation": decision.explanation,
+                    }
+                )
 
             # Handle Decision Outcomes
             if decision.status == DecisionStatus.VALID:
                 curr_num = decision.step_number
-                self._log_timeline(f"STEP_{curr_num:02d}_COMPLETED", f"Validated action '{decision.observed_action}' (conf={decision.confidence:.2f})")
+                self._log_timeline(
+                    f"STEP_{curr_num:02d}_COMPLETED",
+                    f"Validated action '{decision.observed_action}' (conf={decision.confidence:.2f})",
+                )
 
                 # Advance FSM
                 is_complete = self.fsm.advance_step()
                 self.decision_engine.reset_step()
 
                 if is_complete:
-                    self._log_timeline("EXPERIMENT_COMPLETED", "All experiment protocol steps finalized successfully.")
-                    event_bus.publish({
-                        "type": "VOICE_ALERT",
-                        "text": "Experiment completed successfully. All steps verified.",
-                        "priority": 2,
-                    })
+                    self._log_timeline(
+                        "EXPERIMENT_COMPLETED",
+                        "All experiment protocol steps finalized successfully.",
+                    )
+                    event_bus.publish(
+                        {
+                            "type": "VOICE_ALERT",
+                            "text": "Experiment completed successfully. All steps verified.",
+                            "priority": 2,
+                        }
+                    )
                     self._finalize_mission(outcome="COMPLETED")
                 else:
                     nxt_step = self.fsm.current_step
-                    event_bus.publish({
-                        "type": "VOICE_ALERT",
-                        "text": f"Step {curr_num} completed. Please perform Step {nxt_step.step_number if nxt_step else curr_num + 1}.",
-                        "priority": 3,
-                    })
+                    event_bus.publish(
+                        {
+                            "type": "VOICE_ALERT",
+                            "text": f"Step {curr_num} completed. Please perform Step {nxt_step.step_number if nxt_step else curr_num + 1}.",
+                            "priority": 3,
+                        }
+                    )
 
                 # Refresh state & guidance
                 new_step = self.fsm.current_step
@@ -206,45 +242,59 @@ class ExperimentEngine:
                     step_id=new_step.step_id if new_step else "COMPLETED",
                     step_name=new_step.description if new_step else "Mission Complete",
                     total_steps=len(self.fsm.spec.steps),
-                    expected_action=new_step.expected_actions[0] if new_step and new_step.expected_actions else "idle",
+                    expected_action=new_step.expected_actions[0]
+                    if new_step and new_step.expected_actions
+                    else "idle",
                 )
 
-                guidance = self.next_step_engine.compute_guidance(self.fsm.spec, self.fsm.current_step_index)
+                guidance = self.next_step_engine.compute_guidance(
+                    self.fsm.spec, self.fsm.current_step_index
+                )
                 state_manager.set_guidance(guidance.instruction_text, guidance.expected_action)
 
             elif decision.status == DecisionStatus.OUT_OF_SEQUENCE:
                 self._log_timeline("OUT_OF_SEQUENCE_ACTION", decision.explanation)
-                event_bus.publish({
-                    "type": "VOICE_ALERT",
-                    "text": "Warning. Out of sequence activity detected.",
-                    "priority": 1,
-                })
-                event_bus.publish({
-                    "type": "ALERT",
-                    "severity": "WARNING",
-                    "message": decision.explanation,
-                })
+                event_bus.publish(
+                    {
+                        "type": "VOICE_ALERT",
+                        "text": "Warning. Out of sequence activity detected.",
+                        "priority": 1,
+                    }
+                )
+                event_bus.publish(
+                    {
+                        "type": "ALERT",
+                        "severity": "WARNING",
+                        "message": decision.explanation,
+                    }
+                )
 
             elif decision.status == DecisionStatus.WRONG_OBJECT:
                 self._log_timeline("WRONG_OBJECT_VIOLATION", decision.explanation)
-                event_bus.publish({
-                    "type": "VOICE_ALERT",
-                    "text": "Warning. Wrong object manipulated.",
-                    "priority": 1,
-                })
-                event_bus.publish({
-                    "type": "ALERT",
-                    "severity": "WARNING",
-                    "message": decision.explanation,
-                })
+                event_bus.publish(
+                    {
+                        "type": "VOICE_ALERT",
+                        "text": "Warning. Wrong object manipulated.",
+                        "priority": 1,
+                    }
+                )
+                event_bus.publish(
+                    {
+                        "type": "ALERT",
+                        "severity": "WARNING",
+                        "message": decision.explanation,
+                    }
+                )
 
             elif decision.status == DecisionStatus.SKIPPED:
                 self._log_timeline("STEP_SKIPPED", decision.explanation)
-                event_bus.publish({
-                    "type": "VOICE_ALERT",
-                    "text": "Alert. Protocol step was skipped.",
-                    "priority": 1,
-                })
+                event_bus.publish(
+                    {
+                        "type": "VOICE_ALERT",
+                        "text": "Alert. Protocol step was skipped.",
+                        "priority": 1,
+                    }
+                )
 
             return decision
 
@@ -260,6 +310,7 @@ class ExperimentEngine:
     def _finalize_mission(self, outcome: str) -> None:
         """Finalize video recording, flush telemetry events, and generate mission verification reports."""
         import time
+
         from app.recording.recorder import experiment_recorder
         from app.reports.report_generator import report_generator
 
@@ -293,12 +344,14 @@ class ExperimentEngine:
                 system_info=system_info,
             )
             logger.info("Generated mission verification dossier", report_path=str(report_path))
-            event_bus.publish({
-                "type": "REPORT_GENERATED",
-                "report_path": str(report_path),
-                "run_id": self._active_run_id,
-                "outcome": outcome,
-            })
+            event_bus.publish(
+                {
+                    "type": "REPORT_GENERATED",
+                    "report_path": str(report_path),
+                    "run_id": self._active_run_id,
+                    "outcome": outcome,
+                }
+            )
 
     def get_timeline(self) -> list[dict[str, Any]]:
         with self._lock:

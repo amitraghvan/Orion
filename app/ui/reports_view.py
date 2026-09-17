@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from PySide6.QtCore import Qt
+from app.core.paths import paths
 from PySide6.QtWidgets import (
     QComboBox,
     QFrame,
@@ -15,8 +15,6 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-
-from app.core.paths import paths
 
 
 class ReportsView(QWidget):
@@ -34,20 +32,28 @@ class ReportsView(QWidget):
 
         # Selector toolbar
         bar = QFrame()
-        bar.setStyleSheet("background-color: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 10px;")
+        bar.setStyleSheet(
+            "background-color: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 10px;"
+        )
         b_layout = QHBoxLayout(bar)
 
         title = QLabel("SELECT MISSION REPORT:")
-        title.setStyleSheet("color: #38bdf8; font-size: 11px; font-weight: 800; letter-spacing: 1px;")
+        title.setStyleSheet(
+            "color: #38bdf8; font-size: 11px; font-weight: 800; letter-spacing: 1px;"
+        )
         b_layout.addWidget(title)
 
         self.report_combo = QComboBox()
-        self.report_combo.setStyleSheet("background-color: #1e293b; color: white; padding: 6px; border-radius: 4px; font-weight: bold;")
+        self.report_combo.setStyleSheet(
+            "background-color: #1e293b; color: white; padding: 6px; border-radius: 4px; font-weight: bold;"
+        )
         self.report_combo.currentIndexChanged.connect(self._on_report_selected)
         b_layout.addWidget(self.report_combo, stretch=1)
 
         ref_btn = QPushButton("REFRESH")
-        ref_btn.setStyleSheet("background-color: #1e293b; color: white; padding: 6px 14px; border-radius: 4px; font-weight: bold;")
+        ref_btn.setStyleSheet(
+            "background-color: #1e293b; color: white; padding: 6px 14px; border-radius: 4px; font-weight: bold;"
+        )
         ref_btn.clicked.connect(self._refresh_reports)
         b_layout.addWidget(ref_btn)
 
@@ -77,7 +83,9 @@ class ReportsView(QWidget):
                 self.report_combo.addItem(md_file.name, str(md_file))
 
         if self.report_combo.count() == 0:
-            self.text_browser.setMarkdown("# No Mission Reports Found\n\nRun an experiment to generate a scientific report.")
+            self.text_browser.setMarkdown(
+                "# No Mission Reports Found\n\nRun an experiment to generate a scientific report."
+            )
         else:
             self._on_report_selected(0)
 
@@ -85,7 +93,7 @@ class ReportsView(QWidget):
         file_path = self.report_combo.currentData()
         if file_path and Path(file_path).is_file():
             try:
-                with open(file_path, "r", encoding="utf-8") as f:
+                with open(file_path, encoding="utf-8") as f:
                     content = f.read()
                 self.text_browser.setMarkdown(content)
             except Exception as exc:

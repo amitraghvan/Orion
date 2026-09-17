@@ -15,7 +15,6 @@ import threading
 import time
 from abc import ABC, abstractmethod
 from collections import deque
-from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -24,7 +23,7 @@ import cv2
 import numpy as np
 
 from orion.core.logger import get_logger
-from orion_ai.camera.schemas import CameraIntrinsics, FrameContract, Resolution
+from orion_ai.camera.schemas import FrameContract
 
 logger = get_logger("orion_ai.camera.sources")
 
@@ -127,14 +126,20 @@ class LiveCameraSource(FrameSource):
             if self.enable_native and _HAS_NATIVE_ENGINE:
                 try:
                     engine = orion_native.CameraEngine()
-                    if engine.open(self.source_id, self.target_width, self.target_height, self.target_fps):
+                    if engine.open(
+                        self.source_id, self.target_width, self.target_height, self.target_fps
+                    ):
                         self._native_engine = engine
                         self._native_engine.start()
                         self._use_native = True
-                        logger.info("LiveCameraSource using native C++ CameraEngine", source=self.source_id)
+                        logger.info(
+                            "LiveCameraSource using native C++ CameraEngine", source=self.source_id
+                        )
                         return True
                 except Exception as exc:
-                    logger.warning("C++ CameraEngine open failed, falling back to OpenCV", error=str(exc))
+                    logger.warning(
+                        "C++ CameraEngine open failed, falling back to OpenCV", error=str(exc)
+                    )
                     self._use_native = False
 
             dev_idx = int(self.source_id) if self.source_id.isdigit() else self.source_id
@@ -160,7 +165,10 @@ class LiveCameraSource(FrameSource):
             # Test-read one frame to verify hardware sensor is actually delivering pixels
             ret, test_frame = cap.read()
             if not ret or test_frame is None or test_frame.size == 0:
-                logger.error("LiveCameraSource opened handle but failed test frame read", source=self.source_id)
+                logger.error(
+                    "LiveCameraSource opened handle but failed test frame read",
+                    source=self.source_id,
+                )
                 cap.release()
                 return False
 
@@ -381,7 +389,9 @@ class FrameBuffer:
                 h, w = frame_bgr.shape[:2]
                 if w > 640:
                     scale = 640.0 / w
-                    small = cv2.resize(frame_bgr, (640, int(h * scale)), interpolation=cv2.INTER_AREA)
+                    small = cv2.resize(
+                        frame_bgr, (640, int(h * scale)), interpolation=cv2.INTER_AREA
+                    )
                 else:
                     small = frame_bgr
                 ok, enc = cv2.imencode(".jpg", small, [cv2.IMWRITE_JPEG_QUALITY, 70])

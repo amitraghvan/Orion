@@ -314,7 +314,9 @@ def test_sc14_protocol_hash_tamper_detection(spec: ExperimentSpecification) -> N
 
 # SC-15: Fault-Isolated Recovery
 @pytest.mark.asyncio
-async def test_sc15_fault_isolated_recovery(protocol_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+async def test_sc15_fault_isolated_recovery(
+    protocol_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     """Internal exception in evaluation drops FSM to DEGRADED without crashing."""
     service = ProtocolService()
     service.load_protocol_file(protocol_path)
@@ -329,4 +331,3 @@ async def test_sc15_fault_isolated_recovery(protocol_path: Path, monkeypatch: py
     d = await service.process_activity(_make_event("prepare_workstation"))
     assert d is None
     assert service.state == ProtocolState.DEGRADED
-

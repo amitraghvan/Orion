@@ -151,7 +151,7 @@ class EventPersistenceSubscriber:
                             event_type=event.event_type,
                             error=str(exc),
                         )
-                        await asyncio.sleep(0.05 * (2 ** retry_idx))
+                        await asyncio.sleep(0.05 * (2**retry_idx))
             if not persisted:
                 self._failed_count += 1
                 logger.error(
@@ -265,4 +265,3 @@ class EventPersistenceSubscriber:
             },
             error_message=err,
         )
-

@@ -61,5 +61,3 @@ __all__ = [
     "SpatialRelation",
     "compute_motion_correlation",
 ]
-
-

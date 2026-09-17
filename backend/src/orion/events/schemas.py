@@ -274,6 +274,7 @@ class ObservationCaptured(BaseEvent):
 # Canonical Domain Events (Section 11)
 # ==============================================================================
 
+
 class ObjectDetected(BaseEvent):
     """Emitted when specific objects or persons are detected in the frame."""
 
@@ -395,7 +396,3 @@ class VoiceRequested(BaseEvent):
     message: str
     priority: str = "NORMAL"
     voice_id: str = "default"
-
-
-
-

@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import numpy as np
-from PySide6.QtCore import Qt, QTimer
+from app.models.model_manager import model_manager
+from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
@@ -15,8 +16,6 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-
-from app.models.model_manager import model_manager
 
 
 class ModelManagerView(QWidget):
@@ -34,16 +33,22 @@ class ModelManagerView(QWidget):
 
         # Toolbar
         bar = QFrame()
-        bar.setStyleSheet("background-color: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 10px;")
+        bar.setStyleSheet(
+            "background-color: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 10px;"
+        )
         b_layout = QHBoxLayout(bar)
 
         title = QLabel("AI MODEL REGISTRY & COMPUTE BACKENDS")
-        title.setStyleSheet("color: #38bdf8; font-size: 11px; font-weight: 800; letter-spacing: 1px;")
+        title.setStyleSheet(
+            "color: #38bdf8; font-size: 11px; font-weight: 800; letter-spacing: 1px;"
+        )
         b_layout.addWidget(title)
         b_layout.addStretch()
 
         self.bench_btn = QPushButton("⚡ RUN BENCHMARK")
-        self.bench_btn.setStyleSheet("background-color: #7c3aed; color: white; padding: 6px 14px; border-radius: 4px; font-weight: bold;")
+        self.bench_btn.setStyleSheet(
+            "background-color: #7c3aed; color: white; padding: 6px 14px; border-radius: 4px; font-weight: bold;"
+        )
         self.bench_btn.clicked.connect(self._run_benchmarks)
         b_layout.addWidget(self.bench_btn)
 
@@ -51,7 +56,9 @@ class ModelManagerView(QWidget):
 
         # Table
         self.table = QTableWidget(0, 6)
-        self.table.setHorizontalHeaderLabels(["MODEL", "BACKEND", "DEVICE", "WEIGHTS FILE", "STATUS", "LATENCY"])
+        self.table.setHorizontalHeaderLabels(
+            ["MODEL", "BACKEND", "DEVICE", "WEIGHTS FILE", "STATUS", "LATENCY"]
+        )
         self.table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
         self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
         self.table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeToContents)
@@ -94,7 +101,7 @@ class ModelManagerView(QWidget):
             self.table.setItem(row, 3, QTableWidgetItem(item["path"]))
             status_str = "READY" if item["loaded"] else "UNLOADED"
             self.table.setItem(row, 4, QTableWidgetItem(status_str))
-            lat = f"{item['latency_ms']:.1f} ms" if item['latency_ms'] > 0 else "-"
+            lat = f"{item['latency_ms']:.1f} ms" if item["latency_ms"] > 0 else "-"
             self.table.setItem(row, 5, QTableWidgetItem(lat))
 
     def _run_benchmarks(self) -> None:

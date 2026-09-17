@@ -11,8 +11,6 @@ from typing import Any
 
 import cv2
 import numpy as np
-
-from app.core.config import get_config
 from app.core.logging import get_logger
 from app.core.state_manager import state_manager
 
@@ -46,11 +44,17 @@ class UDPStreamSender:
                     start = chunk_idx * self.max_packet_size
                     end = min(start + self.max_packet_size, total_len)
                     chunk_data = frame_bytes[start:end]
-                    header = struct.pack("!4sIIHH", b"ORIO", frame_id, total_len, chunk_idx, num_chunks)
+                    header = struct.pack(
+                        "!4sIIHH", b"ORIO", frame_id, total_len, chunk_idx, num_chunks
+                    )
                     self._sock.sendto(header + chunk_data, (self.dest_ip, self.dest_port))
             return True
         except Exception as exc:
-            logger.debug("UDP streaming socket error", dest=f"{self.dest_ip}:{self.dest_port}", error=str(exc))
+            logger.debug(
+                "UDP streaming socket error",
+                dest=f"{self.dest_ip}:{self.dest_port}",
+                error=str(exc),
+            )
             return False
 
     def close(self) -> None:
@@ -133,7 +137,10 @@ class StreamManager:
             if destination_ip:
                 try:
                     self._udp_sender = UDPStreamSender(destination_ip, destination_port)
-                    logger.info("UDP unicast stream active", destination=f"{destination_ip}:{destination_port}")
+                    logger.info(
+                        "UDP unicast stream active",
+                        destination=f"{destination_ip}:{destination_port}",
+                    )
                 except Exception as exc:
                     logger.warning("Failed to initialize UDP stream sender", error=str(exc))
                     self._udp_sender = None

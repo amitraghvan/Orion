@@ -1,12 +1,11 @@
 """Real-time perception pipeline coordinator linking Camera, Detection, Pose, and Tracking for ORION BAS AI Copilot."""
 
 import asyncio
-import base64
 import contextlib
 import time
 from collections import deque
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import cv2
 import numpy as np
@@ -284,7 +283,9 @@ class PerceptionPipelineCoordinator:
             await self.camera.initialize()
         except Exception as cam_err:
             self._last_error = str(cam_err)
-            logger.warning("Camera initialization failed during pipeline startup", error=str(cam_err))
+            logger.warning(
+                "Camera initialization failed during pipeline startup", error=str(cam_err)
+            )
             await self.event_bus.publish(
                 HealthChanged(
                     station_id=self.station_id,
@@ -363,7 +364,9 @@ class PerceptionPipelineCoordinator:
             h, w = frame_buffer.shape[:2]
             if w > 640:
                 scale = 640.0 / w
-                stream_frame = cv2.resize(frame_buffer, (640, int(h * scale)), interpolation=cv2.INTER_AREA)
+                stream_frame = cv2.resize(
+                    frame_buffer, (640, int(h * scale)), interpolation=cv2.INTER_AREA
+                )
             else:
                 stream_frame = frame_buffer
             success, enc_buf = cv2.imencode(".jpg", stream_frame, [cv2.IMWRITE_JPEG_QUALITY, 65])
@@ -428,20 +431,35 @@ class PerceptionPipelineCoordinator:
                     py_min = max(0, int(d.box.y_min * scale_box))
                     px_max = min(small_f.shape[1], int(d.box.x_max * scale_box))
                     # Upper 50% of person bounding box is head / face / neck
-                    py_max = min(small_f.shape[0], int((d.box.y_min + (d.box.y_max - d.box.y_min) * 0.50) * scale_box))
+                    py_max = min(
+                        small_f.shape[0],
+                        int((d.box.y_min + (d.box.y_max - d.box.y_min) * 0.50) * scale_box),
+                    )
                     cv2.rectangle(mask_ignore, (px_min, py_min), (px_max, py_max), 255, -1)
 
             kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
 
             # Yellow mask (vivid yellow S>=135, V>=100)
-            y_mask = cv2.inRange(hsv, (20, 135, 100), (32, 255, 255))
+            y_mask = cv2.inRange(
+                hsv,
+                np.array([20, 135, 100], dtype=np.uint8),
+                np.array([32, 255, 255], dtype=np.uint8),
+            )
             y_mask = cv2.bitwise_and(y_mask, y_mask, mask=cv2.bitwise_not(mask_ignore))
             y_mask = cv2.morphologyEx(y_mask, cv2.MORPH_OPEN, kernel)
             y_mask = cv2.morphologyEx(y_mask, cv2.MORPH_CLOSE, kernel)
 
             # Red mask (vivid red S>=135, V>=100)
-            r_mask1 = cv2.inRange(hsv, (0, 135, 100), (6, 255, 255))
-            r_mask2 = cv2.inRange(hsv, (174, 135, 100), (180, 255, 255))
+            r_mask1 = cv2.inRange(
+                hsv,
+                np.array([0, 135, 100], dtype=np.uint8),
+                np.array([6, 255, 255], dtype=np.uint8),
+            )
+            r_mask2 = cv2.inRange(
+                hsv,
+                np.array([174, 135, 100], dtype=np.uint8),
+                np.array([180, 255, 255], dtype=np.uint8),
+            )
             r_mask = cv2.bitwise_or(r_mask1, r_mask2)
             r_mask = cv2.bitwise_and(r_mask, r_mask, mask=cv2.bitwise_not(mask_ignore))
             r_mask = cv2.morphologyEx(r_mask, cv2.MORPH_OPEN, kernel)
@@ -463,18 +481,20 @@ class PerceptionPipelineCoordinator:
                         fill_ratio = area / float(bw * bh)
                         # True experiment boxes have aspect ratio between 0.45 and 2.2 and solid rectangular fill
                         if 0.45 <= aspect <= 2.2 and fill_ratio >= 0.55:
-                            box_candidates.append({
-                                "class_name": cls_name,
-                                "class_id": cls_id,
-                                "area": area,
-                                "confidence": min(0.95, max(0.70, fill_ratio)),
-                                "box": BoundingBox2D(
-                                    x_min=float(bx / scale_box),
-                                    y_min=float(by / scale_box),
-                                    x_max=float((bx + bw) / scale_box),
-                                    y_max=float((by + bh) / scale_box),
-                                ),
-                            })
+                            box_candidates.append(
+                                {
+                                    "class_name": cls_name,
+                                    "class_id": cls_id,
+                                    "area": area,
+                                    "confidence": min(0.95, max(0.70, fill_ratio)),
+                                    "box": BoundingBox2D(
+                                        x_min=float(bx / scale_box),
+                                        y_min=float(by / scale_box),
+                                        x_max=float((bx + bw) / scale_box),
+                                        y_max=float((by + bh) / scale_box),
+                                    ),
+                                }
+                            )
 
             # Non-Maximum Suppression (IoU <= 0.3) to prevent multiple overlapping duplicate boxes
             box_candidates.sort(key=lambda x: x["area"], reverse=True)
@@ -501,12 +521,14 @@ class PerceptionPipelineCoordinator:
                         break
 
             for kb in kept_boxes:
-                obj_detections.append(DetectionTarget(
-                    class_id=kb["class_id"],
-                    class_name=kb["class_name"],
-                    confidence=kb["confidence"],
-                    box=kb["box"],
-                ))
+                obj_detections.append(
+                    DetectionTarget(
+                        class_id=kb["class_id"],
+                        class_name=kb["class_name"],
+                        confidence=kb["confidence"],
+                        box=kb["box"],
+                    )
+                )
         except Exception as exc:
             logger.debug("Box detection augmentation skipped", error=str(exc))
 
@@ -603,7 +625,7 @@ class PerceptionPipelineCoordinator:
             ref_diag = 1000.0
             if pose_result.poses and pose_result.poses[0].bbox:
                 b = pose_result.poses[0].bbox
-                ref_diag = max(50.0, (b.width ** 2 + b.height ** 2) ** 0.5)
+                ref_diag = max(50.0, (b.width**2 + b.height**2) ** 0.5)
 
             candidates = self.interaction_associator.associate(
                 hands=hand_observations,
@@ -616,7 +638,9 @@ class PerceptionPipelineCoordinator:
             )
             t_int_ms = (time.perf_counter() - t_int_start) * 1000.0
         except Exception as exc:
-            logger.error("Interaction association stage failed", frame=contract.frame_index, error=str(exc))
+            logger.error(
+                "Interaction association stage failed", frame=contract.frame_index, error=str(exc)
+            )
             t_int_ms = (time.perf_counter() - t_int_start) * 1000.0
 
         # FPS History Calculation
@@ -659,11 +683,15 @@ class PerceptionPipelineCoordinator:
         if har_results:
             try:
                 top_har = har_results[0]
-                pred_act = top_har.top_prediction.activity_name if top_har.top_prediction else "idle"
+                pred_act = (
+                    top_har.top_prediction.activity_name if top_har.top_prediction else "idle"
+                )
                 pred_conf = top_har.top_prediction.confidence if top_har.top_prediction else 0.0
                 pid = top_har.track_id
                 person_pose = next((p for p in pose_result.poses if p.person_id == pid), None)
-                person_track = next((t for t in track_result.active_tracks if t.track_id == pid), None)
+                person_track = next(
+                    (t for t in track_result.active_tracks if t.track_id == pid), None
+                )
 
                 multimodal_evidence = self.multimodal_fusion.fuse(
                     predicted_activity=pred_act,
@@ -714,7 +742,9 @@ class PerceptionPipelineCoordinator:
         self._current_latency_ms = t_total_ms
         self._latency_history.append(t_total_ms)
         self._max_latency_ms = max(self._max_latency_ms, t_total_ms)
-        INFERENCE_LATENCY_AVG_MS.labels(station_id=self.station_id).set(self.average_processing_latency_ms)
+        INFERENCE_LATENCY_AVG_MS.labels(station_id=self.station_id).set(
+            self.average_processing_latency_ms
+        )
 
         self._last_frame_index = contract.frame_index
         self._last_observation_utc = contract.timestamp_utc
@@ -857,5 +887,3 @@ class PerceptionPipelineCoordinator:
                 # Bounded backoff: 0.05s up to 1.0s max
                 backoff = min(1.0, 0.05 * (2 ** min(self._consecutive_failures, 4)))
                 await asyncio.sleep(backoff)
-
-

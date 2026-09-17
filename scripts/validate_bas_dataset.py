@@ -10,13 +10,15 @@ Checks:
 
 from __future__ import annotations
 
-import json
 import glob
+import json
 from pathlib import Path
+
 import numpy as np
 
 METADATA_DIR = Path("datasets/bas_experiment/metadata")
 SEQUENCES_DIR = Path("datasets/bas_experiment/sequences")
+
 
 def main():
     print("=== Running BAS Dataset Validation & Zero-Leakage Verification ===")
@@ -36,11 +38,17 @@ def main():
     val_vids = set(splits["val"])
     test_vids = set(splits["test"])
 
-    print(f"Split video counts -> Train: {len(train_vids)}, Val: {len(val_vids)}, Test: {len(test_vids)}")
+    print(
+        f"Split video counts -> Train: {len(train_vids)}, Val: {len(val_vids)}, Test: {len(test_vids)}"
+    )
 
     # Check zero overlap
-    assert len(train_vids.intersection(val_vids)) == 0, "DATA LEAKAGE DETECTED between Train and Val!"
-    assert len(train_vids.intersection(test_vids)) == 0, "DATA LEAKAGE DETECTED between Train and Test!"
+    assert len(train_vids.intersection(val_vids)) == 0, (
+        "DATA LEAKAGE DETECTED between Train and Val!"
+    )
+    assert len(train_vids.intersection(test_vids)) == 0, (
+        "DATA LEAKAGE DETECTED between Train and Test!"
+    )
     assert len(val_vids.intersection(test_vids)) == 0, "DATA LEAKAGE DETECTED between Val and Test!"
     print("✓ Zero-leakage verification passed: No video or subject overlap across splits.")
 
@@ -63,6 +71,7 @@ def main():
         classes_data = json.load(f)
     print("✓ Class dictionary:", classes_data["classes"])
     print("✓ Validation completely successful. Dataset is ready for training.")
+
 
 if __name__ == "__main__":
     main()

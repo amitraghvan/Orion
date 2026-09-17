@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+from collections.abc import AsyncGenerator
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, Field
 
 from orion.core.auth import require_operator, require_viewer
@@ -54,7 +56,9 @@ class CameraStatusResponse(BaseModel):
     error: str | None = None
 
 
-@router.get("/status", response_model=CameraStatusResponse, summary="Get authoritative camera status")
+@router.get(
+    "/status", response_model=CameraStatusResponse, summary="Get authoritative camera status"
+)
 async def get_camera_status() -> CameraStatusResponse:
     """Authoritative camera state endpoint used by cockpit to determine connection and FPS."""
     from orion_ai.camera.camera_manager import authoritative_camera_manager
@@ -90,12 +94,19 @@ async def get_camera_status() -> CameraStatusResponse:
     last_ts = getattr(cam, "last_frame_timestamp", None)
     ts_str = last_ts.isoformat() if last_ts else None
     fps_val = round(getattr(cam, "actual_fps", 0.0), 1)
-    if fps_val == 0.0 and coordinator and coordinator.latest_observation and coordinator.latest_observation.metrics:
+    if (
+        fps_val == 0.0
+        and coordinator
+        and coordinator.latest_observation
+        and coordinator.latest_observation.metrics
+    ):
         fps_val = round(coordinator.latest_observation.metrics.fps, 1)
 
-    is_streaming = (coordinator and coordinator.is_running and getattr(coordinator, "frames_processed", 0) > 0) or is_connected
+    is_streaming = (
+        coordinator and coordinator.is_running and getattr(coordinator, "frames_processed", 0) > 0
+    ) or is_connected
     state_str = getattr(cam, "status", None)
-    state_val = state_str.value if hasattr(state_str, "value") else ("STREAMING" if is_streaming else "CONNECTED")
+    state_val = getattr(state_str, "value", None) or ("STREAMING" if is_streaming else "CONNECTED")
 
     return CameraStatusResponse(
         connected=True,
@@ -105,7 +116,9 @@ async def get_camera_status() -> CameraStatusResponse:
         width=getattr(cam, "target_width", 1280),
         height=getattr(cam, "target_height", 720),
         fps=fps_val,
-        frame_id=getattr(cam, "frame_id", getattr(coordinator, "last_frame_index", 0) if coordinator else 0),
+        frame_id=getattr(
+            cam, "frame_id", getattr(coordinator, "last_frame_index", 0) if coordinator else 0
+        ),
         last_frame_timestamp=ts_str,
         is_file=getattr(cam, "is_file", False),
         dropped_frames=getattr(cam, "dropped_frames", 0),
@@ -238,10 +251,8 @@ async def switch_camera_source(
 
 
 @router.api_route("/frame", methods=["GET", "HEAD"], summary="Get latest optical frame JPEG")
-async def get_optical_frame():
+async def get_optical_frame() -> Response:
     """Retrieve single latest optical frame as binary JPEG image without crashing."""
-    from fastapi import Response
-    from fastapi.responses import JSONResponse
     from orion_ai.camera.camera_manager import authoritative_camera_manager
 
     jpeg_bytes: bytes | None = None
@@ -271,13 +282,13 @@ async def get_optical_frame():
 
 
 @router.get("/stream", summary="Stream optical video feed via MJPEG")
-async def stream_optical_feed():
+async def stream_optical_feed() -> StreamingResponse:
     """Stream live optical video via standard multipart/x-mixed-replace MJPEG."""
-    from fastapi.responses import StreamingResponse
     import asyncio
+
     from orion_ai.camera.camera_manager import authoritative_camera_manager
 
-    async def _frame_generator():
+    async def _frame_generator() -> AsyncGenerator[bytes, None]:
         last_frame_sent = -1
         try:
             while True:
@@ -288,16 +299,24 @@ async def stream_optical_feed():
                     except Exception:
                         coordinator = None
 
-                    current_idx = getattr(coordinator, "last_frame_index", authoritative_camera_manager.frame_id)
+                    current_idx = getattr(
+                        coordinator, "last_frame_index", authoritative_camera_manager.frame_id
+                    )
                     if current_idx != last_frame_sent:
-                        jpeg = getattr(coordinator, "latest_jpeg_bytes", None) or authoritative_camera_manager.get_latest_jpeg()
+                        jpeg = (
+                            getattr(coordinator, "latest_jpeg_bytes", None)
+                            or authoritative_camera_manager.get_latest_jpeg()
+                        )
                         if jpeg:
                             last_frame_sent = current_idx
                             yield (
                                 b"--frame\r\n"
                                 b"Content-Type: image/jpeg\r\n"
-                                b"Content-Length: " + str(len(jpeg)).encode() + b"\r\n\r\n"
-                                + jpeg + b"\r\n"
+                                b"Content-Length: "
+                                + str(len(jpeg)).encode()
+                                + b"\r\n\r\n"
+                                + jpeg
+                                + b"\r\n"
                             )
                 except asyncio.CancelledError:
                     break
@@ -307,7 +326,9 @@ async def stream_optical_feed():
         except asyncio.CancelledError:
             pass
 
-    return StreamingResponse(_frame_generator(), media_type="multipart/x-mixed-replace; boundary=frame")
+    return StreamingResponse(
+        _frame_generator(), media_type="multipart/x-mixed-replace; boundary=frame"
+    )
 
 
 @router.get("/replays", summary="List available experiment replay videos")

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import Any
+
 from pydantic import BaseModel, Field
 
 
@@ -68,7 +69,11 @@ class NextStepEngine:
         # Collect required objects
         req_objs = []
         if hasattr(spec, "objects"):
-            req_objs = [getattr(o, "label", getattr(o, "object_id", "item")) for o in spec.objects if getattr(o, "required", False)]
+            req_objs = [
+                getattr(o, "label", getattr(o, "object_id", "item"))
+                for o in spec.objects
+                if getattr(o, "required", False)
+            ]
 
         duration = 30
         if hasattr(curr, "timeouts") and hasattr(curr.timeouts, "nominal_duration_seconds"):

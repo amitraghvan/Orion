@@ -2,8 +2,9 @@
 
 import numpy as np
 import pytest
-from orion_ai.activity.feature_transformer import CanonicalFeatureTransformer, canonical_transformer
 from app.intelligence.temporal_engine import TemporalHAREngine
+
+from orion_ai.activity.feature_transformer import CanonicalFeatureTransformer, canonical_transformer
 
 
 def test_pixel_to_normalized_coordinate():
@@ -15,7 +16,9 @@ def test_pixel_to_normalized_coordinate():
     # Left wrist at (640, 480)
     kpts[9] = [640.0, 480.0, 0.85]
 
-    feat = transformer.transform_frame(kpts, frame_width=640.0, frame_height=480.0, interaction_score=0.75)
+    feat = transformer.transform_frame(
+        kpts, frame_width=640.0, frame_height=480.0, interaction_score=0.75
+    )
     assert feat.shape == (4, 17)
 
     # Nose x, y normalized
@@ -37,7 +40,9 @@ def test_channel_order_and_dimensions():
     kpts = np.random.uniform(low=50.0, high=500.0, size=(17, 3)).astype(np.float32)
     kpts[:, 2] = np.random.uniform(0.3, 0.95, size=17)
 
-    feat = transformer.transform_frame(kpts, frame_width=1280.0, frame_height=720.0, interaction_score=0.6)
+    feat = transformer.transform_frame(
+        kpts, frame_width=1280.0, frame_height=720.0, interaction_score=0.6
+    )
     assert feat.shape == (4, 17)
     assert feat.dtype == np.float32
 
@@ -61,7 +66,9 @@ def test_runtime_temporal_engine_buffer_layout():
     for i in range(32):
         kpts = np.full((17, 3), fill_value=(i + 1) * 10.0, dtype=np.float32)
         kpts[:, 2] = 0.9
-        engine.push_frame_keypoints(kpts, frame_width=640.0, frame_height=480.0, interaction_score=0.5)
+        engine.push_frame_keypoints(
+            kpts, frame_width=640.0, frame_height=480.0, interaction_score=0.5
+        )
 
     assert engine.is_buffer_full()
 
@@ -82,7 +89,9 @@ def test_parity_between_direct_and_engine_features():
     kpts = np.ones((17, 3), dtype=np.float32) * 100.0
     kpts[:, 2] = 0.88
 
-    direct_feat = transformer.transform_frame(kpts, frame_width=640.0, frame_height=480.0, interaction_score=0.45)
+    direct_feat = transformer.transform_frame(
+        kpts, frame_width=640.0, frame_height=480.0, interaction_score=0.45
+    )
     engine.push_frame_keypoints(kpts, frame_width=640.0, frame_height=480.0, interaction_score=0.45)
     engine_feat = engine._keypoint_buffer[-1]
 

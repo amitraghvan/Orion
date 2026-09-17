@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
-import numpy as np
-
 try:
     import orion_native
+
     _HAS_NATIVE_TRACKER = True
 except ImportError:
     _HAS_NATIVE_TRACKER = False
@@ -19,8 +18,12 @@ class ObjectTrackerWrapper:
     def __init__(self, iou_thresh: float = 0.3, max_age: int = 30) -> None:
         self._iou_thresh = iou_thresh
         self._max_age = max_age
-        self._native_tracker = orion_native.ObjectTracker(iou_thresh, max_age) if _HAS_NATIVE_TRACKER else None
-        self._py_tracker = ByteTracker(high_score_thresh=0.4, match_thresh=iou_thresh, max_lost_frames=max_age)
+        self._native_tracker = (
+            orion_native.ObjectTracker(iou_thresh, max_age) if _HAS_NATIVE_TRACKER else None
+        )
+        self._py_tracker = ByteTracker(
+            high_score_thresh=0.4, match_thresh=iou_thresh, max_lost_frames=max_age
+        )
 
     def update(self, detections: list[dict]) -> list[dict]:
         """Update tracker with frame detections.
@@ -59,18 +62,22 @@ class ObjectTrackerWrapper:
         # Python fallback: simple persistent assignment
         out = []
         for idx, d in enumerate(detections):
-            out.append({
-                "track_id": idx + 1,
-                "bbox": d["bbox"],
-                "confidence": d["confidence"],
-                "class_id": d["class_id"],
-                "class_name": d["class_name"],
-                "vx": 0.0,
-                "vy": 0.0,
-            })
+            out.append(
+                {
+                    "track_id": idx + 1,
+                    "bbox": d["bbox"],
+                    "confidence": d["confidence"],
+                    "class_id": d["class_id"],
+                    "class_name": d["class_name"],
+                    "vx": 0.0,
+                    "vy": 0.0,
+                }
+            )
         return out
 
     def reset(self) -> None:
         if self._native_tracker is not None:
             self._native_tracker.reset()
-        self._py_tracker = ByteTracker(high_score_thresh=0.4, match_thresh=self._iou_thresh, max_lost_frames=self._max_age)
+        self._py_tracker = ByteTracker(
+            high_score_thresh=0.4, match_thresh=self._iou_thresh, max_lost_frames=self._max_age
+        )

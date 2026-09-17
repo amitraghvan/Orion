@@ -4,14 +4,12 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 from enum import StrEnum
-from typing import Any
 from uuid import uuid4
-
-from pydantic import BaseModel, Field
 
 from app.core.exceptions import ProtocolStateError
 from app.core.logging import get_logger
 from app.experiments.experiment_schema import ExperimentSpecification, ExperimentStep
+from pydantic import BaseModel, Field
 
 logger = get_logger("app.experiments.fsm")
 
@@ -49,8 +47,18 @@ class ProtocolStateMachine:
 
     VALID_TRANSITIONS: dict[ProtocolState, set[ProtocolState]] = {
         ProtocolState.IDLE: {ProtocolState.LOADED, ProtocolState.DEGRADED},
-        ProtocolState.LOADED: {ProtocolState.PRECHECK, ProtocolState.RUNNING, ProtocolState.IDLE, ProtocolState.DEGRADED},
-        ProtocolState.PRECHECK: {ProtocolState.RUNNING, ProtocolState.LOADED, ProtocolState.ABORTED, ProtocolState.DEGRADED},
+        ProtocolState.LOADED: {
+            ProtocolState.PRECHECK,
+            ProtocolState.RUNNING,
+            ProtocolState.IDLE,
+            ProtocolState.DEGRADED,
+        },
+        ProtocolState.PRECHECK: {
+            ProtocolState.RUNNING,
+            ProtocolState.LOADED,
+            ProtocolState.ABORTED,
+            ProtocolState.DEGRADED,
+        },
         ProtocolState.RUNNING: {
             ProtocolState.STEP_IN_PROGRESS,
             ProtocolState.STEP_COMPLETED,
@@ -77,8 +85,18 @@ class ProtocolStateMachine:
             ProtocolState.ABORTED,
             ProtocolState.DEGRADED,
         },
-        ProtocolState.PAUSED: {ProtocolState.RUNNING, ProtocolState.STEP_IN_PROGRESS, ProtocolState.ABORTED, ProtocolState.DEGRADED},
-        ProtocolState.BLOCKED: {ProtocolState.RUNNING, ProtocolState.STEP_IN_PROGRESS, ProtocolState.ABORTED, ProtocolState.DEGRADED},
+        ProtocolState.PAUSED: {
+            ProtocolState.RUNNING,
+            ProtocolState.STEP_IN_PROGRESS,
+            ProtocolState.ABORTED,
+            ProtocolState.DEGRADED,
+        },
+        ProtocolState.BLOCKED: {
+            ProtocolState.RUNNING,
+            ProtocolState.STEP_IN_PROGRESS,
+            ProtocolState.ABORTED,
+            ProtocolState.DEGRADED,
+        },
         ProtocolState.COMPLETED: {ProtocolState.IDLE, ProtocolState.LOADED},
         ProtocolState.ABORTED: {ProtocolState.IDLE, ProtocolState.LOADED},
         ProtocolState.DEGRADED: {ProtocolState.IDLE, ProtocolState.LOADED, ProtocolState.ABORTED},
@@ -111,11 +129,19 @@ class ProtocolStateMachine:
 
     def load_spec(self, spec: ExperimentSpecification) -> None:
         """Attach specification and transition to LOADED."""
-        if self._state not in (ProtocolState.IDLE, ProtocolState.LOADED, ProtocolState.COMPLETED, ProtocolState.ABORTED, ProtocolState.DEGRADED):
+        if self._state not in (
+            ProtocolState.IDLE,
+            ProtocolState.LOADED,
+            ProtocolState.COMPLETED,
+            ProtocolState.ABORTED,
+            ProtocolState.DEGRADED,
+        ):
             self.reset()
         self._spec = spec
         self._current_step_index = 0
-        self._transition(ProtocolState.LOADED, reason=f"Loaded experiment {spec.metadata.experiment_id}")
+        self._transition(
+            ProtocolState.LOADED, reason=f"Loaded experiment {spec.metadata.experiment_id}"
+        )
 
     def start_execution(self) -> None:
         """Commence procedural execution."""
@@ -131,7 +157,9 @@ class ProtocolStateMachine:
         if not self._spec:
             return False
 
-        self._transition(ProtocolState.STEP_COMPLETED, reason=f"Step {self._current_step_index + 1} completed")
+        self._transition(
+            ProtocolState.STEP_COMPLETED, reason=f"Step {self._current_step_index + 1} completed"
+        )
 
         self._current_step_index += 1
         if self._current_step_index >= len(self._spec.steps):
@@ -139,7 +167,9 @@ class ProtocolStateMachine:
             return True
 
         self._step_start_time = datetime.now(UTC)
-        self._transition(ProtocolState.STEP_IN_PROGRESS, reason=f"Step {self._current_step_index + 1} started")
+        self._transition(
+            ProtocolState.STEP_IN_PROGRESS, reason=f"Step {self._current_step_index + 1} started"
+        )
         return False
 
     def skip_to_step(self, target_index: int, reason: str = "Out of sequence skip") -> None:
@@ -184,4 +214,9 @@ class ProtocolStateMachine:
         self._transition_history.append(record)
         old_state = self._state
         self._state = to_state
-        logger.info("Protocol FSM transition", from_state=old_state.value, to_state=to_state.value, reason=reason)
+        logger.info(
+            "Protocol FSM transition",
+            from_state=old_state.value,
+            to_state=to_state.value,
+            reason=reason,
+        )

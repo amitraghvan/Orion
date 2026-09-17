@@ -5,9 +5,8 @@ from __future__ import annotations
 import os
 import subprocess
 import sys
-from pathlib import Path
 
-from PySide6.QtCore import Qt
+from app.recording.storage_manager import storage_manager
 from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
@@ -19,8 +18,6 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-
-from app.recording.storage_manager import storage_manager
 
 
 class RecordingsView(QWidget):
@@ -38,23 +35,31 @@ class RecordingsView(QWidget):
 
         # Toolbar
         bar = QFrame()
-        bar.setStyleSheet("background-color: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 10px;")
+        bar.setStyleSheet(
+            "background-color: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 10px;"
+        )
         b_layout = QHBoxLayout(bar)
 
         title = QLabel("LOCAL MISSION SESSION RECORDINGS")
-        title.setStyleSheet("color: #38bdf8; font-size: 11px; font-weight: 800; letter-spacing: 1px;")
+        title.setStyleSheet(
+            "color: #38bdf8; font-size: 11px; font-weight: 800; letter-spacing: 1px;"
+        )
         b_layout.addWidget(title)
         b_layout.addStretch()
 
         ref_btn = QPushButton("REFRESH LIST")
-        ref_btn.setStyleSheet("background-color: #1e293b; color: white; padding: 6px 12px; border-radius: 4px; font-weight: bold;")
+        ref_btn.setStyleSheet(
+            "background-color: #1e293b; color: white; padding: 6px 12px; border-radius: 4px; font-weight: bold;"
+        )
         ref_btn.clicked.connect(self._refresh_list)
         b_layout.addWidget(ref_btn)
         layout.addWidget(bar)
 
         # Recordings Table
         self.table = QTableWidget(0, 5)
-        self.table.setHorizontalHeaderLabels(["EXPERIMENT", "RUN ID", "START TIME", "DURATION", "ACTIONS"])
+        self.table.setHorizontalHeaderLabels(
+            ["EXPERIMENT", "RUN ID", "START TIME", "DURATION", "ACTIONS"]
+        )
         self.table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
         self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
         self.table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeToContents)
@@ -94,7 +99,9 @@ class RecordingsView(QWidget):
             # Action button
             folder_path = s["session_dir"]
             btn = QPushButton("Open Folder")
-            btn.setStyleSheet("background-color: #0284c7; color: white; padding: 4px; border-radius: 4px;")
+            btn.setStyleSheet(
+                "background-color: #0284c7; color: white; padding: 4px; border-radius: 4px;"
+            )
             btn.clicked.connect(lambda _, p=folder_path: self._open_folder(p))
             self.table.setCellWidget(row, 4, btn)
 

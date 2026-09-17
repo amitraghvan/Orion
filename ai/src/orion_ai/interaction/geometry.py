@@ -73,7 +73,9 @@ class InteractionGeometryCalculator:
             # Positive velocity means approaching (distance decreasing)
             velocity = prev_normalized_distance - norm_dist
 
-        is_contact = (norm_dist <= self.contact_threshold_norm) or (overlap >= self.min_overlap_ratio)
+        is_contact = (norm_dist <= self.contact_threshold_norm) or (
+            overlap >= self.min_overlap_ratio
+        )
         is_near = is_contact or (norm_dist <= self.near_threshold_norm)
 
         return GeometricInteractionFeatures(

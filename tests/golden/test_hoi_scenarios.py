@@ -71,7 +71,13 @@ def _make_hand(
         side=side,
         person_track_id=person_id,
         region_bbox=BoundingBox2D(x_min=cx - pad, y_min=cy - pad, x_max=cx + pad, y_max=cy + pad),
-        wrist_keypoint=Keypoint2D(id=10 if side == HandSide.RIGHT else 9, name=f"{side.value}_wrist", x=cx, y=cy, score=confidence),
+        wrist_keypoint=Keypoint2D(
+            id=10 if side == HandSide.RIGHT else 9,
+            name=f"{side.value}_wrist",
+            x=cx,
+            y=cy,
+            score=confidence,
+        ),
         confidence=confidence,
         state=state,
         frame_index=1,
@@ -125,19 +131,31 @@ def test_sc02_approaching_object_distance_decreasing() -> None:
     cands1 = associator.associate(hands=[h1], objects=[obj], reference_diagonal=1000.0)
     obs1 = sm.update(candidates=cands1, frame_index=1)
     assert len(obs1) == 1
-    assert obs1[0].state == InteractionState.NEAR or obs1[0].state == InteractionState.NO_INTERACTION
+    assert (
+        obs1[0].state == InteractionState.NEAR or obs1[0].state == InteractionState.NO_INTERACTION
+    )
 
     # Frame 2: Hand moves closer (dist ~ 200px)
     h2 = _make_hand(cx=350.0, cy=350.0)
     prev_dist = sm.get_previous_distance(h1.hand_id, obj.object_id)
-    cands2 = associator.associate(hands=[h2], objects=[obj], reference_diagonal=1000.0, prev_distances={(h1.hand_id, obj.object_id): prev_dist or 0.5})
+    cands2 = associator.associate(
+        hands=[h2],
+        objects=[obj],
+        reference_diagonal=1000.0,
+        prev_distances={(h1.hand_id, obj.object_id): prev_dist or 0.5},
+    )
     obs2 = sm.update(candidates=cands2, frame_index=2)
     assert obs2[0].approach_velocity > 0
 
     # Frame 3: Hand continues approaching
     h3 = _make_hand(cx=450.0, cy=450.0)
     prev_dist = sm.get_previous_distance(h1.hand_id, obj.object_id)
-    cands3 = associator.associate(hands=[h3], objects=[obj], reference_diagonal=1000.0, prev_distances={(h1.hand_id, obj.object_id): prev_dist or 0.3})
+    cands3 = associator.associate(
+        hands=[h3],
+        objects=[obj],
+        reference_diagonal=1000.0,
+        prev_distances={(h1.hand_id, obj.object_id): prev_dist or 0.3},
+    )
     obs3 = sm.update(candidates=cands3, frame_index=3)
     assert obs3[0].state in (InteractionState.APPROACHING, InteractionState.NEAR)
 
@@ -247,7 +265,10 @@ def test_sc08_object_missing_hand_detected_no_object() -> None:
         window_start=1,
         window_end=1,
     )
-    assert evidence.evidence_state in (EvidenceState.CONFLICTING_EVIDENCE, EvidenceState.PARTIAL_EVIDENCE)
+    assert evidence.evidence_state in (
+        EvidenceState.CONFLICTING_EVIDENCE,
+        EvidenceState.PARTIAL_EVIDENCE,
+    )
 
 
 # Scenario 09: Hand missing — object detected, no hand
@@ -318,7 +339,15 @@ def test_sc13_low_confidence_hand() -> None:
 # Scenario 14: Stable multimodal grasp — all modalities agree
 def test_sc14_stable_multimodal_grasp_all_modalities_agree() -> None:
     pose = _make_pose(wrist_score=0.95)
-    track = TrackedObject(track_id=1, class_id=0, class_name="person", box=BoundingBox2D(x_min=200, y_min=200, x_max=600, y_max=800), confidence=0.95, state=TrackState.TRACKED, age_frames=20)
+    track = TrackedObject(
+        track_id=1,
+        class_id=0,
+        class_name="person",
+        box=BoundingBox2D(x_min=200, y_min=200, x_max=600, y_max=800),
+        confidence=0.95,
+        state=TrackState.TRACKED,
+        age_frames=20,
+    )
     hand = _make_hand(person_id=1, cx=300.0, cy=400.0, confidence=0.95)
     obj = _make_object(cx=305.0, cy=405.0, confidence=0.92)
 

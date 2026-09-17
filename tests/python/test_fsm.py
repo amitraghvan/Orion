@@ -2,7 +2,11 @@
 
 import pytest
 from app.core.exceptions import ProtocolStateError
-from app.experiments.experiment_schema import ExperimentMetadata, ExperimentSpecification, ExperimentStep
+from app.experiments.experiment_schema import (
+    ExperimentMetadata,
+    ExperimentSpecification,
+    ExperimentStep,
+)
 from app.experiments.sequence_manager import ProtocolState, ProtocolStateMachine
 
 

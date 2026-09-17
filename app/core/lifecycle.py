@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import atexit
 import threading
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from app.core.config import get_config
 from app.core.logging import get_logger
@@ -45,6 +46,7 @@ class LifecycleManager:
 
             # Enforce air-gap isolation
             from app.core.airgap import enforce_airgap
+
             enforce_airgap()
 
             # 1. Ensure required directories
@@ -55,7 +57,9 @@ class LifecycleManager:
 
             # 2. Validate configuration
             cfg = get_config()
-            logger.info(" Configuration validated", station_id=cfg.system.station_id, mode=cfg.system.mode)
+            logger.info(
+                " Configuration validated", station_id=cfg.system.station_id, mode=cfg.system.mode
+            )
 
             # 3. Detect hardware
             self._detect_hardware()
@@ -86,7 +90,9 @@ class LifecycleManager:
             # Execute shutdown hooks in LIFO (reverse) order
             for hook in reversed(self._shutdown_hooks):
                 try:
-                    logger.debug("Executing shutdown hook", hook=getattr(hook, "__name__", str(hook)))
+                    logger.debug(
+                        "Executing shutdown hook", hook=getattr(hook, "__name__", str(hook))
+                    )
                     hook()
                 except Exception as exc:
                     try:
@@ -121,6 +127,7 @@ class LifecycleManager:
 
         try:
             import tensorrt  # noqa: F401
+
             tensorrt_avail = True
         except (ImportError, Exception):
             pass

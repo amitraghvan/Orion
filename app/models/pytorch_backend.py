@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import time
 from pathlib import Path
 from typing import Any
 
@@ -49,24 +48,37 @@ class PyTorchBackend(InferenceBackend):
 
                 self._model = YOLO(str(path))
                 self._is_yolo = True
-                logger.info("Loaded YOLO model via Ultralytics", path=path.name, device=self._resolved_device)
+                logger.info(
+                    "Loaded YOLO model via Ultralytics",
+                    path=path.name,
+                    device=self._resolved_device,
+                )
             else:
                 # Standard PyTorch checkpoint or TorchScript
                 try:
                     self._model = torch.jit.load(str(path), map_location=self._resolved_device)
                     self._model.eval()
                 except Exception:
-                    checkpoint = torch.load(str(path), map_location=self._resolved_device, weights_only=False)
-                    if isinstance(checkpoint, dict) and ("fc.weight" in checkpoint or "block1.sgcn.conv.weight" in checkpoint):
+                    checkpoint = torch.load(
+                        str(path), map_location=self._resolved_device, weights_only=False
+                    )
+                    if isinstance(checkpoint, dict) and (
+                        "fc.weight" in checkpoint or "block1.sgcn.conv.weight" in checkpoint
+                    ):
                         # ST-GCN HAR Architecture
                         try:
                             from orion_ai.activity.stgcn.model import STGCNHARModel
                         except ImportError:
                             import sys
-                            sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "ai" / "src"))
+
+                            sys.path.insert(
+                                0, str(Path(__file__).resolve().parent.parent.parent / "ai" / "src")
+                            )
                             from orion_ai.activity.stgcn.model import STGCNHARModel
 
-                        num_classes = checkpoint["fc.weight"].shape[0] if "fc.weight" in checkpoint else 8
+                        num_classes = (
+                            checkpoint["fc.weight"].shape[0] if "fc.weight" in checkpoint else 8
+                        )
                         har_model = STGCNHARModel(in_channels=4, num_classes=num_classes)
                         har_model.load_state_dict(checkpoint)
                         har_model.to(self._resolved_device)
@@ -79,7 +91,9 @@ class PyTorchBackend(InferenceBackend):
                     else:
                         self._model = checkpoint
                 self._is_yolo = False
-                logger.info("Loaded PyTorch model checkpoint", path=path.name, device=self._resolved_device)
+                logger.info(
+                    "Loaded PyTorch model checkpoint", path=path.name, device=self._resolved_device
+                )
 
             self._is_loaded = True
             return True
@@ -99,18 +113,18 @@ class PyTorchBackend(InferenceBackend):
                 device=self._resolved_device,
                 verbose=False,
             )
-        else:
-            # Custom PyTorch model invocation
-            import torch
-            if isinstance(input_data, torch.Tensor):
-                tensor = input_data.to(self._resolved_device)
-            else:
-                tensor = torch.from_numpy(input_data).to(self._resolved_device)
+        # Custom PyTorch model invocation
+        import torch
 
-            with torch.no_grad():
-                if callable(self._model):
-                    return self._model(tensor)
-                return self._model
+        if isinstance(input_data, torch.Tensor):
+            tensor = input_data.to(self._resolved_device)
+        else:
+            tensor = torch.from_numpy(input_data).to(self._resolved_device)
+
+        with torch.no_grad():
+            if callable(self._model):
+                return self._model(tensor)
+            return self._model
 
     def unload(self) -> None:
         """Purge model from memory."""
@@ -118,6 +132,7 @@ class PyTorchBackend(InferenceBackend):
         self._is_loaded = False
         try:
             import torch
+
             if torch.cuda.is_available():
                 torch.cuda.empty_cache()
             elif hasattr(torch.backends, "mps") and torch.backends.mps.is_available():

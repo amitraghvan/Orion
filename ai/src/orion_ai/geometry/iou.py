@@ -66,7 +66,7 @@ def compute_bbox_overlap_ratio(inner: BoundingBox2D, outer: BoundingBox2D) -> fl
 
 def compute_bbox_diagonal(box: BoundingBox2D) -> float:
     """Compute diagonal length of a bounding box (for normalization)."""
-    return math.sqrt(box.width ** 2 + box.height ** 2)
+    return math.sqrt(box.width**2 + box.height**2)
 
 
 def normalize_distance(distance: float, reference_diagonal: float, epsilon: float = 1e-6) -> float:

@@ -1,10 +1,11 @@
 """Tests for EventBus canonical event pub/sub and 13-subsystem Health Monitoring."""
 
-import pytest
 from datetime import UTC, datetime
 from uuid import uuid4
 
+import pytest
 from app.core.event_bus import EventBus
+
 from orion.events.schemas import (
     ActionRecognized,
     ExperimentCompleted,
@@ -13,8 +14,8 @@ from orion.events.schemas import (
     FrameCaptured,
     HandDetected,
     InteractionDetected,
-    ObservationCaptured,
     ObjectDetected,
+    ObservationCaptured,
     PoseDetected,
     RecordingStarted,
     RecordingStopped,
@@ -100,28 +101,91 @@ def test_canonical_event_bus_pub_sub():
     bus.subscribe(RecordingStopped, on_rec_stop)
 
     # Publish all 16 events
-    bus.publish(FrameCaptured(camera_id="c1", frame_index=1, width=1280, height=720, pixel_format="BGR8", timestamp_sensor_ns=100, latency_ms=2.0))
+    bus.publish(
+        FrameCaptured(
+            camera_id="c1",
+            frame_index=1,
+            width=1280,
+            height=720,
+            pixel_format="BGR8",
+            timestamp_sensor_ns=100,
+            latency_ms=2.0,
+        )
+    )
     bus.publish(ObservationCaptured(observation={"frame": 1}))
     bus.publish(ObjectDetected(frame_index=1, object_count=2, classes=["person", "vial"]))
     bus.publish(PoseDetected(frame_index=1, person_count=1))
     bus.publish(HandDetected(frame_index=1, hand_count=2))
-    bus.publish(InteractionDetected(frame_index=1, interaction_type="grasping", hand_id="h1", object_id="o1", confidence=0.9))
+    bus.publish(
+        InteractionDetected(
+            frame_index=1, interaction_type="grasping", hand_id="h1", object_id="o1", confidence=0.9
+        )
+    )
     bus.publish(ActionRecognized(action="mix_solution", confidence=0.95, temporal_window=(1, 32)))
     bus.publish(StepStarted(experiment_id="E01", run_id="r1", step_id="s1", step_number=1))
-    bus.publish(StepCompleted(experiment_id="E01", run_id="r1", step_id="s1", step_number=1, duration_seconds=12.0))
-    bus.publish(StepViolation(experiment_id="E01", run_id="r1", step_id="s1", step_number=1, violation_type="WRONG_OBJECT", message="Wrong object"))
+    bus.publish(
+        StepCompleted(
+            experiment_id="E01", run_id="r1", step_id="s1", step_number=1, duration_seconds=12.0
+        )
+    )
+    bus.publish(
+        StepViolation(
+            experiment_id="E01",
+            run_id="r1",
+            step_id="s1",
+            step_number=1,
+            violation_type="WRONG_OBJECT",
+            message="Wrong object",
+        )
+    )
     bus.publish(ExperimentStarted(experiment_id="E01", run_id="r1"))
-    bus.publish(ExperimentCompleted(experiment_id="E01", run_id="r1", total_duration_seconds=60.0, total_steps=5))
-    bus.publish(ExperimentFailed(experiment_id="E01", run_id="r1", error_code="ERR_STEP_TIMEOUT", reason="Timeout"))
+    bus.publish(
+        ExperimentCompleted(
+            experiment_id="E01", run_id="r1", total_duration_seconds=60.0, total_steps=5
+        )
+    )
+    bus.publish(
+        ExperimentFailed(
+            experiment_id="E01", run_id="r1", error_code="ERR_STEP_TIMEOUT", reason="Timeout"
+        )
+    )
     bus.publish(VoiceRequested(message="Please verify chemical seal", priority="HIGH"))
-    bus.publish(RecordingStarted(recording_id="rec_01", experiment_id="E01", file_path="/tmp/rec.mp4", resolution=(1280, 720), fps=30))
-    bus.publish(RecordingStopped(recording_id="rec_01", file_path="/tmp/rec.mp4", duration_seconds=60.0, total_frames=1800, sha256_checksum="abc123hash"))
+    bus.publish(
+        RecordingStarted(
+            recording_id="rec_01",
+            experiment_id="E01",
+            file_path="/tmp/rec.mp4",
+            resolution=(1280, 720),
+            fps=30,
+        )
+    )
+    bus.publish(
+        RecordingStopped(
+            recording_id="rec_01",
+            file_path="/tmp/rec.mp4",
+            duration_seconds=60.0,
+            total_frames=1800,
+            sha256_checksum="abc123hash",
+        )
+    )
 
     expected_events = [
-        "FrameCaptured", "ObservationCaptured", "ObjectDetected", "PoseDetected",
-        "HandDetected", "InteractionDetected", "ActionRecognized", "StepStarted",
-        "StepCompleted", "StepViolation", "ExperimentStarted", "ExperimentCompleted",
-        "ExperimentFailed", "VoiceRequested", "RecordingStarted", "RecordingStopped",
+        "FrameCaptured",
+        "ObservationCaptured",
+        "ObjectDetected",
+        "PoseDetected",
+        "HandDetected",
+        "InteractionDetected",
+        "ActionRecognized",
+        "StepStarted",
+        "StepCompleted",
+        "StepViolation",
+        "ExperimentStarted",
+        "ExperimentCompleted",
+        "ExperimentFailed",
+        "VoiceRequested",
+        "RecordingStarted",
+        "RecordingStopped",
     ]
     assert received_events == expected_events
 
@@ -140,8 +204,19 @@ async def test_subsystem_health_monitoring():
 
     # Verify all 13 subsystems are accounted for in details and subsystem_reports
     canonical_13 = [
-        "camera", "ai", "object_detection", "pose", "hand", "hoi",
-        "har", "fsm", "database", "voice", "recording", "streaming", "compute"
+        "camera",
+        "ai",
+        "object_detection",
+        "pose",
+        "hand",
+        "hoi",
+        "har",
+        "fsm",
+        "database",
+        "voice",
+        "recording",
+        "streaming",
+        "compute",
     ]
 
     for sub in canonical_13:

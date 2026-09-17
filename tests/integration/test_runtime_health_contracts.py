@@ -73,6 +73,7 @@ async def test_4_camera_failure_changes_camera_health_correctly() -> None:
     # Scenario B: Fatal error
     cam_err = OpenCVCameraDriver(source=999)
     from orion.core.exceptions import CameraError
+
     cam_err._fatal_error = CameraError("Device failed", details={"subcode": "TEST_FAIL"})
     rep_err = cam_err.get_health_report()
     assert rep_err.status == SubsystemStatus.ERROR
@@ -168,7 +169,9 @@ async def test_9_pipeline_failure_does_not_create_orphan_asyncio_tasks(
     initial_tasks = len(asyncio.all_tasks())
 
     # Simulate frame processing error
-    with patch.object(coordinator, "process_single_frame", side_effect=RuntimeError("Simulated drop")):
+    with patch.object(
+        coordinator, "process_single_frame", side_effect=RuntimeError("Simulated drop")
+    ):
         # Let supervisor handle several failed iterations
         await asyncio.sleep(0.3)
 

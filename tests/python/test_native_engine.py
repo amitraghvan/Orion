@@ -5,6 +5,7 @@ import pytest
 
 try:
     import orion_native
+
     HAS_ORION_NATIVE = True
 except ImportError:
     HAS_ORION_NATIVE = False

@@ -92,5 +92,3 @@ def get_persistence_subscriber() -> Any:
     if _persistence_subscriber_instance is None:
         raise RuntimeError("EventPersistenceSubscriber not initialized in application lifespan")
     return _persistence_subscriber_instance
-
-

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import heapq
 import queue
 import subprocess
 import sys
@@ -41,18 +40,32 @@ class TTSEngine:
         # Attempt to initialize pyttsx3
         try:
             import pyttsx3
+
             self._pyttsx3_engine = pyttsx3.init()
             self._pyttsx3_engine.setProperty("rate", cfg.audio.rate)
             self._pyttsx3_engine.setProperty("volume", cfg.audio.volume)
             logger.info("pyttsx3 offline speech engine initialized.")
         except Exception as exc:
-            logger.warning("pyttsx3 initialization failed, using system CLI fallback", error=str(exc))
+            logger.warning(
+                "pyttsx3 initialization failed, using system CLI fallback", error=str(exc)
+            )
             self._pyttsx3_engine = None
 
         self._is_running = True
-        self._worker_thread = threading.Thread(target=self._speech_worker, name="TTSWorkerThread", daemon=True)
+        self._worker_thread = threading.Thread(
+            target=self._speech_worker, name="TTSWorkerThread", daemon=True
+        )
         self._worker_thread.start()
         return True
+
+    @property
+    def is_available(self) -> bool:
+        """Check whether TTS service is operational."""
+        return (
+            self._is_running
+            or self._pyttsx3_engine is not None
+            or sys.platform in ("darwin", "win32")
+        )
 
     def speak(self, text: str, priority: int = 3, force: bool = False) -> bool:
         """Enqueue speech utterance. Lower integer priority takes precedence."""
@@ -99,11 +112,21 @@ class TTSEngine:
                     self._pyttsx3_engine.runAndWait()
                 elif sys.platform == "darwin":
                     # macOS native speech command fallback
-                    subprocess.run(["say", text], check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                    subprocess.run(
+                        ["say", text],
+                        check=False,
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                    )
                 elif sys.platform == "win32":
                     # Windows PowerShell SAPI fallback
                     ps_cmd = f"Add-Type -AssemblyName System.speech; (New-Object System.Speech.Synthesis.SpeechSynthesizer).Speak('{text}')"
-                    subprocess.run(["powershell", "-Command", ps_cmd], check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                    subprocess.run(
+                        ["powershell", "-Command", ps_cmd],
+                        check=False,
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                    )
             except Exception as exc:
                 logger.error("TTS pronunciation error", text=text, error=str(exc))
             finally:

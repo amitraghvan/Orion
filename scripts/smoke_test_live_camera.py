@@ -47,6 +47,7 @@ async def run_live_smoke_test(target_frames: int = 35) -> int:
 
     # 3. Hardware Acceleration Detection
     import torch
+
     if torch.backends.mps.is_available():
         device = "mps"
     elif torch.cuda.is_available():
@@ -127,12 +128,16 @@ async def run_live_smoke_test(target_frames: int = 35) -> int:
         print(f"  Max observed person det:  {person_detections_total}")
         print(f"  Max observed poses:       {poses_total}")
         print(f"  Events dispatched:        {len(captured_events)}")
-        print(f"  Latest JPEG bytes:        {len(coordinator.latest_jpeg_bytes) if coordinator.latest_jpeg_bytes else 0} bytes")
+        print(
+            f"  Latest JPEG bytes:        {len(coordinator.latest_jpeg_bytes) if coordinator.latest_jpeg_bytes else 0} bytes"
+        )
 
         assert processed >= target_frames, "Did not process required frames"
         assert coordinator.latest_jpeg_bytes is not None, "Latest JPEG byte buffer must exist"
         assert len(captured_events) > 0, "EventBus must have received domain events"
-        assert authoritative_camera_manager.status.value in ("CONNECTED", "PROCESSING"), "Camera must be CONNECTED"
+        assert authoritative_camera_manager.status.value in ("CONNECTED", "PROCESSING"), (
+            "Camera must be CONNECTED"
+        )
 
         print("\n==================================================================")
         print("✅ LIVE CAMERA SMOKE TEST: PASSED NOMINAL")

@@ -54,7 +54,14 @@ async def test_stgcn_classifier_lifecycle_and_inference() -> None:
 
     for f_idx in range(32):
         kpts = [
-            TemporalKeypoint(id=i, name=f"joint_{i}", x=200.0 + i * 2, y=250.0 + i * 5, score=0.9, state=KeypointState.OBSERVED)
+            TemporalKeypoint(
+                id=i,
+                name=f"joint_{i}",
+                x=200.0 + i * 2,
+                y=250.0 + i * 5,
+                score=0.9,
+                state=KeypointState.OBSERVED,
+            )
             for i in range(17)
         ]
         poses.append(

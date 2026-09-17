@@ -47,7 +47,7 @@ class ReportGenerator:
             f"**Run Identifier:** `{run_id}`  ",
             f"**Execution Window:** {start_time} to {end_time}  ",
             f"**Total Duration:** {duration_seconds:.1f} seconds  ",
-            f"**Station Module:** BAS-SCIENCE-NODE-1 • Glovebox GB-01  ",
+            "**Station Module:** BAS-SCIENCE-NODE-1 • Glovebox GB-01  ",
             f"**Evaluation Backend:** {system_info.get('backend', 'PyTorch / C++')}  ",
             f"**Compute Device:** {system_info.get('device', 'CPU')}  ",
             "",
@@ -82,19 +82,23 @@ class ReportGenerator:
             ts = s.get("timestamp", "")
             expl = s.get("explanation", "").replace("|", "-")
             status_icon = "✅" if stat == "VALID" else "⚠️"
-            lines.append(f"| {num:02d} | {exp} | {det} | {status_icon} {stat} | {conf*100:.1f}% | {ts} | {expl} |")
+            lines.append(
+                f"| {num:02d} | {exp} | {det} | {status_icon} {stat} | {conf * 100:.1f}% | {ts} | {expl} |"
+            )
 
-        lines.extend([
-            "",
-            "---",
-            "",
-            "## Aerospace Compliance Statement",
-            "",
-            "> This mission report was deterministically compiled offline on-board the Bharatiya Antariksh Station workstation. All temporal evidence buffers and sequence transition records are cryptographically verified against standard ISRO HSFC specifications.",
-            "",
-            f"**Report Generated:** {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S UTC')}  ",
-            "**System Version:** ORION v1.0.0-PROD (Native Desktop)  ",
-        ])
+        lines.extend(
+            [
+                "",
+                "---",
+                "",
+                "## Aerospace Compliance Statement",
+                "",
+                "> This mission report was deterministically compiled offline on-board the Bharatiya Antariksh Station workstation. All temporal evidence buffers and sequence transition records are cryptographically verified against standard ISRO HSFC specifications.",
+                "",
+                f"**Report Generated:** {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S UTC')}  ",
+                "**System Version:** ORION v1.0.0-PROD (Native Desktop)  ",
+            ]
+        )
 
         with report_file.open("w", encoding="utf-8") as f:
             f.write("\n".join(lines))

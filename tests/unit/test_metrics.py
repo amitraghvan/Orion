@@ -54,10 +54,19 @@ def test_metrics_counters_increment() -> None:
 @pytest.mark.unit
 def test_zero_high_cardinality_labels() -> None:
     """Verify that metric collectors do not define high-cardinality label names."""
-    forbidden_labels = {"frame_id", "timestamp", "experiment_id", "run_id", "correlation_id", "uuid"}
+    forbidden_labels = {
+        "frame_id",
+        "timestamp",
+        "experiment_id",
+        "run_id",
+        "correlation_id",
+        "uuid",
+    }
 
     for metric in REGISTRY.collect():
         for sample in metric.samples:
             label_keys = set(sample.labels.keys())
             overlap = label_keys.intersection(forbidden_labels)
-            assert not overlap, f"Metric {sample.name} contains high-cardinality label(s): {overlap}"
+            assert not overlap, (
+                f"Metric {sample.name} contains high-cardinality label(s): {overlap}"
+            )

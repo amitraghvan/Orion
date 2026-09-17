@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-from PySide6.QtCore import Qt, QTimer
+from app.core.state_manager import state_manager
+from app.intelligence.temporal_engine import BAS_HAR_CLASSES_8
+from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import (
     QFrame,
     QGridLayout,
@@ -12,9 +14,6 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-
-from app.core.state_manager import state_manager
-from app.intelligence.temporal_engine import BAS_HAR_CLASSES_8
 
 
 class ActivityView(QWidget):
@@ -34,7 +33,9 @@ class ActivityView(QWidget):
 
         # Header summary
         hdr_frame = QFrame()
-        hdr_frame.setStyleSheet("background-color: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 12px;")
+        hdr_frame.setStyleSheet(
+            "background-color: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 12px;"
+        )
         h_layout = QHBoxLayout(hdr_frame)
 
         self.current_act_lbl = QLabel("CURRENT ACTIVITY: IDLE (100%)")
@@ -49,13 +50,17 @@ class ActivityView(QWidget):
 
         # Multi-class probability bars grid
         grid_frame = QFrame()
-        grid_frame.setStyleSheet("background-color: #080c14; border: 1px solid #1e293b; border-radius: 8px; padding: 16px;")
+        grid_frame.setStyleSheet(
+            "background-color: #080c14; border: 1px solid #1e293b; border-radius: 8px; padding: 16px;"
+        )
         g_layout = QGridLayout(grid_frame)
         g_layout.setSpacing(12)
 
         for idx, act in enumerate(BAS_HAR_CLASSES_8):
             lbl = QLabel(f"{act.upper()}:")
-            lbl.setStyleSheet("color: #94a3b8; font-size: 11px; font-weight: bold; font-family: monospace;")
+            lbl.setStyleSheet(
+                "color: #94a3b8; font-size: 11px; font-weight: bold; font-family: monospace;"
+            )
             lbl.setFixedWidth(160)
 
             bar = QProgressBar()
@@ -80,7 +85,9 @@ class ActivityView(QWidget):
             """)
 
             val_lbl = QLabel("0.0%")
-            val_lbl.setStyleSheet("color: #38bdf8; font-size: 11px; font-weight: bold; font-family: monospace;")
+            val_lbl.setStyleSheet(
+                "color: #38bdf8; font-size: 11px; font-weight: bold; font-family: monospace;"
+            )
             val_lbl.setFixedWidth(50)
 
             self._bars[act] = bar
@@ -104,10 +111,12 @@ class ActivityView(QWidget):
         ent = snapshot.activity_entropy
         status = snapshot.uncertainty_status
 
-        self.current_act_lbl.setText(f"CURRENT ACTIVITY: {top_act.upper()} ({conf*100:.1f}%)")
+        self.current_act_lbl.setText(f"CURRENT ACTIVITY: {top_act.upper()} ({conf * 100:.1f}%)")
         status_color = "#ef4444" if status == "UNCERTAIN" else "#10b981"
         self.uncertainty_lbl.setText(f"STATUS: {status} | SHANNON ENTROPY: {ent:.2f}")
-        self.uncertainty_lbl.setStyleSheet(f"color: {status_color}; font-size: 12px; font-weight: bold;")
+        self.uncertainty_lbl.setStyleSheet(
+            f"color: {status_color}; font-size: 12px; font-weight: bold;"
+        )
 
         # Update bars (simulate nominal distribution if equal)
         for act in BAS_HAR_CLASSES_8:

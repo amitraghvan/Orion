@@ -197,7 +197,9 @@ async def _evaluate_system_health(
             details.camera = "HEALTHY" if getattr(cam, "is_active", False) else "OFFLINE"
             subsystem_reports["camera"] = SubsystemReport(
                 subsystem_id="camera",
-                status=SubsystemStatus.HEALTHY if getattr(cam, "is_active", False) else SubsystemStatus.OFFLINE,
+                status=SubsystemStatus.HEALTHY
+                if getattr(cam, "is_active", False)
+                else SubsystemStatus.OFFLINE,
                 timestamp=now,
             )
         else:
@@ -257,8 +259,7 @@ async def _evaluate_system_health(
     det_model_path = Path("models/weights/yolo11n.pt")
     pose_model_path = Path("models/weights/yolo11n-pose.pt")
     if (
-        details.detector in ("HEALTHY", "DEGRADED")
-        and details.pose in ("HEALTHY", "DEGRADED")
+        details.detector in ("HEALTHY", "DEGRADED") and details.pose in ("HEALTHY", "DEGRADED")
     ) or (det_model_path.exists() and pose_model_path.exists()):
         details.models = "HEALTHY"
     else:
@@ -326,8 +327,12 @@ async def _evaluate_system_health(
 
     # 8. Canonical 13 Subsystems (Section 13)
     # CAMERA
-    if "camera" not in subsystem_reports or subsystem_reports["camera"].status == SubsystemStatus.OFFLINE:
+    if (
+        "camera" not in subsystem_reports
+        or subsystem_reports["camera"].status == SubsystemStatus.OFFLINE
+    ):
         from orion_ai.camera.camera_manager import authoritative_camera_manager
+
         cam_rep = authoritative_camera_manager.get_health_report()
         details.camera = cam_rep.status.value
         subsystem_reports["camera"] = cam_rep
@@ -336,7 +341,9 @@ async def _evaluate_system_health(
     details.ai = details.pipeline
     subsystem_reports["ai"] = subsystem_reports.get("pipeline") or SubsystemReport(
         subsystem_id="ai",
-        status=SubsystemStatus.HEALTHY if details.pipeline == "HEALTHY" else SubsystemStatus.DEGRADED,
+        status=SubsystemStatus.HEALTHY
+        if details.pipeline == "HEALTHY"
+        else SubsystemStatus.DEGRADED,
         timestamp=now,
     )
 
@@ -344,7 +351,9 @@ async def _evaluate_system_health(
     details.object_detection = details.detector
     subsystem_reports["object_detection"] = subsystem_reports.get("detector") or SubsystemReport(
         subsystem_id="object_detection",
-        status=SubsystemStatus.HEALTHY if details.detector in ("HEALTHY", "DEGRADED") else SubsystemStatus.OFFLINE,
+        status=SubsystemStatus.HEALTHY
+        if details.detector in ("HEALTHY", "DEGRADED")
+        else SubsystemStatus.OFFLINE,
         timestamp=now,
     )
 
@@ -352,12 +361,18 @@ async def _evaluate_system_health(
     details.pose = details.pose
     subsystem_reports["pose"] = subsystem_reports.get("pose") or SubsystemReport(
         subsystem_id="pose",
-        status=SubsystemStatus.HEALTHY if details.pose in ("HEALTHY", "DEGRADED") else SubsystemStatus.OFFLINE,
+        status=SubsystemStatus.HEALTHY
+        if details.pose in ("HEALTHY", "DEGRADED")
+        else SubsystemStatus.OFFLINE,
         timestamp=now,
     )
 
     # HAND
-    hand_status = SubsystemStatus.HEALTHY if details.pose in ("HEALTHY", "DEGRADED") else SubsystemStatus.OFFLINE
+    hand_status = (
+        SubsystemStatus.HEALTHY
+        if details.pose in ("HEALTHY", "DEGRADED")
+        else SubsystemStatus.OFFLINE
+    )
     details.hand = hand_status.value
     subsystem_reports["hand"] = SubsystemReport(
         subsystem_id="hand",
@@ -367,7 +382,11 @@ async def _evaluate_system_health(
     )
 
     # HOI
-    hoi_status = SubsystemStatus.HEALTHY if (details.detector in ("HEALTHY", "DEGRADED") and details.pose in ("HEALTHY", "DEGRADED")) else SubsystemStatus.OFFLINE
+    hoi_status = (
+        SubsystemStatus.HEALTHY
+        if (details.detector in ("HEALTHY", "DEGRADED") and details.pose in ("HEALTHY", "DEGRADED"))
+        else SubsystemStatus.OFFLINE
+    )
     details.hoi = hoi_status.value
     subsystem_reports["hoi"] = SubsystemReport(
         subsystem_id="hoi",
@@ -377,7 +396,11 @@ async def _evaluate_system_health(
     )
 
     # HAR
-    har_status = SubsystemStatus(details.har_model) if details.har_model in SubsystemStatus._value2member_map_ else SubsystemStatus.OFFLINE
+    har_status = (
+        SubsystemStatus(details.har_model)
+        if details.har_model in SubsystemStatus._value2member_map_
+        else SubsystemStatus.OFFLINE
+    )
     details.har = har_status.value
     subsystem_reports["har"] = SubsystemReport(
         subsystem_id="har",
@@ -390,7 +413,9 @@ async def _evaluate_system_health(
     details.fsm = details.protocol
     subsystem_reports["fsm"] = subsystem_reports.get("protocol") or SubsystemReport(
         subsystem_id="fsm",
-        status=SubsystemStatus.HEALTHY if details.protocol == "HEALTHY" else SubsystemStatus.OFFLINE,
+        status=SubsystemStatus.HEALTHY
+        if details.protocol == "HEALTHY"
+        else SubsystemStatus.OFFLINE,
         timestamp=now,
     )
 
@@ -398,7 +423,12 @@ async def _evaluate_system_health(
     voice_status = SubsystemStatus.HEALTHY
     try:
         from app.audio.tts_engine import tts_engine
-        voice_status = SubsystemStatus.HEALTHY if tts_engine.is_available else SubsystemStatus.DEGRADED
+
+        voice_status = (
+            SubsystemStatus.HEALTHY
+            if getattr(tts_engine, "is_available", True)
+            else SubsystemStatus.DEGRADED
+        )
     except Exception:
         voice_status = SubsystemStatus.HEALTHY
     details.voice = voice_status.value
@@ -412,6 +442,7 @@ async def _evaluate_system_health(
     is_rec = False
     try:
         from app.recording.recorder import experiment_recorder
+
         is_rec = experiment_recorder.is_recording
     except Exception:
         pass
@@ -427,6 +458,7 @@ async def _evaluate_system_health(
     is_stream = False
     try:
         from app.streaming.stream_manager import stream_manager
+
         is_stream = stream_manager.is_running
     except Exception:
         pass
@@ -442,6 +474,7 @@ async def _evaluate_system_health(
     compute_backend = "CPU"
     try:
         import torch
+
         if torch.cuda.is_available():
             compute_backend = "CUDA"
         elif hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
@@ -467,8 +500,12 @@ async def _evaluate_system_health(
         details.persistence,
     ]
 
-    has_error_or_offline = any(st in ("OFFLINE", "ERROR", "UNHEALTHY", "MISSING") for st in required_statuses)
-    has_degraded = any(st == "DEGRADED" for st in required_statuses) or details.har_model == "DEGRADED"
+    has_error_or_offline = any(
+        st in ("OFFLINE", "ERROR", "UNHEALTHY", "MISSING") for st in required_statuses
+    )
+    has_degraded = (
+        any(st == "DEGRADED" for st in required_statuses) or details.har_model == "DEGRADED"
+    )
 
     if has_error_or_offline:
         overall_status = "DEGRADED" if details.pipeline in ("HEALTHY", "DEGRADED") else "UNHEALTHY"

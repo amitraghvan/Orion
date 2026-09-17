@@ -19,9 +19,25 @@ class YOLOEdgeDetector(DetectorInterface):
     """Real-time edge detector wrapping YOLO11 architectures."""
 
     IGNORED_CLASSES: set[str] = {
-        "chair", "couch", "sofa", "bed", "dining table", "potted plant", "tv",
-        "traffic light", "fire hydrant", "stop sign", "parking meter", "bench",
-        "refrigerator", "toilet", "microwave", "oven", "toaster", "sink", "clock",
+        "chair",
+        "couch",
+        "sofa",
+        "bed",
+        "dining table",
+        "potted plant",
+        "tv",
+        "traffic light",
+        "fire hydrant",
+        "stop sign",
+        "parking meter",
+        "bench",
+        "refrigerator",
+        "toilet",
+        "microwave",
+        "oven",
+        "toaster",
+        "sink",
+        "clock",
     }
 
     def __init__(

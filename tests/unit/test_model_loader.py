@@ -115,4 +115,3 @@ async def test_model_loader_manifest_task_mismatch() -> None:
 
     assert exc_info.value.code == "SECURITY_ERROR"
     assert exc_info.value.details.get("subcode") == "MODEL_MANIFEST_MISMATCH"
-

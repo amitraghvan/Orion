@@ -250,7 +250,11 @@ async def test_persistence_subscriber_handles_all_event_types_without_numpy_erro
     # Query DB to ensure they were committed successfully
     async with session_factory() as session:
         result = await session.execute(
-            select(Event).where(Event.event_type.in_(["DetectionCompleted", "ActivityRecognized", "StepTransitioned"]))
+            select(Event).where(
+                Event.event_type.in_(
+                    ["DetectionCompleted", "ActivityRecognized", "StepTransitioned"]
+                )
+            )
         )
         persisted = result.scalars().all()
         assert len(persisted) == 3

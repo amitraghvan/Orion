@@ -6,7 +6,9 @@ from __future__ import annotations
 class OrionBaseException(Exception):
     """Base exception for all domain-specific errors in ORION."""
 
-    def __init__(self, message: str, error_code: str = "ORION_ERROR", details: dict | None = None) -> None:
+    def __init__(
+        self, message: str, error_code: str = "ORION_ERROR", details: dict | None = None
+    ) -> None:
         super().__init__(message)
         self.message = message
         self.error_code = error_code

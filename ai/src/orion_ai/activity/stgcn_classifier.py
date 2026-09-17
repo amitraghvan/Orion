@@ -64,6 +64,7 @@ class STGCNActivityClassifier(ActivityClassifierInterface):
             for mf_path in manifest_candidates:
                 if mf_path.is_file():
                     import json
+
                     try:
                         with mf_path.open("r") as f:
                             m_data = json.load(f)
@@ -93,7 +94,12 @@ class STGCNActivityClassifier(ActivityClassifierInterface):
             self.model = await asyncio.to_thread(_load)
             self._model_path = str(p)
             self._is_loaded = True
-            logger.info("ST-GCN HAR model loaded successfully from %s on %s with %d classes", model_path, self.device, num_classes)
+            logger.info(
+                "ST-GCN HAR model loaded successfully from %s on %s with %d classes",
+                model_path,
+                self.device,
+                num_classes,
+            )
 
     async def classify_window(
         self,
@@ -129,7 +135,9 @@ class STGCNActivityClassifier(ActivityClassifierInterface):
                 input_tensor = input_tensor.to(self.device)
                 with torch.no_grad():
                     logits = model(input_tensor)
-                    return cast("np.ndarray[Any, Any]", torch.softmax(logits, dim=1).cpu().numpy()[0])
+                    return cast(
+                        "np.ndarray[Any, Any]", torch.softmax(logits, dim=1).cpu().numpy()[0]
+                    )
 
             probabilities_arr = await asyncio.to_thread(_infer, tensor)
             latency_ms = (time.perf_counter() - t0) * 1000.0
@@ -148,7 +156,9 @@ class STGCNActivityClassifier(ActivityClassifierInterface):
                 activity_name=top_class,
                 confidence=top_conf,
                 probabilities=prob_dict,
-                uncertainty_status=UncertaintyStatus.NOMINAL if top_conf >= self.confidence_threshold else UncertaintyStatus.UNCERTAIN,
+                uncertainty_status=UncertaintyStatus.NOMINAL
+                if top_conf >= self.confidence_threshold
+                else UncertaintyStatus.UNCERTAIN,
                 is_nominal=top_conf >= self.confidence_threshold,
                 model_version=self.version,
             )
@@ -158,7 +168,9 @@ class STGCNActivityClassifier(ActivityClassifierInterface):
                     activity_name=cls,
                     confidence=float(prob),
                     probabilities={},
-                    uncertainty_status=UncertaintyStatus.NOMINAL if prob >= self.confidence_threshold else UncertaintyStatus.UNCERTAIN,
+                    uncertainty_status=UncertaintyStatus.NOMINAL
+                    if prob >= self.confidence_threshold
+                    else UncertaintyStatus.UNCERTAIN,
                     is_nominal=prob >= self.confidence_threshold,
                     model_version=self.version,
                 )

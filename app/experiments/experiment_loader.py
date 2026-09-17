@@ -8,7 +8,6 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-
 from app.core.exceptions import ProtocolError
 from app.core.paths import paths
 from app.experiments.experiment_schema import ExperimentSpecification
@@ -72,14 +71,16 @@ def list_available_protocols() -> list[dict[str, Any]]:
                 exp_id = spec.metadata.experiment_id
                 if exp_id not in seen_ids:
                     seen_ids.add(exp_id)
-                    results.append({
-                        "experiment_id": exp_id,
-                        "title": spec.metadata.title,
-                        "file_path": str(yfile),
-                        "total_steps": len(spec.steps),
-                        "glovebox_id": spec.metadata.glovebox_id,
-                        "sha256": spec.protocol_hash[:12] if spec.protocol_hash else "",
-                    })
+                    results.append(
+                        {
+                            "experiment_id": exp_id,
+                            "title": spec.metadata.title,
+                            "file_path": str(yfile),
+                            "total_steps": len(spec.steps),
+                            "glovebox_id": spec.metadata.glovebox_id,
+                            "sha256": spec.protocol_hash[:12] if spec.protocol_hash else "",
+                        }
+                    )
             except Exception:
                 pass
 

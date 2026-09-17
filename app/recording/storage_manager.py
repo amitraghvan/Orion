@@ -58,14 +58,16 @@ class StorageManager:
                 with meta_path.open("r", encoding="utf-8") as f:
                     data = json.load(f)
                 video_file = meta_path.parent / "experiment.mp4"
-                sessions.append({
-                    "experiment_id": data.get("experiment_id", "UNKNOWN"),
-                    "run_id": data.get("run_id", "UNKNOWN"),
-                    "start_time": data.get("start_time", ""),
-                    "duration_seconds": data.get("duration_seconds", 0),
-                    "video_path": str(video_file) if video_file.is_file() else "",
-                    "session_dir": str(meta_path.parent),
-                })
+                sessions.append(
+                    {
+                        "experiment_id": data.get("experiment_id", "UNKNOWN"),
+                        "run_id": data.get("run_id", "UNKNOWN"),
+                        "start_time": data.get("start_time", ""),
+                        "duration_seconds": data.get("duration_seconds", 0),
+                        "video_path": str(video_file) if video_file.is_file() else "",
+                        "session_dir": str(meta_path.parent),
+                    }
+                )
             except Exception:
                 pass
 

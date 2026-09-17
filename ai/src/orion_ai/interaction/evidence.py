@@ -20,7 +20,9 @@ class GraspEvidence(BaseModel):
     is_stable_grasp: bool = False
 
     @classmethod
-    def from_observation(cls, obs: InteractionObservation, min_stable_frames: int = 3) -> GraspEvidence:
+    def from_observation(
+        cls, obs: InteractionObservation, min_stable_frames: int = 3
+    ) -> GraspEvidence:
         """Derive grasp evidence directly from an interaction observation."""
         is_stable = (
             obs.state in (InteractionState.GRASPING, InteractionState.MANIPULATING)

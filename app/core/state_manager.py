@@ -3,13 +3,13 @@
 from __future__ import annotations
 
 import threading
+from collections.abc import Callable
 from datetime import UTC, datetime
 from enum import StrEnum
-from typing import Any, Callable
+from typing import Any
 
 from pydantic import BaseModel, Field
 
-from app.core.event_bus import event_bus
 from app.core.logging import get_logger
 
 logger = get_logger("app.core.state_manager")
@@ -102,7 +102,9 @@ class StateManager:
             if self._app_state != new_state:
                 old = self._app_state
                 self._app_state = new_state
-                logger.info("Application state changed", old_state=old.value, new_state=new_state.value)
+                logger.info(
+                    "Application state changed", old_state=old.value, new_state=new_state.value
+                )
                 self._notify_listeners("app_state", new_state)
 
     @property
@@ -150,26 +152,32 @@ class StateManager:
             self._current_step_name = step_name
             self._total_steps = total_steps
             self._expected_action = expected_action
-            self._notify_listeners("experiment_status", {
-                "experiment_id": experiment_id,
-                "run_id": run_id,
-                "fsm_state": fsm_state,
-                "step_number": step_number,
-                "step_id": step_id,
-                "step_name": step_name,
-                "total_steps": total_steps,
-                "expected_action": expected_action,
-            })
+            self._notify_listeners(
+                "experiment_status",
+                {
+                    "experiment_id": experiment_id,
+                    "run_id": run_id,
+                    "fsm_state": fsm_state,
+                    "step_number": step_number,
+                    "step_id": step_id,
+                    "step_name": step_name,
+                    "total_steps": total_steps,
+                    "expected_action": expected_action,
+                },
+            )
 
     def set_guidance(self, next_step_text: str, next_step_action: str) -> None:
         """Update next step guidance."""
         with self._lock:
             self._next_step_text = next_step_text
             self._next_step_action = next_step_action
-            self._notify_listeners("guidance", {
-                "next_step_text": next_step_text,
-                "next_step_action": next_step_action,
-            })
+            self._notify_listeners(
+                "guidance",
+                {
+                    "next_step_text": next_step_text,
+                    "next_step_action": next_step_action,
+                },
+            )
 
     def set_decision_status(
         self,
@@ -182,11 +190,14 @@ class StateManager:
             self._detected_action = detected_action
             self._action_confidence = confidence
             self._sequence_status = sequence_status
-            self._notify_listeners("decision", {
-                "detected_action": detected_action,
-                "confidence": confidence,
-                "sequence_status": sequence_status,
-            })
+            self._notify_listeners(
+                "decision",
+                {
+                    "detected_action": detected_action,
+                    "confidence": confidence,
+                    "sequence_status": sequence_status,
+                },
+            )
 
     def set_recording(self, recording: bool) -> None:
         with self._lock:

@@ -34,7 +34,14 @@ def run_scenario(scenario_name: str, protocol_path: str) -> bool:
 
     if scenario_name == "nominal":
         # 2 events of each of the 6 steps with confidence 0.90
-        actions = ["prepare_workstation", "reach_tool", "grasp_tool", "manipulate_sample", "inspect_chamber", "idle"]
+        actions = [
+            "prepare_workstation",
+            "reach_tool",
+            "grasp_tool",
+            "manipulate_sample",
+            "inspect_chamber",
+            "idle",
+        ]
         for act in actions:
             for _ in range(2):
                 events.append({"activity": act, "confidence": 0.92, "entropy": 0.35})
@@ -50,7 +57,9 @@ def run_scenario(scenario_name: str, protocol_path: str) -> bool:
     elif scenario_name == "high_entropy":
         # Step 1, then high entropy event
         events.append({"activity": "prepare_workstation", "confidence": 0.90, "entropy": 0.30})
-        events.append({"activity": "prepare_workstation", "confidence": 0.90, "entropy": 1.75})  # > 1.40 threshold
+        events.append(
+            {"activity": "prepare_workstation", "confidence": 0.90, "entropy": 1.75}
+        )  # > 1.40 threshold
 
     elif scenario_name == "unknown_action":
         events.append({"activity": "floating_pen", "confidence": 0.85, "entropy": 0.50})
@@ -87,8 +96,10 @@ def run_scenario(scenario_name: str, protocol_path: str) -> bool:
             step_str = service.fsm.current_step.step_id if service.fsm.current_step else "COMPLETED"
             rec = service._last_recommendation
 
-            print(f"[{i+1:02d}] Observed: {act_label:<20} | Conf: {conf:.2f} | H: {ent:.2f} "
-                  f"-> Decision: {status_str:<20} | FSM: {service.state.value:<16} | Step: {step_str}")
+            print(
+                f"[{i + 1:02d}] Observed: {act_label:<20} | Conf: {conf:.2f} | H: {ent:.2f} "
+                f"-> Decision: {status_str:<20} | FSM: {service.state.value:<16} | Step: {step_str}"
+            )
             if rec:
                 print(f"     Guidance: {rec.instruction_text} ({rec.expected_activity})")
 

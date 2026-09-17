@@ -63,7 +63,9 @@ async def sec_client(security_settings: OrionSettings) -> AsyncGenerator[AsyncCl
 
 
 @pytest.mark.integration
-async def test_1_unauthenticated_request_to_control_endpoint_rejected(sec_client: AsyncClient) -> None:
+async def test_1_unauthenticated_request_to_control_endpoint_rejected(
+    sec_client: AsyncClient,
+) -> None:
     """TEST 1: Unauthenticated request to protected control endpoint is rejected with 401."""
     response = await sec_client.post("/api/v1/experiments/start", json={})
     assert response.status_code == 401
@@ -318,9 +320,7 @@ def test_16_authentication_secrets_tokens_not_emitted_into_logs(
     root_logger = logging.getLogger()
     root_logger.addHandler(handler)
 
-    secret_token = create_access_token(
-        "secret-user", "operator", security_settings.api.secret_key
-    )
+    secret_token = create_access_token("secret-user", "operator", security_settings.api.secret_key)
 
     app = create_app(settings=security_settings)
     with TestClient(app) as client:
@@ -335,5 +335,7 @@ def test_16_authentication_secrets_tokens_not_emitted_into_logs(
     captured_logs = log_capture.getvalue()
 
     # The raw JWT token string itself must NEVER appear in logs
-    assert secret_token not in captured_logs, "Raw authentication token leaked into application logs!"
+    assert secret_token not in captured_logs, (
+        "Raw authentication token leaked into application logs!"
+    )
     assert security_settings.api.secret_key not in captured_logs, "Secret key leaked into logs!"

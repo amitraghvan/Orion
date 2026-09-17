@@ -23,4 +23,3 @@ __all__ = [
     "YOLOEdgeDetector",
     "tracked_objects_to_observations",
 ]
-

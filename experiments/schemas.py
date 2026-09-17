@@ -106,4 +106,3 @@ class ExperimentSpecification(BaseModel):
     steps: list[ExperimentStep]
     alerts: list[ExperimentAlert] = Field(default_factory=list)
     recovery: ExperimentRecovery = Field(default_factory=ExperimentRecovery)
-

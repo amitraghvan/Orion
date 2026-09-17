@@ -14,9 +14,9 @@ Generates:
 from __future__ import annotations
 
 import json
-import os
 import shutil
 from pathlib import Path
+
 import cv2
 import numpy as np
 from ultralytics import YOLO
@@ -47,7 +47,10 @@ TRAIN_SUBJECTS = {"SP01", "SP02"}
 VAL_SUBJECTS = {"SP03"}
 TEST_SUBJECTS = {"SP04", "SUB_INVALID"}
 
-def detect_box_regions(frame_bgr: np.ndarray) -> tuple[list[tuple[int, int, int, int]], list[tuple[int, int, int, int]]]:
+
+def detect_box_regions(
+    frame_bgr: np.ndarray,
+) -> tuple[list[tuple[int, int, int, int]], list[tuple[int, int, int, int]]]:
     """Detect yellow and red box bounding boxes (x, y, w, h) via HSV segmentation."""
     hsv = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2HSV)
     yellow_mask = cv2.inRange(hsv, (15, 80, 80), (35, 255, 255))
@@ -62,6 +65,7 @@ def detect_box_regions(frame_bgr: np.ndarray) -> tuple[list[tuple[int, int, int,
     r_boxes = [cv2.boundingRect(c) for c in r_cnts if cv2.contourArea(c) > 300]
     return y_boxes, r_boxes
 
+
 def compute_hand_box_proximity(
     wrist_x: float,
     wrist_y: float,
@@ -72,10 +76,10 @@ def compute_hand_box_proximity(
     """Compute normalized proximity interaction score [0.0, 1.0] between a wrist joint and boxes."""
     if not boxes or wrist_x <= 0 or wrist_y <= 0:
         return 0.0
-    
+
     px = wrist_x * frame_w
     py = wrist_y * frame_h
-    
+
     min_dist = float("inf")
     for bx, by, bw, bh in boxes:
         cx = bx + bw / 2.0
@@ -84,9 +88,10 @@ def compute_hand_box_proximity(
         min_dist = min(min_dist, dist)
 
     # Proximity threshold: 250 pixels normalized to diagonal
-    diag = (frame_w ** 2 + frame_h ** 2) ** 0.5
+    diag = (frame_w**2 + frame_h**2) ** 0.5
     norm_dist = min_dist / max(1.0, diag * 0.25)
     return float(max(0.0, 1.0 - norm_dist))
+
 
 def infer_frame_action(
     t_norm: float,
@@ -102,11 +107,11 @@ def infer_frame_action(
         if invalid_type == "WRONG_OBJECT":
             # Manipulates red box when yellow is expected
             return "E01_A_S01", "pick_red"
-        elif invalid_type == "INTERRUPTION":
+        if invalid_type == "INTERRUPTION":
             if t_norm > 0.4:
                 return "E01_A_INTERRUPTED", "idle"
             return "E01_A_S01", "pick_yellow"
-        elif invalid_type == "WRONG_ORDER":
+        if invalid_type == "WRONG_ORDER":
             # Performed step 3/4 before step 1/2
             return "E01_A_S03", "pick_red"
         return "VIOLATION", "idle"
@@ -117,68 +122,60 @@ def infer_frame_action(
             # 1: Pick yellow (0-25%), 2: Place yellow (25-50%), 3: Pick red (50-75%), 4: Place red (75-100%)
             if t_norm < 0.25:
                 return "E01_A_S01", "pick_yellow"
-            elif t_norm < 0.50:
+            if t_norm < 0.50:
                 return "E01_A_S02", "place_yellow"
-            elif t_norm < 0.75:
+            if t_norm < 0.75:
                 return "E01_A_S03", "pick_red"
-            else:
-                return "E01_A_S04", "place_red"
-        else:
-            # Variant B: Red first, then Yellow
-            if t_norm < 0.25:
-                return "E01_B_S01", "pick_red"
-            elif t_norm < 0.50:
-                return "E01_B_S02", "place_red"
-            elif t_norm < 0.75:
-                return "E01_B_S03", "pick_yellow"
-            else:
-                return "E01_B_S04", "place_yellow"
+            return "E01_A_S04", "place_red"
+        # Variant B: Red first, then Yellow
+        if t_norm < 0.25:
+            return "E01_B_S01", "pick_red"
+        if t_norm < 0.50:
+            return "E01_B_S02", "place_red"
+        if t_norm < 0.75:
+            return "E01_B_S03", "pick_yellow"
+        return "E01_B_S04", "place_yellow"
 
-    elif exp_id == "E02":
+    if exp_id == "E02":
         # Interchanging
         if t_norm < 0.33:
             return f"{exp_id}_{variant}_S01", "pick_yellow" if y_prox > r_prox else "pick_red"
-        elif t_norm < 0.66:
+        if t_norm < 0.66:
             return f"{exp_id}_{variant}_S02", "place_yellow" if variant == "A" else "place_red"
-        else:
-            return f"{exp_id}_{variant}_S03", "place_red" if variant == "A" else "place_yellow"
+        return f"{exp_id}_{variant}_S03", "place_red" if variant == "A" else "place_yellow"
 
-    elif exp_id == "E03":
+    if exp_id == "E03":
         # Overlapping
         if t_norm < 0.45:
             return f"{exp_id}_{variant}_S01", "place_yellow"
-        else:
-            return f"{exp_id}_{variant}_S02", "overlap_boxes"
+        return f"{exp_id}_{variant}_S02", "overlap_boxes"
 
-    elif exp_id == "E04":
+    if exp_id == "E04":
         # Moving
         if t_norm < 0.35:
             return f"{exp_id}_{variant}_S01", "idle"
-        else:
-            return f"{exp_id}_{variant}_S02", "move_box"
+        return f"{exp_id}_{variant}_S02", "move_box"
 
-    elif exp_id == "E05":
+    if exp_id == "E05":
         # In Container
         if variant == "A":
             if t_norm < 0.25:
                 return "E05_A_S01", "pick_yellow"
-            elif t_norm < 0.50:
+            if t_norm < 0.50:
                 return "E05_A_S02", "check_box"
-            elif t_norm < 0.75:
+            if t_norm < 0.75:
                 return "E05_A_S03", "pick_red"
-            else:
-                return "E05_A_S04", "check_box"
-        else:
-            if t_norm < 0.25:
-                return "E05_B_S01", "pick_red"
-            elif t_norm < 0.50:
-                return "E05_B_S02", "check_box"
-            elif t_norm < 0.75:
-                return "E05_B_S03", "pick_yellow"
-            else:
-                return "E05_B_S04", "check_box"
+            return "E05_A_S04", "check_box"
+        if t_norm < 0.25:
+            return "E05_B_S01", "pick_red"
+        if t_norm < 0.50:
+            return "E05_B_S02", "check_box"
+        if t_norm < 0.75:
+            return "E05_B_S03", "pick_yellow"
+        return "E05_B_S04", "check_box"
 
     return "UNKNOWN", "idle"
+
 
 def main():
     with open(AUDIT_JSON) as f:
@@ -196,7 +193,7 @@ def main():
 
     manifest_entries = []
     split_assignments = {"train": [], "val": [], "test": []}
-    class_counts = {c: 0 for c in CLASSES}
+    class_counts = dict.fromkeys(CLASSES, 0)
     total_sequences = 0
 
     print(f"Processing {len(audit_records)} videos...")
@@ -241,7 +238,12 @@ def main():
             res = pose_model.predict(small, verbose=False, conf=0.3)
             # Default keypoints (17, 3)
             kpts = np.zeros((17, 3), dtype=np.float32)
-            if res and len(res) > 0 and res[0].keypoints is not None and len(res[0].keypoints.data) > 0:
+            if (
+                res
+                and len(res) > 0
+                and res[0].keypoints is not None
+                and len(res[0].keypoints.data) > 0
+            ):
                 first_kpts = res[0].keypoints.data[0].cpu().numpy()
                 kpts[:, 0] = first_kpts[:, 0] / max(1, sw)
                 kpts[:, 1] = first_kpts[:, 1] / max(1, sh)
@@ -324,17 +326,19 @@ def main():
             seq_count += 1
             total_sequences += 1
 
-        manifest_entries.append({
-            "video_id": video_id,
-            "subject_id": sub_id,
-            "experiment_id": exp_id,
-            "variant": variant,
-            "is_valid": is_valid,
-            "split": split,
-            "sequences_extracted": seq_count,
-            "total_frames": total_frames,
-        })
-        print(f"[{idx+1}/{len(audit_records)}] {video_id} -> {split}: {seq_count} sequences")
+        manifest_entries.append(
+            {
+                "video_id": video_id,
+                "subject_id": sub_id,
+                "experiment_id": exp_id,
+                "variant": variant,
+                "is_valid": is_valid,
+                "split": split,
+                "sequences_extracted": seq_count,
+                "total_frames": total_frames,
+            }
+        )
+        print(f"[{idx + 1}/{len(audit_records)}] {video_id} -> {split}: {seq_count} sequences")
 
     # Write manifest.jsonl
     METADATA_DIR.mkdir(parents=True, exist_ok=True)
@@ -344,37 +348,53 @@ def main():
 
     # Write classes.json
     with open(METADATA_DIR / "classes.json", "w") as f:
-        json.dump({
-            "classes": CLASSES,
-            "class_to_idx": CLASS_TO_IDX,
-            "class_counts": class_counts,
-            "num_classes": len(CLASSES),
-        }, f, indent=2)
+        json.dump(
+            {
+                "classes": CLASSES,
+                "class_to_idx": CLASS_TO_IDX,
+                "class_counts": class_counts,
+                "num_classes": len(CLASSES),
+            },
+            f,
+            indent=2,
+        )
 
     # Write splits.json
     with open(METADATA_DIR / "splits.json", "w") as f:
-        json.dump({
-            "train": split_assignments["train"],
-            "val": split_assignments["val"],
-            "test": split_assignments["test"],
-            "leakage_check_passed": len(set(split_assignments["train"]).intersection(set(split_assignments["test"]))) == 0,
-        }, f, indent=2)
+        json.dump(
+            {
+                "train": split_assignments["train"],
+                "val": split_assignments["val"],
+                "test": split_assignments["test"],
+                "leakage_check_passed": len(
+                    set(split_assignments["train"]).intersection(set(split_assignments["test"]))
+                )
+                == 0,
+            },
+            f,
+            indent=2,
+        )
 
     # Write dataset_version.json
     with open(METADATA_DIR / "dataset_version.json", "w") as f:
-        json.dump({
-            "dataset_name": "BAS_REAL_DATA",
-            "version": "1.0.0",
-            "date_created": "2026-09-14",
-            "source": "/Users/amitkumar/Downloads/BAS_REAL_DATA",
-            "total_raw_videos": len(audit_records),
-            "total_sequences": total_sequences,
-            "sequence_shape": [4, 32, 17],
-            "class_distribution": class_counts,
-        }, f, indent=2)
+        json.dump(
+            {
+                "dataset_name": "BAS_REAL_DATA",
+                "version": "1.0.0",
+                "date_created": "2026-09-14",
+                "source": "/Users/amitkumar/Downloads/BAS_REAL_DATA",
+                "total_raw_videos": len(audit_records),
+                "total_sequences": total_sequences,
+                "sequence_shape": [4, 32, 17],
+                "class_distribution": class_counts,
+            },
+            f,
+            indent=2,
+        )
 
     print(f"\nCompleted! Generated {total_sequences} sequences across train/val/test splits.")
     print("Class distribution:", class_counts)
+
 
 if __name__ == "__main__":
     main()

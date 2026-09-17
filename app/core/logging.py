@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import logging
 from logging.handlers import RotatingFileHandler
-from pathlib import Path
 from typing import Any
 
 from app.core.paths import paths
@@ -18,10 +17,29 @@ _configured = False
 
 
 LOGRECORD_RESERVED = {
-    "name", "msg", "args", "levelname", "levelno", "pathname", "filename",
-    "module", "exc_info", "exc_text", "stack_info", "lineno", "funcName",
-    "created", "msecs", "relativeCreated", "thread", "threadName",
-    "processName", "process", "message", "asctime", "extra",
+    "name",
+    "msg",
+    "args",
+    "levelname",
+    "levelno",
+    "pathname",
+    "filename",
+    "module",
+    "exc_info",
+    "exc_text",
+    "stack_info",
+    "lineno",
+    "funcName",
+    "created",
+    "msecs",
+    "relativeCreated",
+    "thread",
+    "threadName",
+    "processName",
+    "process",
+    "message",
+    "asctime",
+    "extra",
 }
 
 
@@ -93,7 +111,9 @@ def configure_logging(
     # Helper to add rotating file handler
     def _add_file_sink(filename: str, sink_level: int = log_level) -> RotatingFileHandler:
         filepath = log_dir / filename
-        h = RotatingFileHandler(filepath, maxBytes=max_bytes, backupCount=backup_count, encoding="utf-8")
+        h = RotatingFileHandler(
+            filepath, maxBytes=max_bytes, backupCount=backup_count, encoding="utf-8"
+        )
         h.setLevel(sink_level)
         h.setFormatter(logging.Formatter(FILE_LOG_FORMAT, datefmt=DATE_FORMAT))
         return h

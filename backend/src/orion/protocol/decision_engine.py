@@ -24,7 +24,6 @@ MIN_PROBABILITY_EPSILON = 1e-9
 class DecisionStatus(StrEnum):
     """Evaluation status yielded by the ProtocolDecisionEngine."""
 
-
     VALID = "VALID"
     INVALID_ACTION = "INVALID_ACTION"
     WRONG_OBJECT = "WRONG_OBJECT"
@@ -122,7 +121,6 @@ class ProtocolDecisionEngine:
         current_step_index: int,
         now: datetime | None = None,
     ) -> ProtocolDecision:
-
         """Evaluate an ActivityRecognized event against the current protocol step.
 
         Parameters:
@@ -319,7 +317,9 @@ class ProtocolDecisionEngine:
         # 7. Action is debounced and unexpected: First check for Wrong Object violation
         is_yellow_expected = any("yellow" in a for a in expected_actions)
         is_red_expected = any("red" in a for a in expected_actions)
-        if (is_yellow_expected and "red" in mapped_action) or (is_red_expected and "yellow" in mapped_action):
+        if (is_yellow_expected and "red" in mapped_action) or (
+            is_red_expected and "yellow" in mapped_action
+        ):
             return ProtocolDecision(
                 status=DecisionStatus.WRONG_OBJECT,
                 step_id=current_step.step_id,
@@ -346,7 +346,9 @@ class ProtocolDecisionEngine:
                 break
 
         if future_match_idx is not None:
-            skipped_steps = [spec.steps[i].step_id for i in range(current_step_index, future_match_idx)]
+            skipped_steps = [
+                spec.steps[i].step_id for i in range(current_step_index, future_match_idx)
+            ]
             return ProtocolDecision(
                 status=DecisionStatus.SKIPPED,
                 step_id=current_step.step_id,

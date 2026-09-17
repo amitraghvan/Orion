@@ -88,7 +88,9 @@ def test_replay_video_source():
     sample_file = Path("assets/sample_replay.mp4").resolve()
     assert sample_file.is_file(), "assets/sample_replay.mp4 must exist for replay testing"
 
-    source = ReplayVideoSource(filepath=sample_file, target_width=640, target_height=480, target_fps=30)
+    source = ReplayVideoSource(
+        filepath=sample_file, target_width=640, target_height=480, target_fps=30
+    )
     assert source.is_file is True
     assert source.is_opened() is False
 

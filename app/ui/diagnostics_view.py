@@ -3,19 +3,17 @@
 from __future__ import annotations
 
 import psutil
-from PySide6.QtCore import Qt, QTimer
+from app.core.state_manager import state_manager
+from app.ui.widgets.status_pill import StatusPill
+from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import (
     QFrame,
     QGridLayout,
-    QHBoxLayout,
     QLabel,
     QProgressBar,
     QVBoxLayout,
     QWidget,
 )
-
-from app.core.state_manager import state_manager
-from app.ui.widgets.status_pill import StatusPill
 
 
 class DiagnosticsView(QWidget):
@@ -36,11 +34,15 @@ class DiagnosticsView(QWidget):
         # 1. Hardware Utilization Grid
         # ---------------------------------------------------------------------
         hw_title = QLabel("WORKSTATION HARDWARE TELEMETRY")
-        hw_title.setStyleSheet("color: #38bdf8; font-size: 11px; font-weight: 800; letter-spacing: 1px;")
+        hw_title.setStyleSheet(
+            "color: #38bdf8; font-size: 11px; font-weight: 800; letter-spacing: 1px;"
+        )
         layout.addWidget(hw_title)
 
         hw_frame = QFrame()
-        hw_frame.setStyleSheet("background-color: #080c14; border: 1px solid #1e293b; border-radius: 8px; padding: 16px;")
+        hw_frame.setStyleSheet(
+            "background-color: #080c14; border: 1px solid #1e293b; border-radius: 8px; padding: 16px;"
+        )
         hw_layout = QGridLayout(hw_frame)
         hw_layout.setSpacing(14)
 
@@ -55,11 +57,15 @@ class DiagnosticsView(QWidget):
         # 2. Perception & Video Telemetry
         # ---------------------------------------------------------------------
         cv_title = QLabel("PERCEPTION PIPELINE TELEMETRY")
-        cv_title.setStyleSheet("color: #38bdf8; font-size: 11px; font-weight: 800; letter-spacing: 1px;")
+        cv_title.setStyleSheet(
+            "color: #38bdf8; font-size: 11px; font-weight: 800; letter-spacing: 1px;"
+        )
         layout.addWidget(cv_title)
 
         cv_frame = QFrame()
-        cv_frame.setStyleSheet("background-color: #080c14; border: 1px solid #1e293b; border-radius: 8px; padding: 16px;")
+        cv_frame.setStyleSheet(
+            "background-color: #080c14; border: 1px solid #1e293b; border-radius: 8px; padding: 16px;"
+        )
         cv_layout = QGridLayout(cv_frame)
         cv_layout.setSpacing(12)
 
@@ -69,8 +75,12 @@ class DiagnosticsView(QWidget):
         self.drop_lbl = QLabel("Dropped Frames: 0")
         self.device_lbl = QLabel("Active Compute Engine: CPU")
 
-        for idx, lbl in enumerate([self.cam_fps_lbl, self.inf_fps_lbl, self.inf_lat_lbl, self.drop_lbl, self.device_lbl]):
-            lbl.setStyleSheet("color: #f1f5f9; font-size: 12px; font-weight: bold; font-family: monospace;")
+        for idx, lbl in enumerate(
+            [self.cam_fps_lbl, self.inf_fps_lbl, self.inf_lat_lbl, self.drop_lbl, self.device_lbl]
+        ):
+            lbl.setStyleSheet(
+                "color: #f1f5f9; font-size: 12px; font-weight: bold; font-family: monospace;"
+            )
             cv_layout.addWidget(lbl, idx // 2, idx % 2)
 
         layout.addWidget(cv_frame)
@@ -79,11 +89,15 @@ class DiagnosticsView(QWidget):
         # 3. Subsystem Health Matrix
         # ---------------------------------------------------------------------
         sub_title = QLabel("SUBSYSTEM OPERATIONAL HEALTH MATRIX")
-        sub_title.setStyleSheet("color: #38bdf8; font-size: 11px; font-weight: 800; letter-spacing: 1px;")
+        sub_title.setStyleSheet(
+            "color: #38bdf8; font-size: 11px; font-weight: 800; letter-spacing: 1px;"
+        )
         layout.addWidget(sub_title)
 
         sub_frame = QFrame()
-        sub_frame.setStyleSheet("background-color: #080c14; border: 1px solid #1e293b; border-radius: 8px; padding: 16px;")
+        sub_frame.setStyleSheet(
+            "background-color: #080c14; border: 1px solid #1e293b; border-radius: 8px; padding: 16px;"
+        )
         sub_layout = QGridLayout(sub_frame)
         sub_layout.setSpacing(12)
 
@@ -112,7 +126,9 @@ class DiagnosticsView(QWidget):
 
     def _create_metric_bar(self, label_text: str, grid: QGridLayout, row: int) -> QProgressBar:
         lbl = QLabel(label_text)
-        lbl.setStyleSheet("color: #94a3b8; font-size: 11px; font-weight: bold; font-family: monospace;")
+        lbl.setStyleSheet(
+            "color: #94a3b8; font-size: 11px; font-weight: bold; font-family: monospace;"
+        )
         bar = QProgressBar()
         bar.setRange(0, 100)
         bar.setValue(0)

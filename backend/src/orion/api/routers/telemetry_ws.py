@@ -167,7 +167,9 @@ class WebSocketConnectionManager:
             ),
             "hands": [h.model_dump(mode="json") for h in observation.hand_observations],
             "objects": [o.model_dump(mode="json") for o in observation.object_observations],
-            "interactions": [i.model_dump(mode="json") for i in observation.interaction_observations],
+            "interactions": [
+                i.model_dump(mode="json") for i in observation.interaction_observations
+            ],
             "multimodal_evidence": (
                 observation.multimodal_evidence.model_dump(mode="json")
                 if observation.multimodal_evidence
@@ -207,7 +209,6 @@ class WebSocketConnectionManager:
             },
             error_message=err,
         )
-
 
 
 manager = WebSocketConnectionManager()

@@ -6,7 +6,8 @@ import inspect
 import queue
 import threading
 from collections import defaultdict
-from typing import Any, Callable, Type, TypeVar
+from collections.abc import Callable
+from typing import Any, TypeVar
 
 from app.core.logging import get_logger
 
@@ -19,7 +20,7 @@ class EventBus:
     """Thread-safe synchronous and asynchronous event dispatching hub."""
 
     def __init__(self) -> None:
-        self._subscribers: dict[Type[Any], list[Callable[[Any], Any]]] = defaultdict(list)
+        self._subscribers: dict[type[Any], list[Callable[[Any], Any]]] = defaultdict(list)
         self._lock = threading.RLock()
         self._event_queue: queue.Queue[Any] = queue.Queue(maxsize=1000)
         self._qt_bridges: list[Any] = []
@@ -30,7 +31,7 @@ class EventBus:
             if bridge not in self._qt_bridges:
                 self._qt_bridges.append(bridge)
 
-    def subscribe(self, event_type: Type[T], handler: Callable[[T], Any]) -> Callable[[], None]:
+    def subscribe(self, event_type: type[T], handler: Callable[[T], Any]) -> Callable[[], None]:
         """Subscribe a handler callback to an event type. Returns an unsubscribe function."""
         with self._lock:
             self._subscribers[event_type].append(handler)
@@ -70,7 +71,12 @@ class EventBus:
                     # If an async coroutine is returned in a sync context, log warning
                     pass
             except Exception as exc:
-                logger.error("Event handler error", handler=handler.__name__, event=event_cls.__name__, error=str(exc))
+                logger.error(
+                    "Event handler error",
+                    handler=handler.__name__,
+                    event=event_cls.__name__,
+                    error=str(exc),
+                )
 
 
 # Global event bus singleton

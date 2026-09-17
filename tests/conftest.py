@@ -24,6 +24,7 @@ from orion.db.base import Base
 def test_settings() -> OrionSettings:
     """Fixture providing isolated test settings."""
     from orion.core.config import CameraSettings
+
     return OrionSettings(
         ORION_ENV="testing",
         ORION_STATION_ID="BAS-TEST-BENCH",
@@ -76,4 +77,3 @@ async def async_client(test_settings: OrionSettings) -> AsyncGenerator[AsyncClie
             transport=transport, base_url="http://testserver", headers=headers
         ) as client:
             yield client
-

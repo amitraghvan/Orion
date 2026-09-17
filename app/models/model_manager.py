@@ -8,8 +8,7 @@ import time
 from pathlib import Path
 from typing import Any, Literal
 
-from app.core.config import get_config
-from app.core.exceptions import ModelError, ModelNotFoundError
+from app.core.exceptions import ModelNotFoundError
 from app.core.logging import get_logger
 from app.core.paths import paths
 from app.models.inference_backend import InferenceBackend
@@ -60,10 +59,9 @@ class ModelManager:
 
         if backend_type == "tensorrt":
             return TensorRTBackend(resolved_str, device=device)
-        elif backend_type == "onnx":
+        if backend_type == "onnx":
             return ONNXBackend(resolved_str, device=device)
-        else:
-            return PyTorchBackend(resolved_str, device=device)
+        return PyTorchBackend(resolved_str, device=device)
 
     def load_model(
         self,
@@ -138,15 +136,17 @@ class ModelManager:
             overview = []
             for name, backend in self._models.items():
                 manifest = self._manifests.get(name, {})
-                overview.append({
-                    "name": name,
-                    "loaded": backend.is_loaded,
-                    "backend": type(backend).__name__,
-                    "device": backend.device,
-                    "path": Path(backend.model_path).name,
-                    "version": manifest.get("version", "1.0.0"),
-                    "latency_ms": round(self._latencies.get(name, 0.0), 2),
-                })
+                overview.append(
+                    {
+                        "name": name,
+                        "loaded": backend.is_loaded,
+                        "backend": type(backend).__name__,
+                        "device": backend.device,
+                        "path": Path(backend.model_path).name,
+                        "version": manifest.get("version", "1.0.0"),
+                        "latency_ms": round(self._latencies.get(name, 0.0), 2),
+                    }
+                )
             return overview
 
     def _load_manifest(self, name: str, model_path: str | Path) -> None:

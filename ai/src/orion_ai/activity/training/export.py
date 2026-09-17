@@ -76,7 +76,6 @@ def generate_manifest(
     return manifest_data
 
 
-
 def main() -> None:
     parser = argparse.ArgumentParser(description="Generate manifest for ST-GCN model.")
     parser.add_argument("--model-path", default="models/weights/stgcn_har_v1.pt")

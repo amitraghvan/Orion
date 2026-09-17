@@ -4,7 +4,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from PySide6.QtCore import Qt, QTimer
+from app.experiments.experiment_engine import experiment_engine
+from app.experiments.experiment_loader import list_available_protocols
 from PySide6.QtWidgets import (
     QComboBox,
     QFrame,
@@ -17,9 +18,6 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-
-from app.experiments.experiment_engine import experiment_engine
-from app.experiments.experiment_loader import list_available_protocols
 
 
 class ExperimentView(QWidget):
@@ -38,17 +36,23 @@ class ExperimentView(QWidget):
 
         # Protocol Selector Toolbar
         selector_frame = QFrame()
-        selector_frame.setStyleSheet("background-color: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 10px;")
+        selector_frame.setStyleSheet(
+            "background-color: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 10px;"
+        )
         s_layout = QHBoxLayout(selector_frame)
 
         lbl = QLabel("EXPERIMENT PROTOCOL:")
         lbl.setStyleSheet("color: #38bdf8; font-weight: bold; font-size: 11px;")
         self.protocol_combo = QComboBox()
-        self.protocol_combo.setStyleSheet("background-color: #1e293b; color: white; padding: 6px; border-radius: 4px; font-weight: bold;")
+        self.protocol_combo.setStyleSheet(
+            "background-color: #1e293b; color: white; padding: 6px; border-radius: 4px; font-weight: bold;"
+        )
         self.protocol_combo.currentIndexChanged.connect(self._on_protocol_selected)
 
         self.load_btn = QPushButton("LOAD SPECIFICATION")
-        self.load_btn.setStyleSheet("background-color: #0284c7; color: white; font-weight: bold; padding: 6px 14px; border-radius: 4px;")
+        self.load_btn.setStyleSheet(
+            "background-color: #0284c7; color: white; font-weight: bold; padding: 6px 14px; border-radius: 4px;"
+        )
         self.load_btn.clicked.connect(self._on_load_clicked)
 
         s_layout.addWidget(lbl)
@@ -58,7 +62,9 @@ class ExperimentView(QWidget):
 
         # Metadata Card
         self.meta_frame = QFrame()
-        self.meta_frame.setStyleSheet("background-color: #080c14; border: 1px solid #1e293b; border-radius: 6px; padding: 12px;")
+        self.meta_frame.setStyleSheet(
+            "background-color: #080c14; border: 1px solid #1e293b; border-radius: 6px; padding: 12px;"
+        )
         m_layout = QVBoxLayout(self.meta_frame)
         self.title_lbl = QLabel("Title: -")
         self.title_lbl.setStyleSheet("color: #f8fafc; font-size: 14px; font-weight: bold;")
@@ -71,11 +77,15 @@ class ExperimentView(QWidget):
 
         # Steps Table
         steps_lbl = QLabel("CANONICAL PROCEDURAL STEPS")
-        steps_lbl.setStyleSheet("color: #94a3b8; font-size: 11px; font-weight: 800; letter-spacing: 1px;")
+        steps_lbl.setStyleSheet(
+            "color: #94a3b8; font-size: 11px; font-weight: 800; letter-spacing: 1px;"
+        )
         layout.addWidget(steps_lbl)
 
         self.steps_table = QTableWidget(0, 5)
-        self.steps_table.setHorizontalHeaderLabels(["STEP #", "STEP ID", "DESCRIPTION", "EXPECTED ACTION", "STATUS"])
+        self.steps_table.setHorizontalHeaderLabels(
+            ["STEP #", "STEP ID", "DESCRIPTION", "EXPECTED ACTION", "STATUS"]
+        )
         self.steps_table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
         self.steps_table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
         self.steps_table.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
@@ -119,7 +129,9 @@ class ExperimentView(QWidget):
 
     def _render_spec(self, spec: Any) -> None:
         self.title_lbl.setText(f"{spec.metadata.experiment_id}: {spec.metadata.title}")
-        self.agency_lbl.setText(f"Agency: {spec.metadata.lead_agency} | Node: {spec.metadata.station_module} | Glovebox: {spec.metadata.glovebox_id}")
+        self.agency_lbl.setText(
+            f"Agency: {spec.metadata.lead_agency} | Node: {spec.metadata.station_module} | Glovebox: {spec.metadata.glovebox_id}"
+        )
 
         steps = spec.steps
         self.steps_table.setRowCount(len(steps))

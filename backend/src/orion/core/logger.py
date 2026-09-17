@@ -76,8 +76,6 @@ def _add_logger_name(logger: Any, _method_name: str, event_dict: dict[str, Any])
     return event_dict
 
 
-
-
 def configure_logging(
     log_level: str = "INFO",
     log_format: str = "console",
@@ -140,7 +138,6 @@ def configure_logging(
         structlog.processors.StackInfoRenderer(),
         structlog.processors.format_exc_info,
     ]
-
 
     if log_format == "json":
         renderer: Any = structlog.processors.JSONRenderer()

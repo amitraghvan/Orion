@@ -4,9 +4,6 @@ from __future__ import annotations
 
 import math
 from enum import StrEnum
-from typing import Any
-
-import numpy as np
 
 
 class ContactState(StrEnum):
@@ -37,30 +34,48 @@ class HandObjectInteractionEngine:
             # Left wrist: 9, left elbow: 7
             if kpts[9][2] > 0.3:
                 wx, wy = float(kpts[9][0]), float(kpts[9][1])
-                ex, ey = (float(kpts[7][0]), float(kpts[7][1])) if kpts[7][2] > 0.3 else (wx, wy - 30)
+                ex, ey = (
+                    (float(kpts[7][0]), float(kpts[7][1])) if kpts[7][2] > 0.3 else (wx, wy - 30)
+                )
                 box_radius = max(35.0, math.hypot(wx - ex, wy - ey) * 0.4)
-                hands.append({
-                    "hand_id": f"p{pose['person_id']}_lh",
-                    "side": "left",
-                    "person_id": pose["person_id"],
-                    "center": [wx, wy],
-                    "bbox": [wx - box_radius, wy - box_radius, wx + box_radius, wy + box_radius],
-                    "confidence": float(kpts[9][2]),
-                })
+                hands.append(
+                    {
+                        "hand_id": f"p{pose['person_id']}_lh",
+                        "side": "left",
+                        "person_id": pose["person_id"],
+                        "center": [wx, wy],
+                        "bbox": [
+                            wx - box_radius,
+                            wy - box_radius,
+                            wx + box_radius,
+                            wy + box_radius,
+                        ],
+                        "confidence": float(kpts[9][2]),
+                    }
+                )
 
             # Right wrist: 10, right elbow: 8
             if kpts[10][2] > 0.3:
                 wx, wy = float(kpts[10][0]), float(kpts[10][1])
-                ex, ey = (float(kpts[8][0]), float(kpts[8][1])) if kpts[8][2] > 0.3 else (wx, wy - 30)
+                ex, ey = (
+                    (float(kpts[8][0]), float(kpts[8][1])) if kpts[8][2] > 0.3 else (wx, wy - 30)
+                )
                 box_radius = max(35.0, math.hypot(wx - ex, wy - ey) * 0.4)
-                hands.append({
-                    "hand_id": f"p{pose['person_id']}_rh",
-                    "side": "right",
-                    "person_id": pose["person_id"],
-                    "center": [wx, wy],
-                    "bbox": [wx - box_radius, wy - box_radius, wx + box_radius, wy + box_radius],
-                    "confidence": float(kpts[10][2]),
-                })
+                hands.append(
+                    {
+                        "hand_id": f"p{pose['person_id']}_rh",
+                        "side": "right",
+                        "person_id": pose["person_id"],
+                        "center": [wx, wy],
+                        "bbox": [
+                            wx - box_radius,
+                            wy - box_radius,
+                            wx + box_radius,
+                            wy + box_radius,
+                        ],
+                        "confidence": float(kpts[10][2]),
+                    }
+                )
 
         return hands
 
@@ -104,18 +119,22 @@ class HandObjectInteractionEngine:
                 self._previous_states[interaction_key] = curr_state
 
                 if curr_state != ContactState.IDLE:
-                    interactions.append({
-                        "hand_id": hand["hand_id"],
-                        "hand_side": hand["side"],
-                        "object_class": obj["class_name"],
-                        "object_track_id": obj.get("track_id", 0),
-                        "state": curr_state.value,
-                        "action_type": action_type,
-                        "distance_px": round(dist, 1),
-                        "iou": round(iou, 3),
-                        "vector": [hx, hy, ox, oy],
-                        "confidence": round(min(hand["confidence"], obj.get("confidence", 0.8)), 2),
-                    })
+                    interactions.append(
+                        {
+                            "hand_id": hand["hand_id"],
+                            "hand_side": hand["side"],
+                            "object_class": obj["class_name"],
+                            "object_track_id": obj.get("track_id", 0),
+                            "state": curr_state.value,
+                            "action_type": action_type,
+                            "distance_px": round(dist, 1),
+                            "iou": round(iou, 3),
+                            "vector": [hx, hy, ox, oy],
+                            "confidence": round(
+                                min(hand["confidence"], obj.get("confidence", 0.8)), 2
+                            ),
+                        }
+                    )
 
         return interactions
 

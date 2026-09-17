@@ -93,13 +93,15 @@ def train_stgcn_model(
         val_loss_avg = val_loss / max(total_val, 1)
         val_acc = correct_val / max(total_val, 1)
 
-        metrics_history.append({
-            "epoch": float(epoch),
-            "train_loss": train_loss,
-            "train_acc": train_acc,
-            "val_loss": val_loss_avg,
-            "val_acc": val_acc,
-        })
+        metrics_history.append(
+            {
+                "epoch": float(epoch),
+                "train_loss": train_loss,
+                "train_acc": train_acc,
+                "val_loss": val_loss_avg,
+                "val_acc": val_acc,
+            }
+        )
 
         if val_acc >= best_val_acc:
             best_val_acc = val_acc
@@ -137,7 +139,11 @@ def main() -> None:
         samples_per_class=args.samples_per_class,
         seed=args.seed,
     )
-    logger.info("Training complete: best_val_acc=%.4f saved to %s", results["best_val_acc"], results["save_path"])
+    logger.info(
+        "Training complete: best_val_acc=%.4f saved to %s",
+        results["best_val_acc"],
+        results["save_path"],
+    )
 
 
 if __name__ == "__main__":

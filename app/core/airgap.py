@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+
 from app.core.logging import get_logger
 
 logger = get_logger("app.core.airgap")
@@ -23,6 +24,7 @@ def enforce_airgap() -> None:
 
     try:
         from ultralytics import settings
+
         settings.update({"sync": False, "checks": False})
         logger.debug("Ultralytics telemetry and update checks disabled")
     except Exception:

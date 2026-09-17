@@ -2,24 +2,20 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
-from PySide6.QtCore import Qt, QTimer
+from app.camera.camera_manager import camera_manager
+from app.core.paths import paths
+from app.core.state_manager import state_manager
+from app.ui.widgets.video_widget import VideoViewportWidget
+from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
     QFrame,
     QHBoxLayout,
     QLabel,
-    QPushButton,
     QVBoxLayout,
     QWidget,
 )
-
-from app.camera.camera_manager import camera_manager
-from app.core.paths import paths
-from app.core.state_manager import state_manager
-from app.ui.widgets.video_widget import VideoViewportWidget
 
 
 class LiveVisionView(QWidget):
@@ -37,7 +33,9 @@ class LiveVisionView(QWidget):
 
         # Control & Overlay Toolbar
         toolbar = QFrame()
-        toolbar.setStyleSheet("background-color: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 6px;")
+        toolbar.setStyleSheet(
+            "background-color: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 6px;"
+        )
         t_layout = QHBoxLayout(toolbar)
         t_layout.setContentsMargins(10, 4, 10, 4)
         t_layout.setSpacing(16)
@@ -45,8 +43,12 @@ class LiveVisionView(QWidget):
         # Source selection
         t_layout.addWidget(QLabel("SOURCE:"))
         self.source_combo = QComboBox()
-        self.source_combo.addItems(["CAM01 (USB Default)", "Sample Replay Video", "Glovebox Microgravity Feed"])
-        self.source_combo.setStyleSheet("background-color: #1e293b; color: white; padding: 4px; border-radius: 4px;")
+        self.source_combo.addItems(
+            ["CAM01 (USB Default)", "Sample Replay Video", "Glovebox Microgravity Feed"]
+        )
+        self.source_combo.setStyleSheet(
+            "background-color: #1e293b; color: white; padding: 4px; border-radius: 4px;"
+        )
         self.source_combo.currentIndexChanged.connect(self._on_source_changed)
         t_layout.addWidget(self.source_combo)
 
@@ -74,7 +76,13 @@ class LiveVisionView(QWidget):
         self.chk_hud.setChecked(True)
         self.chk_hud.toggled.connect(self._on_overlay_toggled)
 
-        for chk in [self.chk_boxes, self.chk_skeleton, self.chk_hands, self.chk_vectors, self.chk_hud]:
+        for chk in [
+            self.chk_boxes,
+            self.chk_skeleton,
+            self.chk_hands,
+            self.chk_vectors,
+            self.chk_hud,
+        ]:
             chk.setStyleSheet("color: #e2e8f0; font-size: 11px; font-weight: 600;")
             t_layout.addWidget(chk)
 

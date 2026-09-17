@@ -4,9 +4,9 @@ import socket
 import struct
 import time
 import urllib.request
+
 import numpy as np
 import pytest
-
 from app.streaming.stream_manager import StreamManager, UDPStreamSender
 
 

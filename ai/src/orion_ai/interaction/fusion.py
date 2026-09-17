@@ -132,7 +132,12 @@ class DeterministicMultimodalFusion:
             elif is_obj_activity:
                 # Check interaction match
                 has_contact_or_grasp = any(
-                    i.state in (InteractionState.CONTACT, InteractionState.GRASPING, InteractionState.MANIPULATING)
+                    i.state
+                    in (
+                        InteractionState.CONTACT,
+                        InteractionState.GRASPING,
+                        InteractionState.MANIPULATING,
+                    )
                     for i in interactions
                 )
                 has_approach_or_near = any(
@@ -140,10 +145,25 @@ class DeterministicMultimodalFusion:
                     for i in interactions
                 )
 
-                if act_lower in ("grasp_tool", "manipulate_sample", "pick_yellow", "pick_red", "place_yellow", "place_red", "check_box", "overlap_boxes") and has_contact_or_grasp:
+                if (
+                    act_lower
+                    in (
+                        "grasp_tool",
+                        "manipulate_sample",
+                        "pick_yellow",
+                        "pick_red",
+                        "place_yellow",
+                        "place_red",
+                        "check_box",
+                        "overlap_boxes",
+                    )
+                    and has_contact_or_grasp
+                ):
                     evidence_state = EvidenceState.FULL_EVIDENCE
                     fused_confidence = min(1.0, activity_confidence * 1.2)
-                elif act_lower in ("reach_tool", "move_box") and (has_approach_or_near or has_contact_or_grasp):
+                elif act_lower in ("reach_tool", "move_box") and (
+                    has_approach_or_near or has_contact_or_grasp
+                ):
                     evidence_state = EvidenceState.FULL_EVIDENCE
                     fused_confidence = min(1.0, activity_confidence * 1.15)
                 elif not objects:

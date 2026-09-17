@@ -8,11 +8,10 @@ from enum import StrEnum
 from typing import Any
 from uuid import uuid4
 
-from pydantic import BaseModel, Field
-
 from app.audio.tts_engine import tts_engine
 from app.core.event_bus import event_bus
 from app.core.logging import get_logger
+from pydantic import BaseModel, Field
 
 logger = get_logger("app.audio.alerts")
 
@@ -57,7 +56,9 @@ class AlertManager:
             sev = event.get("severity", "INFO")
             self.raise_alert(msg, severity=AlertSeverity(sev))
 
-    def raise_alert(self, message: str, severity: AlertSeverity = AlertSeverity.INFO, source: str = "COPILOT") -> AlertItem:
+    def raise_alert(
+        self, message: str, severity: AlertSeverity = AlertSeverity.INFO, source: str = "COPILOT"
+    ) -> AlertItem:
         """Create and register an alert item."""
         with self._lock:
             alert = AlertItem(

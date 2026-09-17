@@ -53,23 +53,23 @@ class SyntheticKinematicGenerator:
 
         # Canonical baseline centered joint positions (X, Y)
         base_coords = np.zeros((V, 2), dtype=np.float32)
-        base_coords[0] = [0.0, 0.5]     # nose
-        base_coords[1] = [-0.1, 0.55]   # l_eye
-        base_coords[2] = [0.1, 0.55]    # r_eye
-        base_coords[3] = [-0.2, 0.5]    # l_ear
-        base_coords[4] = [0.2, 0.5]     # r_ear
-        base_coords[5] = [-0.4, 0.35]   # l_shoulder
-        base_coords[6] = [0.4, 0.35]    # r_shoulder
-        base_coords[7] = [-0.5, 0.0]    # l_elbow
-        base_coords[8] = [0.5, 0.0]     # r_elbow
-        base_coords[9] = [-0.5, -0.3]   # l_wrist
-        base_coords[10] = [0.5, -0.3]   # r_wrist
+        base_coords[0] = [0.0, 0.5]  # nose
+        base_coords[1] = [-0.1, 0.55]  # l_eye
+        base_coords[2] = [0.1, 0.55]  # r_eye
+        base_coords[3] = [-0.2, 0.5]  # l_ear
+        base_coords[4] = [0.2, 0.5]  # r_ear
+        base_coords[5] = [-0.4, 0.35]  # l_shoulder
+        base_coords[6] = [0.4, 0.35]  # r_shoulder
+        base_coords[7] = [-0.5, 0.0]  # l_elbow
+        base_coords[8] = [0.5, 0.0]  # r_elbow
+        base_coords[9] = [-0.5, -0.3]  # l_wrist
+        base_coords[10] = [0.5, -0.3]  # r_wrist
         base_coords[11] = [-0.2, -0.2]  # l_hip
-        base_coords[12] = [0.2, -0.2]   # r_hip
+        base_coords[12] = [0.2, -0.2]  # r_hip
         base_coords[13] = [-0.2, -0.6]  # l_knee
-        base_coords[14] = [0.2, -0.6]   # r_knee
+        base_coords[14] = [0.2, -0.6]  # r_knee
         base_coords[15] = [-0.2, -1.0]  # l_ankle
-        base_coords[16] = [0.2, -1.0]   # r_ankle
+        base_coords[16] = [0.2, -1.0]  # r_ankle
 
         # Tile across time: (T, V, 2)
         coords = np.tile(base_coords[np.newaxis, :, :], (T, 1, 1))

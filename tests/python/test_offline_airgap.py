@@ -3,8 +3,8 @@
 import os
 import socket
 from pathlib import Path
-import pytest
 
+import pytest
 from app.core.airgap import enforce_airgap
 from app.core.lifecycle import lifecycle
 from app.experiments.experiment_engine import experiment_engine
@@ -32,7 +32,9 @@ def test_airgap_zero_external_network_activity(monkeypatch):
         host = address[0] if isinstance(address, tuple) else address
         # Allow loopback/localhost only
         if host not in ("127.0.0.1", "localhost", "::1"):
-            raise ConnectionRefusedError(f"Air-gap violation: Attempted external connection to {host}")
+            raise ConnectionRefusedError(
+                f"Air-gap violation: Attempted external connection to {host}"
+            )
         return orig_connect(self, address)
 
     monkeypatch.setattr(socket.socket, "connect", guarded_connect)

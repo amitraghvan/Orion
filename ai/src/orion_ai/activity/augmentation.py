@@ -7,6 +7,7 @@ isometric kinematic transformations, temporal pacing variations, and sensor nois
 from __future__ import annotations
 
 import math
+
 import numpy as np
 import torch
 
@@ -32,8 +33,10 @@ class SkeletonKineticAugmenter:
 
     def __call__(self, x: np.ndarray | torch.Tensor) -> np.ndarray:
         """Apply augmentation pipeline to tensor of shape (4, 32, 17)."""
-        is_torch = isinstance(x, torch.Tensor)
-        arr = x.detach().cpu().numpy().copy() if is_torch else x.copy()
+        if isinstance(x, torch.Tensor):  # noqa: SIM108
+            arr = x.detach().cpu().numpy().copy()
+        else:
+            arr = x.copy()
         assert arr.shape == (4, 32, 17), f"Expected shape (4, 32, 17), got {arr.shape}"
 
         if np.random.rand() > self.prob_apply:
@@ -56,7 +59,9 @@ class SkeletonKineticAugmenter:
 
         # 3. Random Planar Rotation (Simulates microgravity tilt)
         if self.max_rotation_deg > 0:
-            angle_rad = math.radians(np.random.uniform(-self.max_rotation_deg, self.max_rotation_deg))
+            angle_rad = math.radians(
+                np.random.uniform(-self.max_rotation_deg, self.max_rotation_deg)
+            )
             cos_a = math.cos(angle_rad)
             sin_a = math.sin(angle_rad)
             cx = np.mean(arr[0])
@@ -68,7 +73,9 @@ class SkeletonKineticAugmenter:
 
         # 4. Random Temporal Stretch / Compression (Pacing variations)
         if self.temporal_stretch_range:
-            stretch = np.random.uniform(self.temporal_stretch_range[0], self.temporal_stretch_range[1])
+            stretch = np.random.uniform(
+                self.temporal_stretch_range[0], self.temporal_stretch_range[1]
+            )
             orig_t = np.linspace(0, 1, 32)
             new_t = np.clip(np.linspace(0, 1 * stretch, 32), 0, 1)
             stretched = np.zeros_like(arr)

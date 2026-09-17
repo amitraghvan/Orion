@@ -8,7 +8,6 @@ from typing import Any
 
 import numpy as np
 import torch
-
 from app.core.logging import get_logger
 
 logger = get_logger("app.intelligence.temporal")
@@ -46,6 +45,7 @@ class TemporalHAREngine:
         self._recent_predictions: deque[str] = deque(maxlen=5)
         # Import canonical transformer
         from orion_ai.activity.feature_transformer import canonical_transformer
+
         self.transformer = canonical_transformer
 
     def set_classes(self, classes: list[str]) -> None:
@@ -124,10 +124,7 @@ class TemporalHAREngine:
 
             self._recent_predictions.append(top_class)
 
-            prob_dict = {
-                self._classes[i]: float(probs[i])
-                for i in range(num_classes)
-            }
+            prob_dict = {self._classes[i]: float(probs[i]) for i in range(num_classes)}
 
             return {
                 "activity": top_class,

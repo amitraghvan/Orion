@@ -73,8 +73,7 @@ async def test_coordinator_fault_isolation_when_har_throws() -> None:
                 person_id=1,
                 bbox=BoundingBox2D(x_min=10, y_min=10, x_max=100, y_max=200, confidence=0.9),
                 keypoints_2d=[
-                    Keypoint2D(id=i, name=f"kp_{i}", x=50.0, y=100.0, score=0.9)
-                    for i in range(17)
+                    Keypoint2D(id=i, name=f"kp_{i}", x=50.0, y=100.0, score=0.9) for i in range(17)
                 ],
                 overall_confidence=0.9,
             )
@@ -84,7 +83,9 @@ async def test_coordinator_fault_isolation_when_har_throws() -> None:
 
     # 5. Faulty HAR Runtime that raises an unhandled Exception
     mock_har = AsyncMock()
-    mock_har.process_frame_poses.side_effect = RuntimeError("Fatal GPU/Memory corruption simulation")
+    mock_har.process_frame_poses.side_effect = RuntimeError(
+        "Fatal GPU/Memory corruption simulation"
+    )
 
     event_bus = InMemoryEventBus()
 

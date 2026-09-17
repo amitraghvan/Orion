@@ -3,15 +3,15 @@
 from __future__ import annotations
 
 import time
+
 import numpy as np
 import psutil
-
 from app.core.paths import paths
-from app.models.model_manager import model_manager
-from app.intelligence.tracker import ObjectTrackerWrapper
-from app.intelligence.hand_object_engine import HandObjectInteractionEngine
 from app.experiments.experiment_loader import load_protocol
 from app.intelligence.decision_engine import ProtocolDecisionEngine
+from app.intelligence.hand_object_engine import HandObjectInteractionEngine
+from app.intelligence.tracker import ObjectTrackerWrapper
+from app.models.model_manager import model_manager
 
 
 def run_benchmark(iterations: int = 50) -> dict:
@@ -68,7 +68,12 @@ def run_benchmark(iterations: int = 50) -> dict:
     # 4. Benchmark Tracking & HOI
     dummy_dets = [
         {"bbox": [100, 100, 200, 200], "confidence": 0.9, "class_id": 0, "class_name": "person"},
-        {"bbox": [300, 300, 380, 380], "confidence": 0.85, "class_id": 1, "class_name": "yellow_box"},
+        {
+            "bbox": [300, 300, 380, 380],
+            "confidence": 0.85,
+            "class_id": 1,
+            "class_name": "yellow_box",
+        },
     ]
     t_track = []
     for _ in range(iterations):
