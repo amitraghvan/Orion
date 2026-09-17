@@ -118,3 +118,67 @@ class GuidanceCard(QFrame):
         )
         self._instruction_lbl.setText(instruction)
         self._action_badge.setText(f"EXPECTED: {expected_action.upper()}")
+
+    def set_ready(self, experiment_title: str = "", experiment_id: str = "") -> None:
+        self._step_badge.setText("PHASE: STANDBY")
+        self._step_badge.setStyleSheet(
+            "background-color: #1e293b; color: #94a3b8; font-family: monospace; "
+            "font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 3px;"
+        )
+        if experiment_id:
+            self._instruction_lbl.setText(
+                f"Protocol [{experiment_id}] ready. Click 'INITIATE MISSION' to begin procedural guidance."
+            )
+            self._action_badge.setText("READY TO START")
+        else:
+            self._instruction_lbl.setText(
+                "Select an experiment protocol to initiate mission telemetry guidance."
+            )
+            self._action_badge.setText("EXPECTED: IDLE")
+
+    def set_standby(self, instruction: str = "") -> None:
+        self._step_badge.setText("PHASE: STANDBY")
+        self._step_badge.setStyleSheet(
+            "background-color: #1e293b; color: #94a3b8; font-family: monospace; "
+            "font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 3px;"
+        )
+        self._instruction_lbl.setText(
+            instruction or "Select an experiment protocol to initiate mission telemetry guidance."
+        )
+        self._action_badge.setText("EXPECTED: IDLE")
+
+    def set_subsystems(
+        self, person_detected: bool, sequence_active: bool, audio_active: bool = True
+    ) -> None:
+        if person_detected:
+            self._chk_person.setText("● SUBJECT: ACQUIRED")
+            self._chk_person.setStyleSheet(
+                "color: #10b981; font-family: monospace; font-size: 9px; font-weight: bold;"
+            )
+        else:
+            self._chk_person.setText("○ SUBJECT: SEARCHING")
+            self._chk_person.setStyleSheet(
+                "color: #64748b; font-family: monospace; font-size: 9px; font-weight: bold;"
+            )
+
+        if sequence_active:
+            self._chk_fsm.setText("● SEQUENCE: ACTIVE")
+            self._chk_fsm.setStyleSheet(
+                "color: #00e5ff; font-family: monospace; font-size: 9px; font-weight: bold;"
+            )
+        else:
+            self._chk_fsm.setText("● SEQUENCE: SYNCED")
+            self._chk_fsm.setStyleSheet(
+                "color: #38bdf8; font-family: monospace; font-size: 9px; font-weight: bold;"
+            )
+
+        if audio_active:
+            self._chk_audio.setText("● AUDIO: ACTIVE")
+            self._chk_audio.setStyleSheet(
+                "color: #a855f7; font-family: monospace; font-size: 9px; font-weight: bold;"
+            )
+        else:
+            self._chk_audio.setText("○ AUDIO: MUTED")
+            self._chk_audio.setStyleSheet(
+                "color: #64748b; font-family: monospace; font-size: 9px; font-weight: bold;"
+            )

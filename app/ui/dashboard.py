@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from app.camera.camera_manager import camera_manager
 from app.core.state_manager import state_manager
 from app.experiments.experiment_engine import experiment_engine
 from app.ui.widgets.alert_banner import AlertBanner
@@ -338,22 +339,69 @@ class DashboardView(QWidget):
         self._timer.start(50)  # 20 Hz UI refresh
 
     def _refresh_ui(self) -> None:
-        # 1. Update Timeline
+        # 0. Camera Feed Smooth Fallback (ensures live video is visible without standby delay)
+        if self.video_widget._image is None:
+            latest_f = camera_manager.latest_frame
+            if latest_f is not None and latest_f.size > 0:
+                snap = state_manager.latest_perception
+                hud_fallback = (
+                    f"FPS: {camera_manager.actual_fps:.1f} | FRAME: #{camera_manager.frame_id:06d}\n"
+                    f"HAR: {snap.recognized_activity.upper()} ({snap.activity_confidence * 100:.0f}%) | OBJS: {len(snap.detected_objects)}"
+                )
+                self.video_widget.update_frame(
+                    frame_bgr=latest_f,
+                    detections=snap.detected_objects,
+                    poses=snap.poses,
+                    hands=snap.hands,
+                    interactions=snap.interactions,
+                    hud_text=hud_fallback,
+                )
+
+        # 1. Update Timeline & Real-Time Guidance Card
         spec = experiment_engine.current_spec
         if spec and spec.steps:
             steps_data = [
                 {"step_number": s.step_number, "description": s.description} for s in spec.steps
             ]
-            self.timeline_widget.set_steps(steps_data, experiment_engine.fsm.current_step_index + 1)
+            current_idx = experiment_engine.fsm.current_step_index
+            self.timeline_widget.set_steps(steps_data, current_idx + 1)
             self.exp_name_lbl.setText(f"{spec.metadata.experiment_id}: {spec.metadata.title}")
 
             total = len(spec.steps)
-            curr = experiment_engine.fsm.current_step_index
-            pct = int((curr / total) * 100) if total > 0 else 0
+            pct = int((current_idx / total) * 100) if total > 0 else 0
             self.progress_bar.setValue(pct)
             self.pct_lbl.setText(f"{pct}%")
 
-        # 2. Update FSM State
+            # Update Guidance Card with real active step
+            if experiment_engine.is_running:
+                curr_step = experiment_engine.fsm.current_step
+                if curr_step:
+                    exp_action = (
+                        curr_step.expected_actions[0] if curr_step.expected_actions else "execute"
+                    )
+                    self.guidance_card.update_guidance(
+                        step_num=curr_step.step_number,
+                        instruction=curr_step.description,
+                        expected_action=exp_action,
+                    )
+            else:
+                self.guidance_card.set_ready(
+                    experiment_title=spec.metadata.title,
+                    experiment_id=spec.metadata.experiment_id,
+                )
+
+        # 2. Update Subsystem indicators on Guidance Card
+        snapshot = state_manager.latest_perception
+        has_person = len(snapshot.poses) > 0 or any(
+            d.get("class_name") == "person" for d in snapshot.detected_objects
+        )
+        self.guidance_card.set_subsystems(
+            person_detected=has_person,
+            sequence_active=experiment_engine.is_running,
+            audio_active=True,
+        )
+
+        # 3. Update FSM State
         fsm_state = experiment_engine.fsm.state.value
         fsm_color = (
             "green"
@@ -365,8 +413,7 @@ class DashboardView(QWidget):
         self.start_btn.setEnabled(fsm_state in ("LOADED", "IDLE", "COMPLETED", "ABORTED"))
         self.stop_btn.setEnabled(fsm_state in ("RUNNING", "STEP_IN_PROGRESS", "PAUSED"))
 
-        # 3. Update Evidence
-        snapshot = state_manager.latest_perception
+        # 4. Update Evidence
         conf_pct = int(snapshot.activity_confidence * 100)
         act_text = f"HAR INFERENCE: {snapshot.recognized_activity.upper()} [{conf_pct}%]"
         self.activity_lbl.setText(act_text)
@@ -406,7 +453,7 @@ class DashboardView(QWidget):
         )
         self.inter_chip.setText(inter_txt)
 
-        # 4. Update Logs Table
+        # 5. Update Logs Table
         timeline = experiment_engine.get_timeline()
         if len(timeline) != self.log_table.rowCount():
             self.log_table.setRowCount(len(timeline))

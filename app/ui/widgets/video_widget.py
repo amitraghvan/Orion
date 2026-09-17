@@ -46,12 +46,10 @@ class VideoViewportWidget(QWidget):
         hud_text: str = "",
     ) -> None:
         """Update frame buffer and trigger repaint."""
-        if frame_bgr is not None and frame_bgr.size > 0:
+        if frame_bgr is not None and getattr(frame_bgr, "size", 0) > 0:
             h, w, c = frame_bgr.shape
             rgb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
             self._image = QImage(rgb.data, w, h, c * w, QImage.Format_RGB888).copy()
-        else:
-            self._image = None
 
         self._detections = detections or []
         self._poses = poses or []

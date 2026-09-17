@@ -37,19 +37,23 @@ class TTSEngine:
             logger.info("Voice alerts disabled in configuration.")
             return True
 
-        # Attempt to initialize pyttsx3
-        try:
-            import pyttsx3
-
-            self._pyttsx3_engine = pyttsx3.init()
-            self._pyttsx3_engine.setProperty("rate", cfg.audio.rate)
-            self._pyttsx3_engine.setProperty("volume", cfg.audio.volume)
-            logger.info("pyttsx3 offline speech engine initialized.")
-        except Exception as exc:
-            logger.warning(
-                "pyttsx3 initialization failed, using system CLI fallback", error=str(exc)
-            )
+        # On macOS, use native 'say' command to avoid Cocoa NSSpeechSynthesizer thread-locking
+        if sys.platform == "darwin":
             self._pyttsx3_engine = None
+            logger.info("Using macOS native speech subsystem ('say').")
+        else:
+            try:
+                import pyttsx3
+
+                self._pyttsx3_engine = pyttsx3.init()
+                self._pyttsx3_engine.setProperty("rate", cfg.audio.rate)
+                self._pyttsx3_engine.setProperty("volume", cfg.audio.volume)
+                logger.info("pyttsx3 offline speech engine initialized.")
+            except Exception as exc:
+                logger.warning(
+                    "pyttsx3 initialization failed, using system CLI fallback", error=str(exc)
+                )
+                self._pyttsx3_engine = None
 
         self._is_running = True
         self._worker_thread = threading.Thread(

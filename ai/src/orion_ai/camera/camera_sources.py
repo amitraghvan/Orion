@@ -142,7 +142,12 @@ class LiveCameraSource(FrameSource):
                     )
                     self._use_native = False
 
-            dev_idx = int(self.source_id) if self.source_id.isdigit() else self.source_id
+            if isinstance(self.source_id, int):
+                dev_idx: int | str = self.source_id
+            elif str(self.source_id).strip().isdigit():
+                dev_idx = int(str(self.source_id).strip())
+            else:
+                dev_idx = self.source_id
             logger.info("Opening LiveCameraSource via OpenCV", device=dev_idx)
 
             # Platform-specific backend hints: AVFoundation on macOS

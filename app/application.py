@@ -91,15 +91,20 @@ class OrionApplication:
         self.dispatcher.frame_ready.connect(self._on_gui_frame)
 
         # 7. Configure Camera
-        source = cfg.camera.source
+        raw_source = cfg.camera.source
         if self.demo_mode or cfg.system.mode == "demo":
             sample_vid = paths.assets_dir / "sample_replay.mp4"
-            source = str(sample_vid)
-            logger.info("Demo mode enabled: Using replay video source", source=source)
+            raw_source = str(sample_vid)
+            logger.info("Demo mode enabled: Using replay video source", source=raw_source)
         elif self.video_override:
-            source = self.video_override
+            raw_source = self.video_override
         elif self.camera_source is not None:
-            source = self.camera_source
+            raw_source = self.camera_source
+
+        # Parse numeric camera index to int for direct hardware acquisition
+        source: str | int = (
+            int(str(raw_source).strip()) if str(raw_source).strip().isdigit() else raw_source
+        )
 
         camera_manager.configure(
             source=source,
@@ -174,55 +179,59 @@ class OrionApplication:
         import time
 
         while self._inference_running:
-            frame_bgr = camera_manager.latest_frame
-            frame_id = camera_manager.frame_id
-            if frame_bgr is None or frame_id == self._last_processed_frame_id:
-                time.sleep(0.005)
-                continue
-
-            self._last_processed_frame_id = frame_id
-            timestamp = time.monotonic()
-
-            # 1. Run Intelligence Pipeline on newest useful frame
-            snapshot = intelligence_engine.process_frame(frame_bgr, frame_id, timestamp)
-            latency_ms = (time.monotonic() - timestamp) * 1000.0
-
-            # Update Telemetry so Top Status Pill CAM01 stays CONNECTED / STREAMING
-            state_manager.update_telemetry(
-                camera_connected=True,
-                camera_fps=camera_manager.actual_fps,
-                inference_latency_ms=latency_ms,
-            )
-
-            # 2. Route Observation to Protocol Engine
-            if experiment_engine.is_running:
-                experiment_engine.process_observation(
-                    activity_label=snapshot.recognized_activity,
-                    confidence=snapshot.activity_confidence,
-                    entropy=snapshot.activity_entropy,
-                )
-
-            # 3. IP Streaming Frame Push
-            if stream_manager.is_running:
-                stream_manager.update_frame(frame_bgr)
-
-            # 4. Emit thread-safe Signal to Qt GUI
-            hud_text = (
-                f"FPS: {camera_manager.actual_fps:.1f} | LAT: {latency_ms:.1f}ms | FRAME: #{frame_id:06d}\n"
-                f"HAR: {snapshot.recognized_activity.upper()} ({snapshot.activity_confidence * 100:.0f}%) | "
-                f"ENTROPY: {snapshot.activity_entropy:.2f} | OBJS: {len(snapshot.detected_objects)}"
-            )
             try:
-                self.dispatcher.frame_ready.emit(
-                    frame_bgr,
-                    snapshot.detected_objects,
-                    snapshot.poses,
-                    snapshot.hands,
-                    snapshot.interactions,
-                    hud_text,
+                frame_bgr = camera_manager.latest_frame
+                frame_id = camera_manager.frame_id
+                if frame_bgr is None or frame_id == self._last_processed_frame_id:
+                    time.sleep(0.005)
+                    continue
+
+                self._last_processed_frame_id = frame_id
+                timestamp = time.monotonic()
+
+                # 1. Run Intelligence Pipeline on newest useful frame
+                snapshot = intelligence_engine.process_frame(frame_bgr, frame_id, timestamp)
+                latency_ms = (time.monotonic() - timestamp) * 1000.0
+
+                # Update Telemetry so Top Status Pill CAM01 stays CONNECTED / STREAMING
+                state_manager.update_telemetry(
+                    camera_connected=True,
+                    camera_fps=camera_manager.actual_fps,
+                    inference_latency_ms=latency_ms,
                 )
-            except RuntimeError:
-                break
+
+                # 2. Route Observation to Protocol Engine
+                if experiment_engine.is_running:
+                    experiment_engine.process_observation(
+                        activity_label=snapshot.recognized_activity,
+                        confidence=snapshot.activity_confidence,
+                        entropy=snapshot.activity_entropy,
+                    )
+
+                # 3. IP Streaming Frame Push
+                if stream_manager.is_running:
+                    stream_manager.update_frame(frame_bgr)
+
+                # 4. Emit thread-safe Signal to Qt GUI
+                hud_text = (
+                    f"FPS: {camera_manager.actual_fps:.1f} | LAT: {latency_ms:.1f}ms | FRAME: #{frame_id:06d}\n"
+                    f"HAR: {snapshot.recognized_activity.upper()} ({snapshot.activity_confidence * 100:.0f}%) | "
+                    f"ENTROPY: {snapshot.activity_entropy:.2f} | OBJS: {len(snapshot.detected_objects)}"
+                )
+                try:
+                    self.dispatcher.frame_ready.emit(
+                        frame_bgr,
+                        snapshot.detected_objects,
+                        snapshot.poses,
+                        snapshot.hands,
+                        snapshot.interactions,
+                        hud_text,
+                    )
+                except RuntimeError:
+                    break
+            except Exception as exc:
+                logger.warning("Inference worker loop caught exception", error=str(exc))
+                time.sleep(0.01)
 
     def _on_gui_frame(
         self,
