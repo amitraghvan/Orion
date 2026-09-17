@@ -81,7 +81,7 @@ class STGCNActivityClassifier(ActivityClassifierInterface):
 
             def _load() -> STGCNHARModel:
                 net = STGCNHARModel(in_channels=4, num_classes=num_classes)
-                state_dict = torch.load(p, map_location=self.device)
+                state_dict = torch.load(p, map_location=self.device, weights_only=True)  # nosec B614
                 net.load_state_dict(state_dict)
                 net.to(self.device)
                 net.eval()

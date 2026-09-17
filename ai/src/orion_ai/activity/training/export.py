@@ -39,7 +39,7 @@ def generate_manifest(
         raise FileNotFoundError(f"Model file does not exist: {model_path}")
 
     # Verify model loading
-    state_dict = torch.load(model_path, map_location="cpu")
+    state_dict = torch.load(model_path, map_location="cpu", weights_only=True)  # nosec B614
     model = STGCNHARModel(in_channels=4, num_classes=len(TRAINED_ACTIVITY_CLASSES))
     model.load_state_dict(state_dict)
     model.eval()

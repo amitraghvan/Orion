@@ -26,8 +26,8 @@ jobs:
 
       - name: Run Bandit AST Security Analysis
         run: |
-          uv run bandit -r backend/src ai/src datasets/src -ll
+          uv run --with bandit bandit -r backend/src ai/src datasets/src -ll
 
       - name: Run Safety Dependency Vulnerability Audit
         run: |
-          uv run safety check --ignore 70612 || true
+          uv run --with safety safety check --ignore 70612 || true
