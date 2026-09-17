@@ -45,9 +45,10 @@ class ModelManagerView(QWidget):
         b_layout.addWidget(title)
         b_layout.addStretch()
 
-        self.bench_btn = QPushButton("⚡ RUN BENCHMARK")
+        self.bench_btn = QPushButton("EXECUTE BENCHMARK")
         self.bench_btn.setStyleSheet(
-            "background-color: #7c3aed; color: white; padding: 6px 14px; border-radius: 4px; font-weight: bold;"
+            "background-color: #3b0764; color: #d8b4fe; border: 1px solid #7c3aed; "
+            "padding: 6px 14px; border-radius: 4px; font-family: monospace; font-size: 11px; font-weight: bold;"
         )
         self.bench_btn.clicked.connect(self._run_benchmarks)
         b_layout.addWidget(self.bench_btn)

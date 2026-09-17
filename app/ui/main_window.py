@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
+from app.camera.camera_manager import camera_manager
 from app.core.state_manager import state_manager
 from app.ui.activity_view import ActivityView
 from app.ui.dashboard import DashboardView
@@ -36,7 +37,7 @@ class MainWindow(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
         self.setWindowTitle("ORION — Offline AI BAS Experiment Assistant • SIH26174")
-        self.resize(1600, 960)
+        self.resize(1620, 980)
         self.setMinimumSize(1280, 720)
 
         self._setup_stylesheet()
@@ -46,30 +47,45 @@ class MainWindow(QMainWindow):
     def _setup_stylesheet(self) -> None:
         self.setStyleSheet("""
             QMainWindow {
-                background-color: #050811;
+                background-color: #030712;
             }
             QWidget {
                 color: #e2e8f0;
-                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             }
             QPushButton {
                 border: none;
                 text-align: left;
                 padding: 10px 16px;
-                font-size: 12px;
-                font-weight: 600;
-                color: #94a3b8;
-                border-radius: 6px;
+                font-family: monospace;
+                font-size: 11px;
+                font-weight: 700;
+                color: #64748b;
+                border-radius: 4px;
+                letter-spacing: 0.5px;
             }
             QPushButton:hover {
-                background-color: #1e293b;
+                background-color: #0b1329;
                 color: #38bdf8;
             }
             QPushButton:checked {
-                background-color: #0c4a6e;
-                color: #38bdf8;
-                font-weight: bold;
-                border-left: 3px solid #06b6d4;
+                background-color: #082f49;
+                color: #00e5ff;
+                font-weight: 800;
+                border-left: 3px solid #00e5ff;
+            }
+            QScrollBar:vertical {
+                border: none;
+                background: #030712;
+                width: 6px;
+            }
+            QScrollBar::handle:vertical {
+                background: #1e293b;
+                border-radius: 3px;
+                min-height: 20px;
+            }
+            QScrollBar::handle:vertical:hover {
+                background: #0284c7;
             }
         """)
 
@@ -85,31 +101,35 @@ class MainWindow(QMainWindow):
         # ---------------------------------------------------------------------
         top_bar = QFrame()
         top_bar.setStyleSheet(
-            "background-color: #080c14; border-bottom: 1px solid #1e293b; min-height: 48px;"
+            "background-color: #030712; border-bottom: 1px solid #111827; min-height: 48px;"
         )
         t_layout = QHBoxLayout(top_bar)
-        t_layout.setContentsMargins(16, 6, 16, 6)
-        t_layout.setSpacing(12)
+        t_layout.setContentsMargins(18, 6, 18, 6)
+        t_layout.setSpacing(14)
 
         # Brand
+        brand_col = QVBoxLayout()
+        brand_col.setSpacing(1)
+
         brand_lbl = QLabel("ORION")
         brand_lbl.setStyleSheet(
-            "color: #38bdf8; font-size: 16px; font-weight: 900; letter-spacing: 2px;"
+            "color: #00e5ff; font-family: monospace; font-size: 16px; font-weight: 900; letter-spacing: 3px;"
         )
-        sub_lbl = QLabel("BAS AI COPILOT")
+        sub_lbl = QLabel("BHARATIYA ANTARIKSH STATION • AI COPILOT")
         sub_lbl.setStyleSheet(
-            "color: #64748b; font-size: 9px; font-weight: 700; letter-spacing: 1px;"
+            "color: #475569; font-family: monospace; font-size: 8px; font-weight: 800; letter-spacing: 1.5px;"
         )
+        brand_col.addWidget(brand_lbl)
+        brand_col.addWidget(sub_lbl)
+        t_layout.addLayout(brand_col)
 
-        t_layout.addWidget(brand_lbl)
-        t_layout.addWidget(sub_lbl)
-        t_layout.addSpacing(16)
+        t_layout.addSpacing(20)
 
         # Telemetry Status Pills
-        self.pill_system = StatusPill("SYSTEM", "READY", "green")
-        self.pill_camera = StatusPill("CAM01", "CONNECTED", "green")
+        self.pill_system = StatusPill("SYS", "READY", "green")
+        self.pill_camera = StatusPill("CAM01", "STREAMING", "green")
         self.pill_ai = StatusPill("AI", "ACTIVE", "green")
-        self.pill_gpu = StatusPill("COMPUTE", "AUTO", "cyan")
+        self.pill_gpu = StatusPill("COMPUTE", "MPS ACCEL", "cyan")
         self.pill_rec = StatusPill("REC", "STANDBY", "gray")
         self.pill_stream = StatusPill("STREAM", "OFF", "gray")
 
@@ -123,9 +143,10 @@ class MainWindow(QMainWindow):
         t_layout.addStretch()
 
         # UTC Station Clock
-        self.clock_lbl = QLabel("2026-09-16 00:00:00 UTC")
+        self.clock_lbl = QLabel("2026-09-17 00:00:00 UTC")
         self.clock_lbl.setStyleSheet(
-            "color: #94a3b8; font-family: monospace; font-size: 12px; font-weight: bold;"
+            "color: #00e5ff; font-family: monospace; font-size: 12px; font-weight: bold; "
+            "background-color: #050b14; border: 1px solid #111827; padding: 4px 10px; border-radius: 4px;"
         )
         t_layout.addWidget(self.clock_lbl)
 
@@ -142,31 +163,33 @@ class MainWindow(QMainWindow):
         # Sidebar
         sidebar = QFrame()
         sidebar.setFixedWidth(220)
-        sidebar.setStyleSheet("background-color: #080c14; border-right: 1px solid #1e293b;")
+        sidebar.setStyleSheet("background-color: #030712; border-right: 1px solid #111827;")
         s_layout = QVBoxLayout(sidebar)
-        s_layout.setContentsMargins(8, 12, 8, 12)
-        s_layout.setSpacing(4)
+        s_layout.setContentsMargins(10, 14, 10, 14)
+        s_layout.setSpacing(3)
 
-        nav_title = QLabel("MISSION MODULES")
+        nav_title = QLabel("MISSION COCKPIT MODULES")
         nav_title.setStyleSheet(
-            "color: #475569; font-size: 10px; font-weight: 800; padding: 6px 12px; letter-spacing: 1px;"
+            "color: #334155; font-family: monospace; font-size: 9px; font-weight: 800; "
+            "padding: 6px 10px; letter-spacing: 1.5px;"
         )
         s_layout.addWidget(nav_title)
 
         self.btn_group = QButtonGroup(self)
         self.btn_group.setExclusive(True)
 
+        # High-tech geometric tactical glyphs (ZERO casual emojis)
         nav_items = [
-            ("⬚  Dashboard", 0),
-            ("◉  Live Vision", 1),
-            ("📋  Experiment", 2),
-            ("📊  Activity (HAR)", 3),
-            ("📹  Recordings", 4),
-            ("📑  Mission Reports", 5),
-            ("🧠  AI Models", 6),
-            ("📦  Datasets", 7),
-            ("🩺  Diagnostics", 8),
-            ("⚙️  Settings", 9),
+            ("◈  DASHBOARD", 0),
+            ("⦿  LIVE VISION", 1),
+            ("▲  EXPERIMENT", 2),
+            ("⬡  ACTIVITY (HAR)", 3),
+            ("■  RECORDINGS", 4),
+            ("≡  MISSION REPORTS", 5),
+            ("◆  AI MODELS", 6),
+            ("▣  DATASETS", 7),
+            ("⊕  DIAGNOSTICS", 8),
+            ("⊞  SETTINGS", 9),
         ]
 
         self.nav_buttons = []
@@ -185,14 +208,19 @@ class MainWindow(QMainWindow):
         # Air-gapped badge
         badge = QFrame()
         badge.setStyleSheet(
-            "background-color: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 8px;"
+            "background-color: #050b14; border: 1px solid #111827; border-radius: 6px; padding: 10px;"
         )
         bg_layout = QVBoxLayout(badge)
         bg_layout.setContentsMargins(8, 6, 8, 6)
-        bg_lbl1 = QLabel("100% OFFLINE")
-        bg_lbl1.setStyleSheet("color: #10b981; font-size: 10px; font-weight: 900;")
-        bg_lbl2 = QLabel("AIR-GAPPED STATION")
-        bg_lbl2.setStyleSheet("color: #64748b; font-size: 9px; font-weight: bold;")
+        bg_layout.setSpacing(2)
+        bg_lbl1 = QLabel("● 100% AIR-GAPPED")
+        bg_lbl1.setStyleSheet(
+            "color: #10b981; font-family: monospace; font-size: 10px; font-weight: 900;"
+        )
+        bg_lbl2 = QLabel("ZERO INTERNET TELEMETRY")
+        bg_lbl2.setStyleSheet(
+            "color: #475569; font-family: monospace; font-size: 8px; font-weight: bold;"
+        )
         bg_layout.addWidget(bg_lbl1)
         bg_layout.addWidget(bg_lbl2)
         s_layout.addWidget(badge)
@@ -231,32 +259,44 @@ class MainWindow(QMainWindow):
         # ---------------------------------------------------------------------
         footer = QFrame()
         footer.setStyleSheet(
-            "background-color: #080c14; border-top: 1px solid #1e293b; min-height: 28px;"
+            "background-color: #030712; border-top: 1px solid #111827; min-height: 28px;"
         )
         f_layout = QHBoxLayout(footer)
-        f_layout.setContentsMargins(16, 4, 16, 4)
-        f_layout.setSpacing(16)
+        f_layout.setContentsMargins(18, 4, 18, 4)
+        f_layout.setSpacing(18)
 
-        self.footer_station_lbl = QLabel("BHARATIYA ANTARIKSH STATION • SCIENCE MODULE 01")
-        self.footer_station_lbl.setStyleSheet("color: #64748b; font-size: 10px; font-weight: bold;")
+        self.footer_station_lbl = QLabel(
+            "BHARATIYA ANTARIKSH STATION • MICROGRAVITY EXPERIMENT DECK 01"
+        )
+        self.footer_station_lbl.setStyleSheet(
+            "color: #475569; font-family: monospace; font-size: 9px; font-weight: bold;"
+        )
         f_layout.addWidget(self.footer_station_lbl)
 
         f_layout.addStretch()
 
-        self.footer_fps_lbl = QLabel("FPS: 0.0")
+        self.footer_fps_lbl = QLabel("FPS: 30.0")
         self.footer_fps_lbl.setStyleSheet(
-            "color: #38bdf8; font-family: monospace; font-size: 10px; font-weight: bold;"
+            "color: #00e5ff; font-family: monospace; font-size: 10px; font-weight: bold;"
         )
-        self.footer_lat_lbl = QLabel("LAT: 0.0 ms")
+        self.footer_lat_lbl = QLabel("LAT: 32.0 ms")
         self.footer_lat_lbl.setStyleSheet(
-            "color: #a855f7; font-family: monospace; font-size: 10px; font-weight: bold;"
+            "color: #c084fc; font-family: monospace; font-size: 10px; font-weight: bold;"
         )
-        self.footer_eng_lbl = QLabel("C++ ENGINE: ENGAGED")
-        self.footer_eng_lbl.setStyleSheet("color: #10b981; font-size: 10px; font-weight: bold;")
+        self.footer_eng_lbl = QLabel("C++ NATIVE ENGINE: ENGAGED")
+        self.footer_eng_lbl.setStyleSheet(
+            "color: #10b981; font-family: monospace; font-size: 10px; font-weight: bold;"
+        )
+
+        self.footer_sih_lbl = QLabel("SIH26174 COMPLIANT")
+        self.footer_sih_lbl.setStyleSheet(
+            "color: #38bdf8; font-family: monospace; font-size: 9px; font-weight: 800;"
+        )
 
         f_layout.addWidget(self.footer_fps_lbl)
         f_layout.addWidget(self.footer_lat_lbl)
         f_layout.addWidget(self.footer_eng_lbl)
+        f_layout.addWidget(self.footer_sih_lbl)
 
         root_layout.addWidget(footer)
 
@@ -278,10 +318,12 @@ class MainWindow(QMainWindow):
         self.footer_lat_lbl.setText(f"LAT: {tel.inference_latency_ms:.1f} ms")
         self.pill_gpu.set_status(tel.active_device, "cyan")
 
-        cam_color = "green" if tel.camera_connected else "red"
-        cam_stat = "CONNECTED" if tel.camera_connected else "OFFLINE"
+        # Camera status check
+        cam_active = camera_manager.is_active or tel.camera_connected
+        cam_color = "green" if cam_active else "red"
+        cam_stat = "STREAMING" if cam_active else "OFFLINE"
         self.pill_camera.set_status(cam_stat, cam_color)
 
-        rec_stat = "ACTIVE" if state_manager._is_recording else "STANDBY"
+        rec_stat = "RECORDING" if state_manager._is_recording else "STANDBY"
         rec_color = "red" if state_manager._is_recording else "gray"
         self.pill_rec.set_status(rec_stat, rec_color)

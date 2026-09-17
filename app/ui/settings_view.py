@@ -102,10 +102,24 @@ class SettingsView(QWidget):
         layout.addWidget(frame)
 
         # Save Button
-        save_btn = QPushButton("💾 SAVE CONFIGURATION")
-        save_btn.setStyleSheet(
-            "background-color: #0284c7; color: white; font-weight: bold; padding: 10px; border-radius: 6px; font-size: 13px;"
-        )
+        save_btn = QPushButton("APPLY & PERSIST CONFIGURATION")
+        save_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #0c4a6e;
+                color: #38bdf8;
+                border: 1px solid #0284c7;
+                font-family: monospace;
+                font-weight: 800;
+                font-size: 11px;
+                letter-spacing: 1px;
+                padding: 10px;
+                border-radius: 5px;
+            }
+            QPushButton:hover {
+                background-color: #0284c7;
+                color: #ffffff;
+            }
+        """)
         save_btn.clicked.connect(self._save_settings)
         layout.addWidget(save_btn)
 

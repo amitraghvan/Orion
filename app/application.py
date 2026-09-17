@@ -185,6 +185,14 @@ class OrionApplication:
 
             # 1. Run Intelligence Pipeline on newest useful frame
             snapshot = intelligence_engine.process_frame(frame_bgr, frame_id, timestamp)
+            latency_ms = (time.monotonic() - timestamp) * 1000.0
+
+            # Update Telemetry so Top Status Pill CAM01 stays CONNECTED / STREAMING
+            state_manager.update_telemetry(
+                camera_connected=True,
+                camera_fps=camera_manager.actual_fps,
+                inference_latency_ms=latency_ms,
+            )
 
             # 2. Route Observation to Protocol Engine
             if experiment_engine.is_running:
@@ -198,10 +206,11 @@ class OrionApplication:
             if stream_manager.is_running:
                 stream_manager.update_frame(frame_bgr)
 
-            # 5. Emit thread-safe Signal to Qt GUI
+            # 4. Emit thread-safe Signal to Qt GUI
             hud_text = (
-                f"FPS: {camera_manager.actual_fps:.1f} | Frame: {frame_id}\n"
-                f"Act: {snapshot.recognized_activity.upper()} ({snapshot.activity_confidence * 100:.0f}%)"
+                f"FPS: {camera_manager.actual_fps:.1f} | LAT: {latency_ms:.1f}ms | FRAME: #{frame_id:06d}\n"
+                f"HAR: {snapshot.recognized_activity.upper()} ({snapshot.activity_confidence * 100:.0f}%) | "
+                f"ENTROPY: {snapshot.activity_entropy:.2f} | OBJS: {len(snapshot.detected_objects)}"
             )
             try:
                 self.dispatcher.frame_ready.emit(

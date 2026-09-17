@@ -81,7 +81,7 @@ class ReportGenerator:
             conf = s.get("confidence", 0.0)
             ts = s.get("timestamp", "")
             expl = s.get("explanation", "").replace("|", "-")
-            status_icon = "✅" if stat == "VALID" else "⚠️"
+            status_icon = "[PASS]" if stat == "VALID" else "[FLAGGED]"
             lines.append(
                 f"| {num:02d} | {exp} | {det} | {status_icon} {stat} | {conf * 100:.1f}% | {ts} | {expl} |"
             )

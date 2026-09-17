@@ -43,9 +43,10 @@ class DatasetView(QWidget):
         b_layout.addWidget(title)
         b_layout.addStretch()
 
-        self.val_btn = QPushButton("✔ VALIDATE INTEGRITY")
+        self.val_btn = QPushButton("VERIFY INTEGRITY")
         self.val_btn.setStyleSheet(
-            "background-color: #059669; color: white; padding: 6px 14px; border-radius: 4px; font-weight: bold;"
+            "background-color: #064e3b; color: #34d399; border: 1px solid #10b981; "
+            "padding: 6px 14px; border-radius: 4px; font-family: monospace; font-size: 11px; font-weight: bold;"
         )
         self.val_btn.clicked.connect(self._validate_dataset)
         b_layout.addWidget(self.val_btn)

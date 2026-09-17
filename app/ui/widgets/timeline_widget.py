@@ -1,4 +1,4 @@
-"""Horizontal graphical step progression timeline widget."""
+"""Horizontal graphical step progression timeline widget for BAS experiment execution."""
 
 from __future__ import annotations
 
@@ -14,9 +14,9 @@ class StepTimelineWidget(QWidget):
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
-        self.setFixedHeight(75)
+        self.setFixedHeight(82)
         self.setStyleSheet(
-            "background-color: #080c14; border: 1px solid #1e293b; border-radius: 8px;"
+            "background-color: #050811; border: 1px solid #1e293b; border-radius: 8px;"
         )
 
         self._steps: list[dict[str, Any]] = []
@@ -37,70 +37,84 @@ class StepTimelineWidget(QWidget):
 
         if not self._steps:
             painter.setPen(QColor("#64748b"))
+            painter.setFont(QFont("Monospace", 10))
             painter.drawText(
-                self.rect(), Qt.AlignCenter, "No active experiment protocol steps loaded"
+                self.rect(), Qt.AlignCenter, "[ AWAITING EXPERIMENT PROTOCOL INITIALIZATION ]"
             )
             return
 
-        w = self.width()
-        h = self.height()
+        w = float(self.width())
+        h = float(self.height())
         n = len(self._steps)
         if n == 0:
             return
 
-        spacing = w / (n + 1)
-        cy = h / 2.0
+        slot_w = w / float(n)
+        cy = 28.0
 
-        # Draw connecting line
-        line_pen = QPen(QColor("#334155"), 2)
+        # Background track line
+        line_pen = QPen(QColor("#1e293b"), 3)
         painter.setPen(line_pen)
-        painter.drawLine(QPointF(spacing, cy), QPointF(spacing * n, cy))
+        start_x = slot_w * 0.5
+        end_x = slot_w * (float(n) - 0.5)
+        painter.drawLine(QPointF(start_x, cy), QPointF(end_x, cy))
 
-        # Completed line
+        # Completed track line
         completed_count = min(self._current_step_num - 1, n)
         if completed_count > 0:
             comp_pen = QPen(QColor("#10b981"), 3)
             painter.setPen(comp_pen)
-            painter.drawLine(QPointF(spacing, cy), QPointF(spacing * max(1, completed_count), cy))
+            active_end_x = slot_w * (float(completed_count) - 0.5)
+            painter.drawLine(QPointF(start_x, cy), QPointF(active_end_x, cy))
 
-        font_num = QFont("Helvetica", 9, QFont.Bold)
-        font_lbl = QFont("Helvetica", 8)
+        font_num = QFont("Monospace", 9, QFont.Bold)
+        font_lbl = QFont("Monospace", 8, QFont.Bold)
 
-        # Draw step nodes
+        # Draw step milestones
         for idx, step in enumerate(self._steps):
             step_num = step.get("step_number", idx + 1)
-            cx = spacing * (idx + 1)
+            cx = slot_w * (float(idx) + 0.5)
 
-            # Node color
+            # Node styling based on progression
             if step_num < self._current_step_num:
-                node_brush = QBrush(QColor("#10b981"))  # Completed
-                border_pen = QPen(QColor("#34d399"), 2)
+                node_brush = QBrush(QColor("#064e3b"))
+                border_pen = QPen(QColor("#10b981"), 2)
                 symbol = "✓"
-                text_color = QColor("#10b981")
+                text_color = QColor("#34d399")
             elif step_num == self._current_step_num:
-                node_brush = QBrush(QColor("#06b6d4"))  # Active
-                border_pen = QPen(QColor("#38bdf8"), 3)
-                symbol = f"{step_num}"
-                text_color = QColor("#38bdf8")
+                node_brush = QBrush(QColor("#0c4a6e"))
+                border_pen = QPen(QColor("#00e5ff"), 2)
+                symbol = f"{step_num:02d}"
+                text_color = QColor("#00e5ff")
             else:
-                node_brush = QBrush(QColor("#1e293b"))  # Pending
-                border_pen = QPen(QColor("#475569"), 1)
-                symbol = f"{step_num}"
+                node_brush = QBrush(QColor("#0b0f19"))
+                border_pen = QPen(QColor("#334155"), 1)
+                symbol = f"{step_num:02d}"
                 text_color = QColor("#64748b")
 
-            # Draw circle
+            # Draw outer glow circle for active step
+            if step_num == self._current_step_num:
+                glow_pen = QPen(QColor(0, 229, 255, 60), 4)
+                painter.setPen(glow_pen)
+                painter.setBrush(Qt.NoBrush)
+                painter.drawEllipse(QPointF(cx, cy), 17, 17)
+
+            # Draw milestone circle
             painter.setBrush(node_brush)
             painter.setPen(border_pen)
-            painter.drawEllipse(QPointF(cx, cy - 6), 14, 14)
+            painter.drawEllipse(QPointF(cx, cy), 13, 13)
 
-            # Draw symbol
+            # Draw step number / checkmark
             painter.setPen(QColor("#ffffff"))
             painter.setFont(font_num)
-            painter.drawText(QRectF(cx - 14, cy - 20, 28, 28), Qt.AlignCenter, symbol)
+            painter.drawText(QRectF(cx - 13, cy - 13, 26, 26), Qt.AlignCenter, symbol)
 
-            # Draw label
+            # Draw step label
             painter.setFont(font_lbl)
             painter.setPen(text_color)
             desc = step.get("description", f"Step {step_num}")
-            short_desc = (desc[:10] + "..") if len(desc) > 10 else desc
-            painter.drawText(QRectF(cx - 40, cy + 12, 80, 20), Qt.AlignCenter, short_desc)
+
+            # Clean formatting for space-efficient display
+            clean_desc = desc.replace("Pick up", "Pick").replace("Place down", "Place")
+            lbl_rect = QRectF(cx - (slot_w * 0.48), cy + 16, slot_w * 0.96, 32)
+            painter.drawText(lbl_rect, Qt.AlignHCenter | Qt.TextWordWrap, clean_desc)

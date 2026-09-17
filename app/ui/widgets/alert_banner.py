@@ -17,8 +17,8 @@ class AlertBanner(QFrame):
         layout.setContentsMargins(16, 10, 16, 10)
         layout.setSpacing(12)
 
-        self._icon = QLabel("⚠️")
-        self._icon.setStyleSheet("font-size: 18px;")
+        self._icon = QLabel("▲")
+        self._icon.setStyleSheet("color: #ef4444; font-size: 16px; font-weight: 900;")
 
         self._text_label = QLabel("PROTOCOL VIOLATION DETECTED")
         self._text_label.setStyleSheet("font-size: 12px; font-weight: 700; color: #fecaca;")

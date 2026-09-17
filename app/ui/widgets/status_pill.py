@@ -9,11 +9,11 @@ class StatusPill(QWidget):
     """Compact status pill with LED dot and bold label."""
 
     THEMES = {
-        "green": ("#10b981", "rgba(16, 185, 129, 0.2)", "#34d399"),
-        "cyan": ("#06b6d4", "rgba(6, 182, 212, 0.2)", "#67e8f9"),
-        "yellow": ("#eab308", "rgba(234, 179, 8, 0.2)", "#fde047"),
-        "red": ("#ef4444", "rgba(239, 68, 68, 0.2)", "#fca5a5"),
-        "gray": ("#64748b", "rgba(100, 116, 139, 0.2)", "#94a3b8"),
+        "green": ("#10b981", "rgba(16, 185, 129, 0.15)", "#34d399"),
+        "cyan": ("#00e5ff", "rgba(0, 229, 255, 0.15)", "#38bdf8"),
+        "yellow": ("#eab308", "rgba(234, 179, 8, 0.15)", "#fde047"),
+        "red": ("#ef4444", "rgba(239, 68, 68, 0.15)", "#fca5a5"),
+        "gray": ("#64748b", "rgba(100, 116, 139, 0.15)", "#94a3b8"),
     }
 
     def __init__(
@@ -25,20 +25,22 @@ class StatusPill(QWidget):
         self._color = color
 
         layout = QHBoxLayout(self)
-        layout.setContentsMargins(8, 4, 8, 4)
-        layout.setSpacing(6)
+        layout.setContentsMargins(8, 3, 8, 3)
+        layout.setSpacing(5)
 
         self._title_label = QLabel(f"{title}:")
-        self._title_label.setStyleSheet("color: #94a3b8; font-size: 11px; font-weight: 600;")
-
-        self._dot = QLabel("●")
-        self._dot.setStyleSheet(
-            f"color: {self.THEMES.get(color, self.THEMES['green'])[0]}; font-size: 10px;"
+        self._title_label.setStyleSheet(
+            "color: #64748b; font-family: monospace; font-size: 10px; font-weight: 700;"
         )
 
+        self._dot = QLabel("●")
+        dot_color, _, _ = self.THEMES.get(color, self.THEMES["green"])
+        self._dot.setStyleSheet(f"color: {dot_color}; font-size: 9px;")
+
         self._status_label = QLabel(status)
+        _, _, text_color = self.THEMES.get(color, self.THEMES["green"])
         self._status_label.setStyleSheet(
-            f"color: {self.THEMES.get(color, self.THEMES['green'])[2]}; font-size: 11px; font-weight: 700;"
+            f"color: {text_color}; font-family: monospace; font-size: 10px; font-weight: 800; letter-spacing: 0.5px;"
         )
 
         layout.addWidget(self._title_label)
@@ -51,17 +53,18 @@ class StatusPill(QWidget):
         self._status = status
         self._color = color
         dot_color, _, text_color = self.THEMES.get(color, self.THEMES["green"])
-        self._dot.setStyleSheet(f"color: {dot_color}; font-size: 10px;")
+        self._dot.setStyleSheet(f"color: {dot_color}; font-size: 9px;")
         self._status_label.setText(status)
-        self._status_label.setStyleSheet(f"color: {text_color}; font-size: 11px; font-weight: 700;")
+        self._status_label.setStyleSheet(
+            f"color: {text_color}; font-family: monospace; font-size: 10px; font-weight: 800; letter-spacing: 0.5px;"
+        )
         self._update_style()
 
     def _update_style(self) -> None:
-        _, bg_color, _ = self.THEMES.get(self._color, self.THEMES["green"])
         self.setStyleSheet("""
             StatusPill {
-                background-color: #0f172a;
-                border: 1px solid #1e293b;
-                border-radius: 6px;
+                background-color: #060b14;
+                border: 1px solid #111827;
+                border-radius: 4px;
             }
         """)
