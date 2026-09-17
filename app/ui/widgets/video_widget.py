@@ -190,9 +190,12 @@ class VideoViewportWidget(QWidget):
                     ky = kpts[j][1] * scale + oy
                     painter.drawEllipse(QPointF(kx, ky), 3.5, 3.5)
 
+        painter.setBrush(Qt.NoBrush)
+
     def _draw_bounding_boxes(self, painter: QPainter, scale: float, ox: float, oy: float) -> None:
         font = QFont("Monospace", 9, QFont.Bold)
         painter.setFont(font)
+        painter.setBrush(Qt.NoBrush)
 
         for obj in self._detections:
             box = obj.get("bbox", [0, 0, 0, 0])
@@ -222,7 +225,8 @@ class VideoViewportWidget(QWidget):
             # Draw tactical corner brackets instead of flat box
             pen = QPen(box_color, 2)
             painter.setPen(pen)
-            c_len = min(12.0, w / 3.0, h / 3.0)
+            painter.setBrush(Qt.NoBrush)
+            c_len = min(14.0, w / 4.0, h / 4.0)
 
             # Top-Left corner
             painter.drawLine(QPointF(x1, y1), QPointF(x1 + c_len, y1))
@@ -237,8 +241,9 @@ class VideoViewportWidget(QWidget):
             painter.drawLine(QPointF(x1 + w, y1 + h), QPointF(x1 + w - c_len, y1 + h))
             painter.drawLine(QPointF(x1 + w, y1 + h), QPointF(x1 + w, y1 + h - c_len))
 
-            # Draw subtle bounding box outline
-            thin_pen = QPen(QColor(box_color.red(), box_color.green(), box_color.blue(), 70), 1)
+            # Draw subtle bounding box outline (UNFILLED)
+            painter.setBrush(Qt.NoBrush)
+            thin_pen = QPen(QColor(box_color.red(), box_color.green(), box_color.blue(), 50), 1)
             painter.setPen(thin_pen)
             painter.drawRect(QRectF(x1, y1, w, h))
 
@@ -271,6 +276,8 @@ class VideoViewportWidget(QWidget):
             h = (box[3] - box[1]) * scale
             painter.drawEllipse(QRectF(x1, y1, w, h))
 
+        painter.setBrush(Qt.NoBrush)
+
     def _draw_interaction_vectors(
         self, painter: QPainter, scale: float, ox: float, oy: float
     ) -> None:
@@ -302,7 +309,9 @@ class VideoViewportWidget(QWidget):
 
         hud_x = ox + 12
         hud_y = oy + 12
-        box_w = 340
+        painter.setFont(font_body)
+        max_line_w = max(painter.fontMetrics().boundingRect(line).width() for line in hud_lines)
+        box_w = max(320, max_line_w + 24)
         box_h = 24 + len(hud_lines) * 16
 
         # Draw HUD dark glass container
