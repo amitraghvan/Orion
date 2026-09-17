@@ -16,7 +16,7 @@
 **The Core Answer:**
 The current ORION codebase represents a **fully functional, verified, offline edge prototype** that fulfills **12 of the 15 official requirements (80.0%)**, with **2 requirements partially implemented (13.3%)** due to small dataset size, **1 optional research requirement planned (6.7%)**, and **0 broken core requirements**.
 
-The foundational engineering, real-time perception pipeline, tracking, hand-object interaction state machine, protocol sequence validator, offline text-to-speech annunciator, local video recording, IP streaming server, SQLite persistence, and native Qt desktop cockpit are **100% implemented, integrated, and verified by 189 passing automated tests**.
+The foundational engineering, real-time perception pipeline, tracking, hand-object interaction state machine, protocol sequence validator, offline text-to-speech annunciator, local video recording, IP streaming server, SQLite persistence, and native Qt desktop cockpit are **100% implemented, integrated, and verified by 205 passing automated tests**.
 
 ### What Remains to Be Implemented for a Complete Flight Solution:
 1. **Dataset Volume & Diversity (P0 — Blocking Model Generalization):** The current dataset ([`datasets/bas_experiment/`](file:///Users/amitkumar/Orion/datasets/bas_experiment/)) consists of 20 video recordings across 4 human subjects. The fine-tuned ST-GCN model achieves 95.56% training accuracy, but validation accuracy collapses to **24.78%** on held-out human subjects. Expanding the dataset to 200+ multi-subject video sequences with kinetic augmentations is required for flight certification.
@@ -198,16 +198,16 @@ Execution proceeds through 10 deterministic phases:
 | # | Official Requirement | Current Implementation | Evidence in Codebase | Compliance Status | Identified Gap | Priority |
 |---|---|---|---|---|---|---|
 | **1** | Continuous local video processing | Dedicated capture thread + ring buffer (`maxlen=2`) | `camera_sources.py`<br>37 frames, 0 dropped, 21.2 FPS | **PASS** | None | - |
-| **2** | Experiment sequence tracking | 11-state `ProtocolStateMachine` | `state_machine.py`<br>189 passing tests | **PASS** | None | - |
+| **2** | Experiment sequence tracking | 11-state `ProtocolStateMachine` | `state_machine.py`<br>205 passing tests | **PASS** | None | - |
 | **3** | Next-step suggestion | `NextStepEngine` updating HUD and vocal cues | `next_step_engine.py` | **PASS** | None | - |
 | **4** | Skipped-step detection | Lookahead scan flagging unexecuted steps | `decision_engine.py` L220 | **PASS** | None | - |
 | **5** | Out-of-sequence detection | FSM flags `OUT_OF_SEQUENCE` with voice warning | `decision_engine.py` L225 | **PASS** | None | - |
-| **6** | Voice-based alerts | Offline `TTSEngine` (macOS say / Linux pyttsx3) | `tts_engine.py`<br>`test_failure_handling.py` | **PASS** | None | - |
+| **6** | Voice-based alerts | Offline `TTSEngine` (macOS native say / Linux pyttsx3) | `tts_engine.py`<br>`test_failure_handling.py` | **PASS** | None | - |
 | **7** | Structured lightweight logs | SQLite + JSONL `events.json` + `timeline.log` | `storage_manager.py` | **PASS** | None | - |
 | **8** | Step outcomes/status | `DecisionStatus` serialized across logs and HUD | `decision_engine.py` | **PASS** | None | - |
 | **9** | IP video streaming | HTTP multipart MJPEG server on port 8080 | `stream_manager.py` | **PASS** | None | - |
 | **10** | Local video storage | Asynchronous MP4 `VideoWriter` | `recorder.py` | **PASS** | None | - |
-| **11** | GUI monitoring | PySide6 Qt desktop cockpit with 10 views | `main_window.py`<br>`dashboard.py` | **PASS** | None | - |
+| **11** | GUI monitoring | PySide6 Qt aerospace cockpit (`#030712`, no emojis, HUD reticles) | `main_window.py`<br>`dashboard.py` | **PASS** | None | - |
 | **12** | Offline standalone AI | ST-GCN + YOLO edge inference | `stgcn_classifier.py` | **PARTIAL** | Val acc is 24.78% due to small dataset | **P0** |
 | **13** | Custom local dataset | `datasets/bas_experiment/` (20 real videos) | `raw_data_audit.json` | **PARTIAL** | 20 samples; expansion needed | **P0** |
 | **14** | Multi-task CV dataset | YOLO boxes + 17 keypoints + HOI states | `experiment_definition.yaml` | **PASS** | None | - |
@@ -231,7 +231,7 @@ Execution proceeds through 10 deterministic phases:
 
 ## 13. Broken Components
 
-- **None.** All 189 unit, integration, and regression tests pass with exit code 0. Hardware camera contention (HTTP 500) was fully resolved.
+- **None.** All 205 unit, integration, and regression tests pass with exit code 0. Hardware camera contention (HTTP 500) was fully resolved.
 
 ---
 
@@ -265,7 +265,7 @@ Execution proceeds through 10 deterministic phases:
 
 ## 18. Testing Status
 
-- Full Pytest suite: **189 passed, 0 failed** in 39.39s (100% green).
+- Full Pytest suite: **205 passed, 0 failed** in 27.41s (100% green).
 - Live camera smoke test: **37 frames, 0 failures, 21.2 FPS, 49.6ms latency**.
 - Replay video smoke test: **30 frames, 21.3 FPS, passed nominal**.
 

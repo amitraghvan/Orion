@@ -50,7 +50,7 @@ docs/
 │
 ├── 05-testing/                        # SECTION 5: Verification & Quality Assurance
 │   ├── 01_test-strategy.md            # Multi-tiered aerospace verification plan (DO-178C)
-│   └── 02_validation-results.md       # Full automated test run (189/189 tests passing)
+│   └── 02_validation-results.md       # Full automated test run (205/205 tests passing)
 │
 ├── 06-performance/                    # SECTION 6: Empirical Benchmarks & Profiling
 │   └── 01_benchmark.md                # Measured CPU, MPS, and FSM latency benchmarks

@@ -3,7 +3,7 @@
 **Project:** ORION — AI Human Activity Recognition for On-board BAS Experiments (SIH26174)  
 **Organization:** Indian Space Research Organisation (ISRO)  
 **Date:** September 17, 2026  
-**Status:** IMPLEMENTED & EXECUTED (189/189 TESTS PASSING)  
+**Status:** IMPLEMENTED & EXECUTED (205/205 TESTS PASSING)  
 
 ---
 
@@ -41,13 +41,14 @@ ORION enforces a multi-tiered aerospace-aligned testing strategy (DO-178C softwa
 
 ## 2. Test Suite Architecture
 
-| Test Suite | Directory | Test Files Count | Scope & Focus |
+| Test Suite | Directory | Files / Tests | Scope & Focus |
 |---|---|---|---|
-| **Unit Tests** | [`tests/unit/`](file:///Users/amitkumar/Orion/tests/unit/) | 28 files | ST-GCN graph topology, mathematical invariance, ByteTrack multi-class tracking, Kalman filtering, bounding box IoU, temporal smoothing, protocol loader, entropy calculation. |
-| **Python Regression Tests** | [`tests/python/`](file:///Users/amitkumar/Orion/tests/python/) | 9 files | Authoritative camera subsystem, bounded ring buffer, FSM lifecycle, decision engine debouncing, canonical 16-event bus pub/sub, 13-subsystem health derivation, failure resilience, C++ pybind11 native module. |
-| **Integration Tests** | [`tests/integration/`](file:///Users/amitkumar/Orion/tests/integration/) | 4 files | End-to-end perception pipeline, FastAPI lifespan startup/shutdown, WebSocket telemetry fanout, security endpoints. |
-| **Contract Tests** | [`tests/contract/`](file:///Users/amitkumar/Orion/tests/contract/) | 2 files | Pydantic and OpenAPI schema validation for REST endpoints. |
-| **Golden Tests** | [`tests/golden/`](file:///Users/amitkumar/Orion/tests/golden/) | 1 file | Regression tests comparing perception outputs against verified golden observations. |
+| **Unit Tests** | [`tests/unit/`](file:///Users/amitkumar/Orion/tests/unit/) | 29 files / 66 tests | ST-GCN graph topology, mathematical microgravity invariance, ByteTrack multi-class tracking, Kalman filtering, bounding box IoU, temporal smoothing, feature transforms, protocol loader, entropy calculation. |
+| **Python Regression Tests** | [`tests/python/`](file:///Users/amitkumar/Orion/tests/python/) | 13 files / 44 tests | Authoritative camera subsystem, bounded ring buffer, FSM lifecycle, decision engine debouncing, canonical 16-event bus pub/sub, 13-subsystem health derivation, failure resilience, offline airgap verification, recording & reports runtime, C++ pybind11 native module. |
+| **Integration Tests** | [`tests/integration/`](file:///Users/amitkumar/Orion/tests/integration/) | 8 files / 57 tests | End-to-end perception pipeline, FastAPI lifespan startup/shutdown, database migrations & sessions, runtime health contracts, security authentication, WebSocket telemetry fanout. |
+| **Contract Tests** | [`tests/contract/`](file:///Users/amitkumar/Orion/tests/contract/) | 2 files / 3 tests | Pydantic and OpenAPI schema validation for domain events and experiment protocols. |
+| **Golden Tests** | [`tests/golden/`](file:///Users/amitkumar/Orion/tests/golden/) | 2 files / 35 tests | Regression tests comparing perception and HOI outputs against verified golden observations and protocol scenarios. |
+| **Total Test Suite** | [`tests/`](file:///Users/amitkumar/Orion/tests/) | **54 files / 205 tests** | **100% Passing (0 failures, 27.41s execution duration)** |
 
 ---
 

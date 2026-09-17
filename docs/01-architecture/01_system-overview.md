@@ -104,7 +104,9 @@ The diagram below reflects the **actual verified runtime architecture** implemen
 - **13 Subsystems Monitored:** Real-time health derivation covering camera, AI, detection, pose, hand, HOI, HAR, FSM, database, voice, recording, streaming, and compute acceleration.
 
 ### 2.5 Presentation & Monitoring (`app/ui/`)
-- **PySide6 Native Cockpit:** High-frequency, air-gapped desktop GUI operating with sub-millisecond UI latency.
-- **Zero-Copy Rendering:** Decoupled Qt signal/slot transfer displaying bounding boxes, skeletal joints, hand indicators, and interaction vectors directly overlaid on video.
-- **Web Telemetry:** Secondary FastAPI REST API and WebSocket streaming telemetry for remote mission observation.
-- **Network Streaming:** HTTP multipart/x-mixed-replace MJPEG server broadcasting live annotated video over IP.
+- **Aerospace Dark Cockpit Theme:** High-contrast OLED space black palette (`#030712`) compliant with aerospace human factors standards, eliminating ocular glare in dim spacecraft payload modules. Casual emojis are replaced with strictly scientific brackets and telemetry states (`[NOMINAL]`, `[STANDBY]`, `[ACTIVE]`, `● LIVE`).
+- **Transparent Tactical Reticles:** Video annotations render bounding boxes as non-occluding corner brackets (`┌ ┐ └ ┘`) using strict `Qt.NoBrush` transparency, eliminating solid green obstruction over the camera viewport while preserving tactical target location.
+- **Dynamic Guidance & Subsystem HUD:** Dynamic status card displaying real-time guidance prompts and active subsystem telemetry indicators (`● SUBJECT: ACQUIRED`, `● SEQUENCE: ACTIVE`, `● AUDIO: ACTIVE`).
+- **Decoupled 30 FPS Ingestion & Rendering:** UI refresh timer executes on a 33 ms heartbeat rendering the latest available camera frame independently of downstream AI perception latency, guaranteeing fluid 30 FPS viewport playback without frame tearing or latency accumulation.
+- **Native Offline Speech Synthesis:** Audio annunciator natively leverages macOS `/usr/bin/say` subprocess on Darwin (bypassing Cocoa `runAndWait` thread deadlocks) and `pyttsx3`/`espeak` on Linux, prioritizing safety warnings with automatic cooldown suppression.
+- **Web Telemetry & IP Streaming:** Secondary FastAPI REST router, WebSocket telemetry fanout, and HTTP multipart/x-mixed-replace MJPEG server (`http://127.0.0.1:8080/live`) for remote spacecraft intranet monitoring.

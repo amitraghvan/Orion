@@ -12,6 +12,7 @@
 | Execution Mode | Entry Point Command | Primary Implementation File | Description |
 |---|---|---|---|
 | **Production Desktop** | `./launch.sh` or `python run.py` | [`run.py`](file:///Users/amitkumar/Orion/run.py) → [`app/main.py`](file:///Users/amitkumar/Orion/app/main.py) | Full native PySide6 desktop assistant with live camera, AI, TTS, and local storage |
+| **Live Camera Index** | `python run.py --camera <index>` | [`app/main.py`](file:///Users/amitkumar/Orion/app/main.py) | Launches desktop cockpit targeting a specific hardware camera device (e.g., `--camera 0`) |
 | **Demo / Replay** | `python run.py --demo` | [`app/main.py`](file:///Users/amitkumar/Orion/app/main.py) | Offline demonstration mode looping `assets/sample_replay.mp4` |
 | **Video File Override** | `python run.py --video <path.mp4>` | [`app/main.py`](file:///Users/amitkumar/Orion/app/main.py) | Runs full desktop cockpit on a specific pre-recorded BAS video |
 | **Custom Protocol** | `python run.py --protocol <path.yaml>` | [`app/main.py`](file:///Users/amitkumar/Orion/app/main.py) | Preloads a specific BAS protocol specification |

@@ -14,9 +14,9 @@ The Voice Alert System is implemented in [`app/audio/tts_engine.py`](file:///Use
 ### Critical Air-Gap Compliance Check:
 - **Cloud Dependency Check:** **ZERO.** No calls to Google Cloud Text-to-Speech, ElevenLabs, OpenAI Audio, or AWS Polly.
 - **Offline Speech Providers:**
-  1. **Cross-Platform:** `pyttsx3` offline speech synthesis engine (uses SAPI5 on Windows, NSSpeechSynthesizer on macOS, eSpeak on Linux).
-  2. **macOS Native Fallback:** System CLI utility `/usr/bin/say`.
-  3. **Linux Native Fallback:** System CLI utility `/usr/bin/espeak` or `/usr/bin/espeak-ng`.
+  1. **macOS Native Subprocess Engine (Darwin):** System binary `/usr/bin/say` invoked via `subprocess.run` with discrete sanitized argument lists. This directly avoids Cocoa `NSSpeechSynthesizer` run-loop conflicts and thread hangs that occur with `pyttsx3.runAndWait()` inside Qt event loops.
+  2. **Cross-Platform Offline Engine:** `pyttsx3` offline speech synthesis engine (uses SAPI5 on Windows and eSpeak on Linux).
+  3. **Linux Native CLI Fallback:** System CLI utility `/usr/bin/espeak` or `/usr/bin/espeak-ng`.
 - **Runtime Execution:** Operates completely within an independent background worker thread (`TTSWorkerThread`), ensuring audio rendering never blocks the 30 FPS video pipeline.
 
 ---

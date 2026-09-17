@@ -12,7 +12,7 @@
 
 | Execution Target | Command Line | Total Tests / Cycles | Passed | Failed | Duration | Status |
 |---|---|---|---|---|---|---|
-| **Full Automated Pytest Suite** | `.venv/bin/pytest tests/` | 189 tests | **189** | **0** | 39.39 s | **PASS (100%)** |
+| **Full Automated Pytest Suite** | `.venv/bin/pytest tests/` | 205 tests | **205** | **0** | 27.41 s | **PASS (100%)** |
 | **System Doctor Diagnostics** | `.venv/bin/python scripts/doctor.py` | 7 checks | **7** | **0** | 0.42 s | **PASS (100%)** |
 | **Live Camera Hardware Smoke Test** | `.venv/bin/python scripts/smoke_test_live_camera.py` | 37 frames | **37** | **0** | 1.70 s | **PASS (NOMINAL)** |
 | **Replay Video Smoke Test** | `.venv/bin/python scripts/smoke_test_replay.py` | 30 frames | **30** | **0** | 1.41 s | **PASS (NOMINAL)** |
@@ -25,53 +25,66 @@
 
 ```
 =================================== test session starts ===================================
-platform darwin -- Python 3.11.14, pytest-8.3.4, pluggy-1.5.0
+platform darwin -- Python 3.11.14, pytest-9.1.1, pluggy-1.6.0
 rootdir: /Users/amitkumar/Orion
 configfile: pyproject.toml
-collected 189 items
+plugins: cov-7.1.0, asyncio-1.4.0, hypothesis-6.167.1, anyio-4.15.1
+collected 205 items
 
-tests/contract/test_contract_schemas.py ..                                          [  1%]
-tests/golden/test_golden_observations.py .                                          [  1%]
-tests/integration/test_db_session.py ...                                            [  3%]
-tests/integration/test_end_to_end_pipeline.py .                                     [  3%]
-tests/integration/test_perception_runtime_lifecycle.py .......                      [  7%]
-tests/integration/test_security.py .                                                [  7%]
-tests/python/test_camera_subsystem.py ....                                          [ 10%]
-tests/python/test_config.py .                                                       [ 10%]
-tests/python/test_decision_engine.py ......                                         [ 13%]
-tests/python/test_event_bus_and_health.py ..                                        [ 14%]
-tests/python/test_failure_handling.py .....                                         [ 17%]
-tests/python/test_fsm.py ......                                                     [ 20%]
-tests/python/test_native_engine.py ....                                             [ 22%]
-tests/python/test_report_generator.py .                                             [ 23%]
-tests/python/test_structured_observation.py .                                       [ 23%]
-tests/unit/test_bas_protocol_validation.py ...                                      [ 25%]
-tests/unit/test_byte_tracker.py .                                                   [ 25%]
-tests/unit/test_byte_tracker_multiclass.py ..                                       [ 26%]
-tests/unit/test_camera_capture_worker.py ..                                         [ 27%]
-tests/unit/test_camera_driver.py ..                                                 [ 28%]
-tests/unit/test_config.py ..                                                        [ 30%]
-tests/unit/test_detector.py ..                                                      [ 31%]
-tests/unit/test_di.py ...                                                           [ 32%]
-tests/unit/test_event_bus.py ....                                                   [ 34%]
-tests/unit/test_exceptions.py ..                                                    [ 35%]
-tests/unit/test_har_fault_isolation.py .                                            [ 36%]
-tests/unit/test_har_multi_person.py .                                               [ 37%]
-tests/unit/test_metrics.py ..                                                       [ 38%]
-tests/unit/test_model_loader.py ....                                                [ 40%]
-tests/unit/test_models.py .                                                         [ 40%]
-tests/unit/test_pose_association.py ...                                             [ 42%]
-tests/unit/test_pose_estimator.py ..                                                [ 43%]
-tests/unit/test_protocol_engine.py ......                                           [ 46%]
-tests/unit/test_stgcn_classifier.py .                                               [ 47%]
-tests/unit/test_stgcn_graph.py .....                                                [ 49%]
-tests/unit/test_stgcn_model.py ....                                                 [ 51%]
-tests/unit/test_telemetry_fanout.py ..                                              [ 52%]
-tests/unit/test_temporal_buffer.py ....                                             [ 55%]
-tests/unit/test_temporal_smoothing.py ...                                           [ 56%]
-... (all 189 tests passing without failure)
+tests/contract/test_event_schemas.py ..                                  [  0%]
+tests/contract/test_experiment_schema.py .                               [  1%]
+tests/golden/test_hoi_scenarios.py ....................                  [ 11%]
+tests/golden/test_protocol_scenarios.py ...............                  [ 18%]
+tests/integration/test_api_health.py ...                                 [ 20%]
+tests/integration/test_database_migrations.py ..........                 [ 24%]
+tests/integration/test_db_session.py .                                   [ 25%]
+tests/integration/test_end_to_end_pipeline.py .                          [ 25%]
+tests/integration/test_perception_runtime_lifecycle.py .......           [ 29%]
+tests/integration/test_protocol_api.py ...                               [ 30%]
+tests/integration/test_runtime_correctness.py ...                        [ 32%]
+tests/integration/test_runtime_health_contracts.py ............          [ 38%]
+tests/integration/test_security.py ................                      [ 45%]
+tests/integration/test_temporal_har_pipeline.py .                        [ 46%]
+tests/python/test_camera_subsystem.py ....                               [ 48%]
+tests/python/test_config.py ....                                         [ 50%]
+tests/python/test_decision_engine.py ......                              [ 53%]
+tests/python/test_event_bus_and_health.py ..                             [ 54%]
+tests/python/test_experiment_engine_scenarios.py .....                   [ 56%]
+tests/python/test_failure_handling.py .....                              [ 59%]
+tests/python/test_fsm.py ......                                          [ 61%]
+tests/python/test_native_engine.py ....                                  [ 63%]
+tests/python/test_offline_airgap.py ..                                   [ 64%]
+tests/python/test_recording_and_reports_runtime.py .                     [ 65%]
+tests/python/test_report_generator.py .                                  [ 65%]
+tests/python/test_streaming_destination.py ...                           [ 67%]
+tests/python/test_structured_observation.py .                            [ 67%]
+tests/unit/test_bas_protocol_validation.py ...                           [ 69%]
+tests/unit/test_byte_tracker.py .                                        [ 69%]
+tests/unit/test_byte_tracker_multiclass.py ..                            [ 70%]
+tests/unit/test_camera_capture_worker.py ..                              [ 71%]
+tests/unit/test_camera_driver.py ..                                      [ 72%]
+tests/unit/test_config.py ..                                             [ 73%]
+tests/unit/test_detector.py ..                                           [ 74%]
+tests/unit/test_di.py ...                                                [ 76%]
+tests/unit/test_event_bus.py ....                                        [ 78%]
+tests/unit/test_exceptions.py ..                                         [ 79%]
+tests/unit/test_feature_transform.py .....                               [ 81%]
+tests/unit/test_har_fault_isolation.py .                                 [ 81%]
+tests/unit/test_har_multi_person.py .                                    [ 82%]
+tests/unit/test_metrics.py ..                                            [ 83%]
+tests/unit/test_model_loader.py ....                                     [ 85%]
+tests/unit/test_models.py .                                              [ 85%]
+tests/unit/test_pose_association.py ...                                  [ 87%]
+tests/unit/test_pose_estimator.py ..                                     [ 88%]
+tests/unit/test_protocol_engine.py ......                                [ 91%]
+tests/unit/test_stgcn_classifier.py .                                    [ 91%]
+tests/unit/test_stgcn_graph.py ....                                      [ 93%]
+tests/unit/test_stgcn_model.py ....                                      [ 95%]
+tests/unit/test_telemetry_fanout.py ..                                   [ 96%]
+tests/unit/test_temporal_buffer.py ....                                  [ 98%]
+tests/unit/test_temporal_smoothing.py ...                                [100%]
 
-======================= 189 passed, 2 warnings in 39.39s =======================
+======================= 205 passed, 2 warnings in 27.41s =======================
 ```
 
 ---

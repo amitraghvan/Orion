@@ -6,7 +6,7 @@
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.x%20MPS%2FCUDA%2FCPU-EE4C2C?style=flat-square&logo=pytorch&logoColor=white)](https://pytorch.org/)
 [![Air-Gapped](https://img.shields.io/badge/Operation-100%25%20Offline%20Air--Gapped-success?style=flat-square)]()
 [![SIH26174](https://img.shields.io/badge/SIH26174-ISRO%20BAS%20Glovebox-blueviolet?style=flat-square)]()
-[![Test Suite](https://img.shields.io/badge/Tests-189%20Passed%20(100%25)-brightgreen?style=flat-square)]()
+[![Test Suite](https://img.shields.io/badge/Tests-205%20Passed%20(100%25)-brightgreen?style=flat-square)]()
 
 ---
 
@@ -40,7 +40,7 @@ Designed under aerospace safety principles, ORION eliminates cloud dependencies,
 8. **Generates Structured Logs:** Records append-only SQLite records, machine-readable `events.json`, and human-readable `timeline.log`.
 9. **Records Sessions Locally:** Asynchronously compresses video sessions to MP4 format without stalling perception.
 10. **Streams Video over IP:** Hosts an independent HTTP multipart/x-mixed-replace MJPEG stream on port 8080 (`http://127.0.0.1:8080/live`).
-11. **Provides Graphical Cockpit:** Features a native PySide6 (Qt) desktop application with 10 dedicated monitoring and telemetry views.
+11. **Provides Graphical Cockpit:** Features a native PySide6 (Qt) desktop application engineered with an aerospace dark cockpit theme (`#030712`), transparent corner brackets (`┌ ┐ └ ┘`), zero casual emojis, dynamic procedural guidance cards, and 10 dedicated telemetry views.
 
 ---
 
@@ -359,8 +359,8 @@ When enabled, ORION serves a standard multipart MJPEG stream over HTTP:
 
 ## GUI
 
-The native PySide6 desktop interface provides 10 cockpit views:
-1. **Mission Dashboard:** Live camera HUD, active step guidance, audio status, system metrics.
+The native PySide6 desktop interface is engineered with an aerospace dark cockpit aesthetic (`#030712`), high-contrast tactical HUD accents, transparent corner reticles (`┌ ┐ └ ┘`), and strictly scientific telemetry indicators (`[NOMINAL]`, `[STANDBY]`, `[ACTIVE]`, `● LIVE`). It provides 10 dedicated cockpit views:
+1. **Mission Dashboard:** Live camera HUD with transparent annotations, active step guidance cards, live subsystem indicators (`● SUBJECT`, `● SEQUENCE`, `● AUDIO`), and system metrics.
 2. **Live View:** High-resolution expanded camera viewport with annotation toggles.
 3. **Experiment View:** Interactive step-by-step checklist and sequence progression.
 4. **Activity View:** Real-time temporal action confidence curves and entropy charts.
@@ -379,7 +379,7 @@ Run the full automated test suite:
 ```bash
 pytest tests/
 ```
-**Results:** **189 passed, 0 failed** in 39.39 seconds (100% green).
+**Results:** **205 passed, 0 failed** in 27.41 seconds (100% green).
 
 Benchmark scripts:
 ```bash

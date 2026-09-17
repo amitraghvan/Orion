@@ -25,10 +25,10 @@ ORION is an **offline, standalone, edge-native AI Copilot** designed to monitor 
 8. **Structured Lightweight Logging:** Writes immutable, timestamped JSONL event logs (`events.json`), procedural timeline logs (`timeline.log`), and session metadata (`metadata.json`), backed by a local SQLite relational schema.
 9. **Local Video Recording:** Asynchronously compresses and records experiment video sessions to MP4 format without stalling perception throughput.
 10. **Local IP Video Streaming:** Hosts an independent HTTP `multipart/x-mixed-replace` MJPEG stream on port 8080 (`http://127.0.0.1:8080/live`) for remote monitoring.
-11. **Native Graphical Cockpit:** Provides a high-performance native PySide6 (Qt) desktop application with 10 dedicated cockpit views (Dashboard, Live Camera, Experiment Sequence, Activity Logs, Recordings, Reports, Diagnostics, etc.).
+11. **Native Graphical Cockpit:** Provides a high-performance native PySide6 (Qt) desktop application engineered with an aerospace dark cockpit theme (`#030712`), transparent corner brackets (`┌ ┐ └ ┘`), zero casual emojis, dynamic guidance cards, and 10 dedicated cockpit views.
 
 ### Empirical Verification Highlights:
-- **Test Suite:** **189 of 189 tests passing** (`pytest tests/`, 100% green, exit code 0).
+- **Test Suite:** **205 of 205 tests passing** (`pytest tests/`, 100% green, exit code 0, 27.41s duration).
 - **Live Camera Smoke Test:** Successfully executed on local webcam device 0 under Apple Silicon MPS acceleration: 37 frames captured, 36 processed, 0 dropped frames, **21.2 FPS**, **49.6 ms mean latency**, 73 domain events dispatched.
 - **Protocol Engine SLA:** Stressed across 10,000 synthetic events: **114,818 events/sec sustained throughput**, **0.0086 ms mean latency**.
 - **System Doctor:** **100% readiness score** (7/7 checks passed).
@@ -237,4 +237,4 @@ The current hybrid neuro-symbolic architecture—coupling deep spatial-temporal 
 - **IMPLEMENTED:** Camera Subsystem, Object Detection, Pose Estimation, Tracking, Hand Perception, HOI Contact State Machine, ST-GCN HAR, Protocol FSM, Next-Step Guidance, Voice Alerts, Structured Logging, Local Recording, IP Streaming, PySide6 Desktop GUI, Offline Operation.
 - **PARTIAL:** BAS Dataset (20 videos present, needs scaling), BAS HAR Model (Trains and infers deterministically, but validation accuracy is 24.78%).
 - **PLANNED (OPTIONAL):** 3D Human Mesh Recovery (HMR).
-- **BROKEN / MISSING (Core):** None. All 189 tests passing.
+- **BROKEN / MISSING (Core):** None. All 205 tests passing.

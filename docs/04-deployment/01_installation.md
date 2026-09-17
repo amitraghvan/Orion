@@ -78,4 +78,4 @@ Run the full test suite to guarantee zero regression:
 ```bash
 pytest tests/
 ```
-All 189 unit and integration tests should report **PASSED**.
+All 205 unit and integration tests should report **PASSED**.
