@@ -114,6 +114,7 @@ reports/REPORT_*
 *.h264
 *.bag
 *.rosbag
+!assets/*.mp4
 
 # IDE & OS Specific
 .DS_Store
