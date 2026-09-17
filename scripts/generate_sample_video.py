@@ -24,15 +24,11 @@ def generate_sample_video(
 
     test_img_path = target_path.parent / "test_frame.jpg"
     if not test_img_path.exists():
-        url = "https://raw.githubusercontent.com/ultralytics/ultralytics/main/ultralytics/assets/bus.jpg"
-        try:
-            urllib.request.urlretrieve(url, test_img_path)
-        except Exception:
-            # Synthetic photographic fallback if offline
-            fallback = np.zeros((height, width, 3), dtype=np.uint8)
-            cv2.rectangle(fallback, (100, 80), (280, 420), (180, 180, 180), -1)  # person
-            cv2.circle(fallback, (190, 130), 40, (200, 200, 200), -1)  # head
-            cv2.imwrite(str(test_img_path), fallback)
+        # Purely offline synthetic visual frame generation
+        fallback = np.zeros((height, width, 3), dtype=np.uint8)
+        cv2.rectangle(fallback, (100, 80), (280, 420), (180, 180, 180), -1)  # person
+        cv2.circle(fallback, (190, 130), 40, (200, 200, 200), -1)  # head
+        cv2.imwrite(str(test_img_path), fallback)
 
     base_img = cv2.imread(str(test_img_path))
     if base_img is None:

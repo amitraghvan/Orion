@@ -1,0 +1,1 @@
+decisions/adr_003_inference_serialization_offload.md

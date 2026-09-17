@@ -57,61 +57,57 @@ class CameraStatusResponse(BaseModel):
 @router.get("/status", response_model=CameraStatusResponse, summary="Get authoritative camera status")
 async def get_camera_status() -> CameraStatusResponse:
     """Authoritative camera state endpoint used by cockpit to determine connection and FPS."""
+    from orion_ai.camera.camera_manager import authoritative_camera_manager
+
+    coordinator = None
     try:
         coordinator = get_coordinator()
-    except Exception as exc:
-        return CameraStatusResponse(
-            connected=False,
-            state="DISCONNECTED",
-            source="unknown",
-            device_index=None,
-            width=0,
-            height=0,
-            fps=0.0,
-            frame_id=0,
-            last_frame_timestamp=None,
-            is_file=False,
-            dropped_frames=0,
-            error=str(exc),
-        )
+    except Exception:
+        coordinator = None
 
-    cam = getattr(coordinator, "camera", None)
-    if cam is None or not getattr(cam, "is_active", False):
-        cam_source = str(getattr(cam, "source", "0")) if cam else "0"
-        dev_idx = int(cam_source) if cam_source.isdigit() else None
+    cam = getattr(coordinator, "camera", None) or authoritative_camera_manager
+    cam_source = str(getattr(cam, "source", "0"))
+    dev_idx = int(cam_source) if cam_source.isdigit() else None
+
+    # Check if either coordinator or camera manager is actively capturing
+    is_connected = getattr(cam, "is_connected", False) or getattr(cam, "is_active", False)
+    if not is_connected:
         return CameraStatusResponse(
             connected=False,
             state="DISCONNECTED",
             source=cam_source,
             device_index=dev_idx,
-            width=getattr(cam, "target_width", 0) if cam else 0,
-            height=getattr(cam, "target_height", 0) if cam else 0,
+            width=getattr(cam, "target_width", 0),
+            height=getattr(cam, "target_height", 0),
             fps=0.0,
-            frame_id=getattr(coordinator, "last_frame_index", 0),
+            frame_id=getattr(cam, "frame_id", 0),
             last_frame_timestamp=None,
-            is_file=getattr(cam, "_is_file", False) if cam else False,
-            dropped_frames=getattr(cam, "dropped_frames", 0) if cam else 0,
-            error=getattr(cam, "last_error", None) if cam else "Camera driver not attached",
+            is_file=getattr(cam, "is_file", False),
+            dropped_frames=getattr(cam, "dropped_frames", 0),
+            error=getattr(cam, "last_error", None),
         )
 
-    cam_source = str(cam.source)
-    dev_idx = int(cam_source) if cam_source.isdigit() else None
     last_ts = getattr(cam, "last_frame_timestamp", None)
     ts_str = last_ts.isoformat() if last_ts else None
-    fps_val = round(coordinator.latest_observation.metrics.fps, 1) if (coordinator.latest_observation and coordinator.latest_observation.metrics) else float(getattr(cam, "target_fps", 30))
-    is_streaming = coordinator.is_running and getattr(coordinator, "frames_processed", 0) > 0
+    fps_val = round(getattr(cam, "actual_fps", 0.0), 1)
+    if fps_val == 0.0 and coordinator and coordinator.latest_observation and coordinator.latest_observation.metrics:
+        fps_val = round(coordinator.latest_observation.metrics.fps, 1)
+
+    is_streaming = (coordinator and coordinator.is_running and getattr(coordinator, "frames_processed", 0) > 0) or is_connected
+    state_str = getattr(cam, "status", None)
+    state_val = state_str.value if hasattr(state_str, "value") else ("STREAMING" if is_streaming else "CONNECTED")
 
     return CameraStatusResponse(
         connected=True,
-        state="STREAMING" if is_streaming else "CONNECTED",
+        state=state_val,
         source="live_camera" if dev_idx is not None else cam_source,
         device_index=dev_idx,
         width=getattr(cam, "target_width", 1280),
         height=getattr(cam, "target_height", 720),
         fps=fps_val,
-        frame_id=getattr(coordinator, "last_frame_index", 0),
+        frame_id=getattr(cam, "frame_id", getattr(coordinator, "last_frame_index", 0) if coordinator else 0),
         last_frame_timestamp=ts_str,
-        is_file=getattr(cam, "_is_file", False),
+        is_file=getattr(cam, "is_file", False),
         dropped_frames=getattr(cam, "dropped_frames", 0),
         error=getattr(cam, "last_error", None),
     )
@@ -246,28 +242,32 @@ async def get_optical_frame():
     """Retrieve single latest optical frame as binary JPEG image without crashing."""
     from fastapi import Response
     from fastapi.responses import JSONResponse
+    from orion_ai.camera.camera_manager import authoritative_camera_manager
 
+    jpeg_bytes: bytes | None = None
     try:
         coordinator = get_coordinator()
         jpeg_bytes = coordinator.latest_jpeg_bytes
-        if not jpeg_bytes:
-            return JSONResponse(
-                status_code=status.HTTP_404_NOT_FOUND,
-                content={"status": "disconnected", "error": "Camera frame unavailable"},
-            )
-        return Response(
-            content=jpeg_bytes,
-            media_type="image/jpeg",
-            headers={
-                "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
-                "Content-Length": str(len(jpeg_bytes)),
-            },
-        )
-    except Exception as exc:
+    except Exception:
+        jpeg_bytes = None
+
+    if not jpeg_bytes:
+        jpeg_bytes = authoritative_camera_manager.get_latest_jpeg()
+
+    if not jpeg_bytes:
         return JSONResponse(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            content={"status": "disconnected", "error": f"Camera offline: {exc}"},
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"status": "disconnected", "error": "Camera frame unavailable"},
         )
+
+    return Response(
+        content=jpeg_bytes,
+        media_type="image/jpeg",
+        headers={
+            "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+            "Content-Length": str(len(jpeg_bytes)),
+        },
+    )
 
 
 @router.get("/stream", summary="Stream optical video feed via MJPEG")
@@ -275,16 +275,22 @@ async def stream_optical_feed():
     """Stream live optical video via standard multipart/x-mixed-replace MJPEG."""
     from fastapi.responses import StreamingResponse
     import asyncio
+    from orion_ai.camera.camera_manager import authoritative_camera_manager
 
     async def _frame_generator():
         last_frame_sent = -1
         try:
             while True:
                 try:
-                    coordinator = get_coordinator()
-                    current_idx = coordinator.last_frame_index
+                    coordinator = None
+                    try:
+                        coordinator = get_coordinator()
+                    except Exception:
+                        coordinator = None
+
+                    current_idx = getattr(coordinator, "last_frame_index", authoritative_camera_manager.frame_id)
                     if current_idx != last_frame_sent:
-                        jpeg = coordinator.latest_jpeg_bytes
+                        jpeg = getattr(coordinator, "latest_jpeg_bytes", None) or authoritative_camera_manager.get_latest_jpeg()
                         if jpeg:
                             last_frame_sent = current_idx
                             yield (

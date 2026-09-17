@@ -1,0 +1,64 @@
+system:
+  station_id: BAS-EXP-WORKSTATION-01
+  station_module: BAS-SCIENCE-NODE-1
+  glovebox_id: GB-01
+  mode: offline
+  performance_mode: performance
+  device: auto
+  enable_cpp_engine: true
+camera:
+  camera_id: CAM01
+  source: '0'
+  width: 1280
+  height: 720
+  fps: 30
+  auto_reconnect: true
+  reconnect_interval_seconds: 2.0
+  buffer_size: 5
+  loop_video_files: true
+models:
+  detection:
+    backend: auto
+    path: models/weights/yolo11n.pt
+    confidence: 0.25
+    device: auto
+    enabled: true
+  pose:
+    backend: auto
+    path: models/weights/yolo11n-pose.pt
+    confidence: 0.25
+    device: auto
+    enabled: true
+  activity:
+    backend: auto
+    path: models/bas_experiment/best.pt
+    confidence: 0.65
+    device: auto
+    enabled: true
+  window_size: 32
+  entropy_threshold: 1.4
+audio:
+  voice_enabled: true
+  volume: 1.0
+  rate: 175
+  cooldown_seconds: 3.0
+  chime_enabled: true
+recording:
+  enabled: true
+  output_dir: recordings
+  codec: mp4v
+  record_fps: 30
+  save_raw_video: true
+  save_events_log: true
+streaming:
+  enabled: false
+  host: 127.0.0.1
+  port: 8080
+  quality: 80
+  stream_fps: 15
+experiment:
+  default_protocol: configs/protocols/bas_e01_a.yaml
+  auto_advance: true
+  debounce_threshold: 2
+  allow_skip: true
+  require_interaction_confirmation: true

@@ -1,0 +1,25 @@
+# ==============================================================================
+# ORION Camera & Optical Sensor Profiles
+# ==============================================================================
+
+profiles:
+  CAM01_DEFAULT:
+    source: "0"
+    width: 1280
+    height: 720
+    fps: 30
+    backend: "opencv"
+    fourcc: "MJPG"
+
+  DEMO_REPLAY:
+    source: "assets/sample_replay.mp4"
+    width: 640
+    height: 480
+    fps: 15
+    loop: true
+
+  RTSP_TEST_STREAM:
+    source: "rtsp://192.168.1.50:554/live"
+    width: 1920
+    height: 1080
+    fps: 30

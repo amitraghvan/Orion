@@ -1,0 +1,43 @@
+# ==============================================================================
+# ORION AI Model Registry & Backend Execution Mapping
+# ==============================================================================
+
+registry:
+  yolo11n_det:
+    task: "object_detection"
+    format: "pt"
+    weights: "models/weights/yolo11n.pt"
+    onnx: "models/onnx/yolo11n.onnx"
+    engine: "models/engines/yolo11n.engine"
+    input_resolution: [640, 640]
+    default_confidence: 0.25
+    priority_backend: ["tensorrt", "onnx", "pytorch"]
+
+  yolo11n_pose:
+    task: "pose_estimation"
+    format: "pt"
+    weights: "models/weights/yolo11n-pose.pt"
+    onnx: "models/onnx/yolo11n-pose.onnx"
+    engine: "models/engines/yolo11n-pose.engine"
+    input_resolution: [640, 640]
+    default_confidence: 0.25
+    priority_backend: ["tensorrt", "onnx", "pytorch"]
+
+  stgcn_har:
+    task: "temporal_action_recognition"
+    format: "pt"
+    weights: "models/bas_experiment/best.pt"
+    onnx: "models/onnx/stgcn_har.onnx"
+    input_shape: [1, 4, 32, 17]
+    classes: [
+      "idle",
+      "pick_yellow",
+      "place_yellow",
+      "pick_red",
+      "place_red",
+      "move_box",
+      "check_box",
+      "overlap_boxes"
+    ]
+    default_confidence: 0.65
+    priority_backend: ["onnx", "pytorch"]

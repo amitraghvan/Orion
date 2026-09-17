@@ -1,9 +1,9 @@
 {
   "model_id": "BAS-HAR-v1.0",
-  "accuracy": 0.0298,
-  "precision_macro": 0.0095,
-  "recall_macro": 0.0322,
-  "f1_macro": 0.0146,
+  "accuracy": 0.0686,
+  "precision_macro": 0.0103,
+  "recall_macro": 0.0799,
+  "f1_macro": 0.0183,
   "per_class": {
     "idle": {
       "precision": 0.0,
@@ -24,9 +24,9 @@
       "support": 62
     },
     "pick_red": {
-      "precision": 0.0359,
-      "recall": 0.1047,
-      "f1": 0.0534,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
       "support": 86
     },
     "place_red": {
@@ -42,9 +42,9 @@
       "support": 75
     },
     "check_box": {
-      "precision": 0.0403,
-      "recall": 0.1528,
-      "f1": 0.0638,
+      "precision": 0.0827,
+      "recall": 0.6389,
+      "f1": 0.1465,
       "support": 72
     },
     "overlap_boxes": {
@@ -58,82 +58,82 @@
     "held_out_test_videos": 10,
     "valid_videos_tested": 7,
     "invalid_videos_tested": 0,
-    "valid_sequence_accuracy": 0.0298,
-    "wrong_object_detection_rate": 1.0,
-    "wrong_order_detection_rate": 1.0,
+    "valid_sequence_accuracy": 0.0686,
+    "wrong_object_detection_rate": 0.0,
+    "wrong_order_detection_rate": 0.0,
     "interruption_detection_rate": 0.0,
     "false_violation_rate": 0.0
   },
   "confusion_matrix": [
     [
       0,
+      18,
+      5,
       0,
       0,
-      86,
-      0,
-      12,
-      108,
-      9
-    ],
-    [
-      0,
-      0,
-      0,
-      28,
-      0,
-      9,
-      53,
+      1,
+      184,
       7
     ],
     [
       0,
       0,
       0,
-      25,
-      0,
-      3,
-      34,
-      0
-    ],
-    [
       0,
       0,
-      0,
-      9,
-      0,
-      19,
-      40,
-      18
-    ],
-    [
-      0,
-      0,
-      0,
-      19,
-      0,
-      21,
-      15,
+      1,
+      87,
       9
     ],
     [
       0,
       0,
       0,
-      63,
       0,
       0,
-      12,
+      0,
+      57,
+      5
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      18,
+      60,
+      8
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      7,
+      49,
+      8
+    ],
+    [
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      73,
       0
     ],
     [
       0,
       0,
-      3,
-      21,
       0,
       0,
-      11,
-      37
+      0,
+      0,
+      46,
+      26
     ],
     [
       0,

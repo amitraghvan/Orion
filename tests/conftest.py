@@ -1,6 +1,7 @@
-"""Global pytest fixtures and test configuration for ORION BAS AI Copilot."""
-
+import os
 from collections.abc import AsyncGenerator
+
+os.environ["ORION_ENV"] = "testing"
 
 import pytest
 from httpx import ASGITransport, AsyncClient
@@ -22,10 +23,12 @@ from orion.db.base import Base
 @pytest.fixture(scope="session")
 def test_settings() -> OrionSettings:
     """Fixture providing isolated test settings."""
+    from orion.core.config import CameraSettings
     return OrionSettings(
         ORION_ENV="testing",
         ORION_STATION_ID="BAS-TEST-BENCH",
         api=ApiSettings(secret_key="test-insecure-secret-key-32-characters-minimum"),
+        camera=CameraSettings(source="assets/sample_replay.mp4", width=640, height=480, fps=30),
     )
 
 

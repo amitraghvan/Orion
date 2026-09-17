@@ -145,9 +145,9 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         event_bus=event_bus,
         persistence_subscriber=persistence_subscriber,
     )
-    canonical_path = Path("configs/protocols/bas_e01_a.yaml")
+    canonical_path = Path("configs/protocols/bas_crystal_growth_v1.yaml")
     if not canonical_path.is_file():
-        canonical_path = Path("configs/protocols/bas_crystal_growth_v1.yaml")
+        canonical_path = Path("configs/protocols/bas_e01_a.yaml")
     if canonical_path.is_file():
         try:
             protocol_service.load_protocol_file(canonical_path)
@@ -186,23 +186,23 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         coordinator = None
 
     if coordinator is None:
-        is_fallback_active = False
+        from orion_ai.camera.camera_manager import authoritative_camera_manager
+
         cam_source: str | int = settings.camera.source
         if str(cam_source).isdigit():
             cam_source = int(cam_source)
 
-        camera = OpenCVCameraDriver(
+        authoritative_camera_manager.configure(
             source=cam_source,
-            camera_id=f"cam_{settings.station_id.lower()}",
-            target_fps=settings.camera.fps,
             width=settings.camera.width,
             height=settings.camera.height,
+            fps=settings.camera.fps,
             loop=True,
-            is_replay_fallback=is_fallback_active,
         )
+        camera = authoritative_camera_manager
 
         accelerator = settings.hardware.accelerator
-        if accelerator == "cpu":
+        if accelerator == "cpu" and settings.env != "testing":
             import torch
 
             if torch.backends.mps.is_available():

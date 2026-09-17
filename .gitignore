@@ -104,9 +104,10 @@ models/weights/*
 *.bin
 *.h5
 
-# Video & Sensor Recordings
+# Video & Sensor Recordings & Generated Reports
 recordings/*
 !recordings/.gitkeep
+reports/REPORT_*
 *.mp4
 *.avi
 *.mkv

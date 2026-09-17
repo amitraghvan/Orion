@@ -1,0 +1,1 @@
+decisions/adr_004_event_taxonomy_storage_decoupling.md

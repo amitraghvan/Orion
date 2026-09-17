@@ -93,6 +93,16 @@ class ActivityRecognitionResult(BaseModel):
     uncertainty_status: UncertaintyStatus = UncertaintyStatus.NOMINAL
     latency_ms: float = 0.0
 
+    @property
+    def activity(self) -> str:
+        """Name of the recognized top activity."""
+        return self.top_prediction.activity_name
+
+    @property
+    def confidence(self) -> float:
+        """Confidence score of the recognized top activity."""
+        return self.top_prediction.confidence
+
 
 # ------------------------------------------------------------------------------
 # Ground-Truth Activity Taxonomy

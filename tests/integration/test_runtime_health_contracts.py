@@ -184,6 +184,8 @@ async def test_10_recovery_succeeds_after_simulated_transient_failure(
     """TEST 10: Recovery succeeds and clears failure counters after transient errors."""
     coordinator = get_coordinator()
     coordinator._consecutive_failures = 3
+    if not coordinator.camera.is_active:
+        await coordinator.camera.initialize()
 
     # Execute a successful single frame pass
     obs = await coordinator.process_single_frame()
@@ -197,6 +199,7 @@ async def test_11_recovery_remains_bounded_after_repeated_failures(
 ) -> None:
     """TEST 11: Supervisor recovery applies bounded backoff without CPU spinning."""
     coordinator = get_coordinator()
+    coordinator._is_running = True
     coordinator._consecutive_failures = 10
     rep = coordinator.get_health_report()
     assert rep.status == SubsystemStatus.ERROR

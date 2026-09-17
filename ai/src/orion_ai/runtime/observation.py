@@ -32,6 +32,9 @@ class PipelineMetrics(BaseModel):
     pipeline_latency_ms: float = 0.0
     fps: float = 0.0
     dropped_frames_total: int = 0
+    compute_backend: str = "CPU"
+    memory_usage_mb: float = 0.0
+    cpu_percent: float = 0.0
 
 
 class StructuredObservation(BaseModel):
@@ -54,8 +57,18 @@ class StructuredObservation(BaseModel):
     multimodal_evidence: MultimodalActivityEvidence | None = None
     metrics: PipelineMetrics = Field(default_factory=PipelineMetrics)
     pipeline_status: str = "NOMINAL"
+    system_health: dict[str, str] = Field(default_factory=dict)
     image_jpeg: str | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+    # Canonical alias properties
+    @property
+    def timestamp(self) -> datetime:
+        return self.timestamp_utc
+
+    @property
+    def frame_id(self) -> int:
+        return self.frame_index
 
     @property
     def hands(self) -> list[HandObservation]:
@@ -69,3 +82,22 @@ class StructuredObservation(BaseModel):
     def interactions(self) -> list[InteractionObservation]:
         return self.interaction_observations
 
+    @property
+    def hand_object_interactions(self) -> list[InteractionObservation]:
+        return self.interaction_observations
+
+    @property
+    def person_detections(self) -> list[DetectionTarget]:
+        return [d for d in self.detections if d.class_id == 0 or d.class_name.lower() == "person"]
+
+    @property
+    def object_detections(self) -> list[DetectionTarget]:
+        return [d for d in self.detections if d.class_id != 0 and d.class_name.lower() != "person"]
+
+    @property
+    def har_result(self) -> ActivityRecognitionResult | None:
+        return self.activities[0] if self.activities else None
+
+    @property
+    def evidence(self) -> MultimodalActivityEvidence | None:
+        return self.multimodal_evidence

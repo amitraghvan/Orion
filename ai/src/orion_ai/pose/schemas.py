@@ -36,6 +36,11 @@ class HumanPose(BaseModel):
     keypoints_3d: list[Keypoint3D] = Field(default_factory=list)
     overall_confidence: float = Field(ge=0.0, le=1.0)
 
+    @property
+    def keypoints(self) -> list[Keypoint2D]:
+        """Convenience accessor for 2D keypoints."""
+        return self.keypoints_2d
+
 
 class PoseEstimationResult(BaseModel):
     """Batch pose estimation results for a frame."""

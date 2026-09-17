@@ -1,0 +1,26 @@
+# ==============================================================================
+# ORION Logging Subsystem Configuration
+# ==============================================================================
+
+version: 1
+level: "INFO"
+format: "%(asctime)s [%(levelname)s] [%(name)s] %(message)s"
+max_bytes: 10485760 # 10 MB
+backup_count: 5
+
+sinks:
+  application:
+    filename: "logs/application.log"
+    level: "INFO"
+  error:
+    filename: "logs/error.log"
+    level: "ERROR"
+  camera:
+    filename: "logs/camera.log"
+    level: "INFO"
+  ai:
+    filename: "logs/ai.log"
+    level: "INFO"
+  experiment:
+    filename: "logs/experiment.log"
+    level: "INFO"

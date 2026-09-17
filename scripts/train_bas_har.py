@@ -23,6 +23,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset
 
 from orion_ai.activity.stgcn.model import STGCNHARModel
+from orion_ai.activity.augmentation import SkeletonKineticAugmenter
 
 SEQUENCES_DIR = Path("datasets/bas_experiment/sequences")
 MODELS_DIR = Path("models/bas_experiment")
@@ -30,13 +31,14 @@ CHECKPOINTS_DIR = MODELS_DIR / "checkpoints"
 PRETRAINED_WEIGHTS = Path("models/weights/stgcn_har_v1.pt")
 
 NUM_CLASSES = 8
-EPOCHS = 25
+EPOCHS = 35
 BATCH_SIZE = 16
 LEARNING_RATE = 1e-3
 
 class BASSequenceDataset(Dataset):
-    def __init__(self, npz_files: list[str]) -> None:
+    def __init__(self, npz_files: list[str], augmenter: SkeletonKineticAugmenter | None = None) -> None:
         self.files = npz_files
+        self.augmenter = augmenter
         self.data: list[tuple[np.ndarray, int]] = []
         for f in self.files:
             item = np.load(f)
@@ -49,6 +51,8 @@ class BASSequenceDataset(Dataset):
 
     def __getitem__(self, idx: int) -> tuple[torch.Tensor, torch.Tensor]:
         x, y = self.data[idx]
+        if self.augmenter is not None:
+            x = self.augmenter(x)
         return torch.from_numpy(x), torch.tensor(y, dtype=torch.long)
 
 def compute_sha256(filepath: Path) -> str:
@@ -59,7 +63,10 @@ def compute_sha256(filepath: Path) -> str:
     return hasher.hexdigest()
 
 def main():
-    print("=== Training ORION ST-GCN on BAS_REAL_DATA ===")
+    torch.manual_seed(42)
+    np.random.seed(42)
+
+    print("=== Training ORION ST-GCN on BAS_REAL_DATA (Kinetic Augmentation Active) ===")
     MODELS_DIR.mkdir(parents=True, exist_ok=True)
     CHECKPOINTS_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -73,21 +80,38 @@ def main():
     assert len(train_files) > 0, "No training samples found!"
     assert len(val_files) > 0, "No validation samples found!"
 
-    train_ds = BASSequenceDataset(train_files)
-    val_ds = BASSequenceDataset(val_files)
+    # Training dataset with kinetic augmentation
+    augmenter = SkeletonKineticAugmenter(
+        noise_sigma=0.015,
+        scale_range=(0.90, 1.10),
+        max_rotation_deg=15.0,
+        temporal_stretch_range=(0.80, 1.20),
+        joint_dropout_prob=0.05,
+        prob_apply=0.85,
+    )
+    train_ds = BASSequenceDataset(train_files, augmenter=augmenter)
+    val_ds = BASSequenceDataset(val_files, augmenter=None)
 
     train_loader = DataLoader(train_ds, batch_size=BATCH_SIZE, shuffle=True, drop_last=False)
     val_loader = DataLoader(val_ds, batch_size=BATCH_SIZE, shuffle=False)
 
+    # Class balance weights
+    class_counts = np.zeros(NUM_CLASSES, dtype=np.float32)
+    for _, y in train_ds.data:
+        class_counts[y] += 1
+    total_samples = len(train_ds)
+    class_weights = total_samples / (NUM_CLASSES * np.maximum(class_counts, 1.0))
+    class_weights = class_weights / np.mean(class_weights)
+    weights_tensor = torch.tensor(class_weights, dtype=torch.float32).to(device)
+
     # Initialize model
-    model = STGCNHARModel(in_channels=4, num_classes=NUM_CLASSES, dropout=0.2)
+    model = STGCNHARModel(in_channels=4, num_classes=NUM_CLASSES, dropout=0.3)
 
     # Transfer learning: load pretrained feature backbone if compatible
     if PRETRAINED_WEIGHTS.is_file():
         try:
             print(f"Loading pretrained backbone from {PRETRAINED_WEIGHTS}...")
             state_dict = torch.load(PRETRAINED_WEIGHTS, map_location="cpu")
-            # Filter out final classifier weights due to class dimension change (6 -> 8)
             filtered_dict = {
                 k: v for k, v in state_dict.items()
                 if not k.startswith("fcn") and k in model.state_dict() and v.shape == model.state_dict()[k].shape
@@ -99,7 +123,7 @@ def main():
 
     model.to(device)
 
-    criterion = nn.CrossEntropyLoss()
+    criterion = nn.CrossEntropyLoss(weight=weights_tensor, label_smoothing=0.1)
     optimizer = torch.optim.AdamW(model.parameters(), lr=LEARNING_RATE, weight_decay=1e-4)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=EPOCHS, eta_min=1e-5)
 

@@ -22,7 +22,7 @@
     "check_box",
     "overlap_boxes"
   ],
-  "sha256": "6d97fd61484bab97c978c5c946fbb7360a3574d00337faa3c4d62973d5f29b97",
-  "creation_timestamp": "2026-09-14T17:47:11.598483+00:00",
+  "sha256": "ca5d88aafe21a5e01338c36841072d47e87490c21b3e7e1f4e057b6a5b8f12c1",
+  "creation_timestamp": "2026-09-17T11:42:45.551784+00:00",
   "notes": "Fine-tuned ST-GCN model on BAS_REAL_DATA spaceflight experiments."
 }

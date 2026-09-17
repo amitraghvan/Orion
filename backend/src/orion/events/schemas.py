@@ -270,4 +270,132 @@ class ObservationCaptured(BaseEvent):
     observation: Any = Field(description="StructuredObservation instance")
 
 
+# ==============================================================================
+# Canonical Domain Events (Section 11)
+# ==============================================================================
+
+class ObjectDetected(BaseEvent):
+    """Emitted when specific objects or persons are detected in the frame."""
+
+    event_type: Literal["ObjectDetected"] = "ObjectDetected"
+    frame_index: int
+    object_count: int
+    classes: list[str]
+    confidences: list[float] = Field(default_factory=list)
+    bboxes: list[list[float]] = Field(default_factory=list)
+
+
+class PoseDetected(BaseEvent):
+    """Emitted when human pose keypoints are detected."""
+
+    event_type: Literal["PoseDetected"] = "PoseDetected"
+    frame_index: int
+    person_count: int
+    keypoints_summary: list[dict[str, Any]] = Field(default_factory=list)
+
+
+class HandDetected(BaseEvent):
+    """Emitted when human hand ROIs are extracted."""
+
+    event_type: Literal["HandDetected"] = "HandDetected"
+    frame_index: int
+    hand_count: int
+    hands: list[dict[str, Any]] = Field(default_factory=list)
+
+
+class InteractionDetected(BaseEvent):
+    """Emitted when hand-object interaction is detected."""
+
+    event_type: Literal["InteractionDetected"] = "InteractionDetected"
+    frame_index: int
+    interaction_type: str
+    hand_id: str
+    object_id: str
+    confidence: float
+
+
+class ActionRecognized(BaseEvent):
+    """Canonical action recognition event (alias / subtype of ActivityRecognized)."""
+
+    event_type: Literal["ActionRecognized"] = "ActionRecognized"
+    action: str
+    confidence: float
+    timestamp_epoch: float = 0.0
+    temporal_window: tuple[int, int] = (0, 0)
+    uncertainty_status: str = "NOMINAL"
+
+
+class StepStarted(BaseEvent):
+    """Emitted when an experiment step begins."""
+
+    event_type: Literal["StepStarted"] = "StepStarted"
+    experiment_id: str
+    run_id: str
+    step_id: str
+    step_number: int
+    step_name: str = ""
+
+
+class StepCompleted(BaseEvent):
+    """Emitted when an experiment step successfully completes."""
+
+    event_type: Literal["StepCompleted"] = "StepCompleted"
+    experiment_id: str
+    run_id: str
+    step_id: str
+    step_number: int
+    duration_seconds: float = 0.0
+
+
+class StepViolation(BaseEvent):
+    """Emitted when a step violation occurs (e.g. wrong object, out of sequence)."""
+
+    event_type: Literal["StepViolation"] = "StepViolation"
+    experiment_id: str
+    run_id: str
+    step_id: str
+    step_number: int
+    violation_type: str
+    message: str
+
+
+class ExperimentStarted(BaseEvent):
+    """Emitted when an experiment execution run commences."""
+
+    event_type: Literal["ExperimentStarted"] = "ExperimentStarted"
+    experiment_id: str
+    run_id: str
+    protocol_version: str = "1.0.0"
+
+
+class ExperimentCompleted(BaseEvent):
+    """Emitted when an experiment execution run finishes successfully."""
+
+    event_type: Literal["ExperimentCompleted"] = "ExperimentCompleted"
+    experiment_id: str
+    run_id: str
+    total_duration_seconds: float = 0.0
+    total_steps: int = 0
+
+
+class ExperimentFailed(BaseEvent):
+    """Emitted when an experiment execution run terminates with failure."""
+
+    event_type: Literal["ExperimentFailed"] = "ExperimentFailed"
+    experiment_id: str
+    run_id: str
+    error_code: str
+    reason: str
+
+
+class VoiceRequested(BaseEvent):
+    """Emitted when an audio / voice alert is requested."""
+
+    event_type: Literal["VoiceRequested"] = "VoiceRequested"
+    message: str
+    priority: str = "NORMAL"
+    voice_id: str = "default"
+
+
+
 

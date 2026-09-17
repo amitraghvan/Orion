@@ -48,7 +48,7 @@ def run_doctor() -> int:
     root = Path(__file__).resolve().parents[1]
     required_dirs = [
         "backend",
-        "frontend",
+        "app",
         "ai",
         "datasets",
         "experiments",
@@ -62,7 +62,7 @@ def run_doctor() -> int:
     ]
     missing = [d for d in required_dirs if not (root / d).is_dir()]
     if not missing:
-        print(f"   ✅ All {len(required_dirs)} root subsystem directories present")
+        print(f"   ✅ All {len(required_dirs)} root subsystem directories present (Native Qt App + Backend)")
         checks_passed += 1
     else:
         print(f"   ❌ Missing directories: {', '.join(missing)}")

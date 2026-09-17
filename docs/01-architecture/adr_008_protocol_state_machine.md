@@ -1,0 +1,1 @@
+decisions/adr_008_protocol_state_machine.md

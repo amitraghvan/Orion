@@ -115,6 +115,10 @@ async def run_replay_smoke_test(video_path: str, protocol_path: str = "configs/p
 
 
 if __name__ == "__main__":
-    canonical_video = "/Users/amitkumar/Downloads/BAS_REAL_DATA/VALID/SP04/AP01.mp4"
+    canonical_video = sys.argv[1] if len(sys.argv) > 1 else "/Users/amitkumar/Downloads/BAS_REAL_DATA/VALID/SP04/AP01.mp4"
+    if not Path(canonical_video).exists():
+        fallback = Path("assets/sample_replay.mp4")
+        if fallback.exists():
+            canonical_video = str(fallback)
     code = asyncio.run(run_replay_smoke_test(canonical_video, max_frames=30))
     sys.exit(code)
