@@ -1,10 +1,5 @@
 # ORION Installation & Setup Guide
 
-**Project:** ORION — AI Human Activity Recognition for On-board BAS Experiments (SIH26174)  
-**Organization:** Indian Space Research Organisation (ISRO)  
-**Date:** September 17, 2026  
-**Status:** VERIFIED ON MACOS (ARM64) & LINUX (X86_64)  
-
 ---
 
 ## 1. System Requirements
