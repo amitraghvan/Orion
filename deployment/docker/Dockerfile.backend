@@ -16,14 +16,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     build-essential \
     pkg-config \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
 # Install uv
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh \
     && cp /root/.local/bin/uv /usr/local/bin/uv
 
-# Copy project definition
-COPY pyproject.toml README.md ./
+# Copy project definition and requirements
+COPY pyproject.toml README.md requirements.txt ./
 COPY backend/ backend/
 COPY ai/ ai/
 COPY datasets/ datasets/
@@ -31,7 +33,8 @@ COPY datasets/ datasets/
 # Create venv and install
 RUN uv venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
-RUN uv pip install --no-cache .
+RUN uv pip install --no-cache -r requirements.txt \
+    && uv pip install --no-cache -e .
 
 # Stage 2: Final Runtime Container
 FROM python:3.11-slim-bullseye AS runner
@@ -39,13 +42,20 @@ FROM python:3.11-slim-bullseye AS runner
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PATH="/opt/venv/bin:$PATH" \
-    ORION_ENV=production
+    ORION_ENV=production \
+    ORION_API_HOST=0.0.0.0 \
+    ORION_API_PORT=8000 \
+    ORION_STREAMING_PORT=8080 \
+    ORION_CAMERA_SOURCE=assets/sample_replay.mp4 \
+    ORION_HARDWARE_ACCELERATOR=cpu \
+    PYTHONPATH=/app
 
-# Install minimal runtime libraries for OpenCV and audio
+# Install minimal runtime libraries for OpenCV, audio, and video
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libgl1-mesa-glx \
     libglib2.0-0 \
     espeak-ng \
+    ffmpeg \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
@@ -62,14 +72,17 @@ COPY backend/ /app/backend/
 COPY ai/ /app/ai/
 COPY datasets/ /app/datasets/
 COPY experiments/ /app/experiments/
+COPY models/ /app/models/
+COPY assets/ /app/assets/
+COPY pyproject.toml README.md alembic.ini ./
 
 # Set ownership
-RUN mkdir -p /app/data /app/logs && \
+RUN mkdir -p /app/data /app/logs /app/recordings && \
     chown -R orion:orion /app
 
 USER orion
 
-EXPOSE 8000 9090
+EXPOSE 8000 8080 9090
 
 HEALTHCHECK --interval=10s --timeout=3s --retries=3 \
   CMD curl -f http://127.0.0.1:8000/api/v1/health/live || exit 1

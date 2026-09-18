@@ -26,12 +26,10 @@ source .venv/bin/activate
 echo "📦 Installing Python dependencies..."
 uv pip install -e ".[all]"
 
-# Install Frontend dependencies if node is present
-if command -v npm &> /dev/null; then
+# Install frontend dependencies only if a frontend project directory is present
+if [ -d "frontend" ] && command -v npm &> /dev/null; then
     echo "📦 Installing frontend dependencies..."
     npm install --prefix frontend
-else
-    echo "⚠️ Node.js / npm not found. Skipping frontend dependencies."
 fi
 
 # Run doctor diagnostic

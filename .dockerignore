@@ -1,0 +1,81 @@
+# ==============================================================================
+# ORION BAS AI Copilot — Docker Ignore Rules
+# Keeps Docker build context lean (<150MB instead of >5GB) & avoids Mach-O binary pollution
+# ==============================================================================
+
+# Version Control
+.git
+.github
+.gitignore
+.gitattributes
+
+# Virtual Environments & Caches
+.venv
+venv
+env
+ENV
+.uv
+__pycache__
+*.py[cod]
+*$py.class
+
+# Host-specific Native Binaries & Build Artefacts (macOS / Windows binaries)
+*.so
+*.dylib
+*.pyd
+*.dll
+build/
+dist/
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+
+# Testing & Linters
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.coverage
+.coverage.*
+htmlcov/
+nosetests.xml
+coverage.xml
+coverage.json
+.hypothesis/
+.bandit
+.cache
+
+# IDE & Operating System Files
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.idea
+.vscode
+*.swp
+*.swo
+*~
+Thumbs.db
+ehthumbs.db
+
+# Runtime Data, Logs, Recordings & Local SQLite databases
+logs/*
+!logs/.gitkeep
+recordings/*
+!recordings/.gitkeep
+data/*.db
+data/*.sqlite*
+*.db
+*.sqlite
+*.sqlite3
+orion.db
+orion_dev.db
+
+# Documentation build outputs
+site/
+docs/_build/

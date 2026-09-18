@@ -88,8 +88,12 @@ profiling = [
     "pyinstrument>=4.7.0",
     "memory-profiler>=0.61.0",
 ]
+gui = [
+    "pyside6>=6.8.0",
+    "pyttsx3>=2.90",
+]
 all = [
-    "orion-bas-ai[dev,test,docs,profiling]"
+    "orion-bas-ai[dev,test,docs,profiling,gui]"
 ]
 
 [build-system]
@@ -102,6 +106,7 @@ packages = [
     "ai/src/orion_ai",
     "datasets/src/orion_datasets",
     "experiments",
+    "app",
 ]
 
 # ------------------------------------------------------------------------------

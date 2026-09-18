@@ -1,5 +1,10 @@
 version: "3.9"
 
+# ==============================================================================
+# ORION BAS AI Copilot — Development Docker Compose
+# Mounts source trees for live backend development & testing
+# ==============================================================================
+
 services:
   backend:
     build:
@@ -10,8 +15,13 @@ services:
       - ORION_ENV=development
       - ORION_API_HOST=0.0.0.0
       - ORION_API_PORT=8000
+      - ORION_STREAMING_ENABLED=true
+      - ORION_STREAMING_PORT=8080
+      - ORION_CAMERA_SOURCE=assets/sample_replay.mp4
+      - ORION_HARDWARE_ACCELERATOR=cpu
     ports:
       - "8000:8000"
+      - "8080:8080"
       - "9090:9090"
     volumes:
       - ../../backend:/app/backend
@@ -19,16 +29,10 @@ services:
       - ../../configs:/app/configs
       - ../../data:/app/data
       - ../../logs:/app/logs
+      - ../../recordings:/app/recordings
     restart: unless-stopped
-
-  frontend:
-    image: node:22-alpine
-    container_name: orion-dev-frontend
-    working_dir: /app
-    volumes:
-      - ../../frontend:/app
-    ports:
-      - "3000:3000"
-    command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 3000"
-    depends_on:
-      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8000/api/v1/health/live"]
+      interval: 10s
+      timeout: 3s
+      retries: 3

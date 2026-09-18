@@ -206,7 +206,32 @@ Orion/
 
 ---
 
-## Installation
+## Quickstart with Docker & Codespaces (Zero Setup)
+
+If you have forked or cloned this repository and want to run it immediately with zero manual dependency configuration:
+
+### Option A: Docker Compose (1 Command)
+```bash
+# 1. Clone repository
+git clone https://github.com/amitraghvan/Orion.git
+cd Orion
+
+# 2. Start containerized AI copilot & live streaming
+docker compose up
+```
+- **Live Camera HUD Stream:** [`http://localhost:8080/live`](http://localhost:8080/live)
+- **Interactive REST API & Docs:** [`http://localhost:8000/docs`](http://localhost:8000/docs)
+- **Real-Time WebSocket Telemetry:** `ws://localhost:8000/ws/telemetry`
+- **Prometheus Metrics:** [`http://localhost:9090/metrics`](http://localhost:9090/metrics)
+
+> For full container details, GPU support, and observability stack, see [**`DOCKER.md`**](file:///Users/amitkumar/Orion/DOCKER.md).
+
+### Option B: GitHub Codespaces
+Click **Code** → **Codespaces** → **Create codespace on main**. The environment will automatically provision Python 3.11, all neural networks, and forward required ports.
+
+---
+
+## Local Installation (Without Docker)
 
 ### Prerequisites
 - macOS 14+ (Apple Silicon / Intel) or Linux Ubuntu 22.04 LTS

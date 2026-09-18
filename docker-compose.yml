@@ -1,0 +1,109 @@
+version: "3.9"
+
+# ==============================================================================
+# ORION: AI Human Activity Recognition for On-board BAS Experiments
+# Unified Multi-Profile Docker Compose Specification
+#
+# Usage:
+#   docker compose up               -> Starts Core AI & Telemetry API + Live Video Stream
+#   docker compose --profile observability up -> Includes Prometheus, Grafana & OpenTelemetry
+#   docker compose run --rm orion doctor      -> Runs System Health Diagnostic
+#   docker compose run --rm orion test        -> Runs Unit Test Suite
+#   docker compose run --rm orion smoke       -> Runs Real Video Replay Perception Test
+# ==============================================================================
+
+services:
+  # ----------------------------------------------------------------------------
+  # Core Service: ORION AI Copilot (Headless Backend + Perception Pipeline)
+  # ----------------------------------------------------------------------------
+  orion:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: orion-copilot
+    environment:
+      - ORION_ENV=development
+      - ORION_STATION_ID=BAS-SCIENCE-NODE-01
+      - ORION_API_HOST=0.0.0.0
+      - ORION_API_PORT=8000
+      - ORION_STREAMING_ENABLED=true
+      - ORION_STREAMING_PORT=8080
+      - ORION_CAMERA_SOURCE=assets/sample_replay.mp4
+      - ORION_HARDWARE_ACCELERATOR=cpu
+      - ORION_DATABASE_URL=sqlite+aiosqlite:////app/data/orion.db
+      - ORION_LOG_FILE=/app/logs/orion.log
+      - ORION_LOG_LEVEL=INFO
+    ports:
+      - "8000:8000"   # REST API, Swagger docs (/docs), WebSocket (/ws/telemetry)
+      - "8080:8080"   # MJPEG Live Video Stream (/live)
+      - "9090:9090"   # Prometheus Metrics endpoint (/metrics)
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./recordings:/app/recordings
+      - ./configs:/app/configs:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8000/api/v1/health/live"]
+      interval: 10s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
+    networks:
+      orion-network:
+        aliases:
+          - backend
+
+  # ----------------------------------------------------------------------------
+  # Observability Profile: Prometheus Metrics Aggregation
+  # ----------------------------------------------------------------------------
+  prometheus:
+    image: prom/prometheus:v2.50.0
+    container_name: orion-prometheus
+    profiles: ["observability", "all"]
+    volumes:
+      - ./infrastructure/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9091:9090"
+    depends_on:
+      - orion
+    networks:
+      - orion-network
+    restart: unless-stopped
+
+  # ----------------------------------------------------------------------------
+  # Observability Profile: Grafana Visual Dashboards
+  # ----------------------------------------------------------------------------
+  grafana:
+    image: grafana/grafana:10.3.1
+    container_name: orion-grafana
+    profiles: ["observability", "all"]
+    volumes:
+      - ./infrastructure/grafana:/etc/grafana/provisioning:ro
+    ports:
+      - "3001:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - orion-network
+    restart: unless-stopped
+
+  # ----------------------------------------------------------------------------
+  # Observability Profile: OpenTelemetry Collector
+  # ----------------------------------------------------------------------------
+  otel-collector:
+    image: otel/opentelemetry-collector:0.95.0
+    container_name: orion-otel-collector
+    profiles: ["observability", "all"]
+    volumes:
+      - ./infrastructure/otel/otel-collector-config.yml:/etc/otelcol/config.yaml:ro
+    ports:
+      - "4317:4317" # OTLP gRPC
+      - "4318:4318" # OTLP HTTP
+    networks:
+      - orion-network
+    restart: unless-stopped
+
+networks:
+  orion-network:
+    driver: bridge

@@ -43,7 +43,7 @@ def verify() -> bool:
     root = Path(__file__).resolve().parents[1]
     required_dirs = [
         "backend",
-        "frontend",
+        "app",
         "ai",
         "datasets",
         "experiments",
