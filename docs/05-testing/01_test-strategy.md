@@ -1,10 +1,5 @@
 # ORION Comprehensive Test Strategy & Verification Plan
 
-**Project:** ORION — AI Human Activity Recognition for On-board BAS Experiments (SIH26174)  
-**Organization:** Indian Space Research Organisation (ISRO)  
-**Date:** September 17, 2026  
-**Status:** IMPLEMENTED & EXECUTED (205/205 TESTS PASSING)  
-
 ---
 
 ## 1. Multi-Tiered Verification Strategy
