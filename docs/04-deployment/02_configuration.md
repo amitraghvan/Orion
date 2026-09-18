@@ -1,9 +1,4 @@
-# ORION Configuration System Audit
-
-**Project:** ORION — AI Human Activity Recognition for On-board BAS Experiments (SIH26174)  
-**Organization:** Indian Space Research Organisation (ISRO)  
-**Date:** September 17, 2026  
-**Status:** IMPLEMENTED & AUDITED  
+# ORION Configuration System Audit 
 
 ---
 
