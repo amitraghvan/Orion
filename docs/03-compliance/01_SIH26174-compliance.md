@@ -1,13 +1,6 @@
 # SIH26174 Official Requirement Compliance Matrix
 
-**Project:** ORION — AI Human Activity Recognition for On-board BAS Experiments  
-**Challenge:** Smart India Hackathon 2026 | Problem Statement: SIH26174  
-**Organization:** Indian Space Research Organisation (ISRO)  
-**Theme:** Space Technology  
-**Verification Date:** September 17, 2026  
-**Auditor:** Principal Software Architect & QA Forensic Lead  
 
----
 
 ## 1. Requirement-by-Requirement Forensic Compliance Matrix
 
