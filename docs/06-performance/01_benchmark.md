@@ -1,10 +1,5 @@
 # ORION Performance & Latency Benchmark Report
 
-**Project:** ORION — AI Human Activity Recognition for On-board BAS Experiments (SIH26174)  
-**Organization:** Indian Space Research Organisation (ISRO)  
-**Date:** September 17, 2026  
-**Benchmarking Environment:** Apple M-Series (ARM64) | 16 GB Unified Memory | Python 3.11.14 | PyTorch 2.x  
-**Status:** EMPIRICALLY MEASURED & VERIFIED (NO INVENTED DATA)  
 
 ---
 
