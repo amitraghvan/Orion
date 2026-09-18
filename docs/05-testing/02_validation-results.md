@@ -1,11 +1,5 @@
 # ORION Verification & Test Validation Results
 
-**Project:** ORION — AI Human Activity Recognition for On-board BAS Experiments (SIH26174)  
-**Organization:** Indian Space Research Organisation (ISRO)  
-**Execution Date:** September 17, 2026  
-**Environment:** macOS 14+ (arm64, Apple Silicon) | Python 3.11.14 | PyTorch 2.x (MPS & CPU)  
-**Status:** 100% GREEN (ALL AUTOMATED TESTS & SMOKE RUNS PASSED)  
-
 ---
 
 ## 1. Summary of Verification Runs
