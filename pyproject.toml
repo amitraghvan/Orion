@@ -46,7 +46,7 @@ dependencies = [
     "asyncpg>=0.30.0",
 
     # Scientific Computing & Computer Vision Interfaces
-    "numpy>=1.26.0,<2.0.0",
+    "numpy>=1.26.0,<3.0.0",
     "scipy>=1.14.0",
     "pillow>=11.0.0",
     "opencv-python>=4.11.0.86",
